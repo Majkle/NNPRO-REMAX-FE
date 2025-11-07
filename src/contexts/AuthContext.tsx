@@ -40,14 +40,45 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (email: string, password: string) => {
     try {
       // TODO: Replace with actual API call
-      // Mock login for now
+      // Mock login for now - use email to determine role for testing
       const mockToken = 'mock-jwt-token-' + Date.now();
+
+      // Determine role based on email for testing
+      let role: UserRole = UserRole.CLIENT;
+      let firstName = 'Test';
+      let lastName = 'User';
+      let userId = Date.now();
+
+      // Check for admin first
+      if (email === 'admin@remax.cz') {
+        role = UserRole.ADMIN;
+        userId = 999; // Special admin ID
+        firstName = 'Admin';
+        lastName = 'Správce';
+      } else if (email.includes('remax')) {
+        // Check for RE/MAX agents (using remax in email)
+        role = UserRole.AGENT;
+        // Use specific mock agent data for petr.novotny@remax.cz
+        if (email === 'petr.novotny@remax.cz') {
+          userId = 1; // Match the agentId in mock properties
+          firstName = 'Petr';
+          lastName = 'Novotný';
+        } else {
+          firstName = 'Jan';
+          lastName = 'Makléř';
+        }
+      } else {
+        role = UserRole.CLIENT;
+        firstName = 'Petr';
+        lastName = 'Klient';
+      }
+
       const mockUser: User = {
-        id: 1,
+        id: userId,
         email,
-        firstName: 'Test',
-        lastName: 'User',
-        role: UserRole.CLIENT,
+        firstName,
+        lastName,
+        role,
         createdAt: new Date(),
         updatedAt: new Date(),
       };

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -27,6 +27,7 @@ import {
 } from '@/components/ui/select';
 import { PropertyType, PropertyStatus, TransactionType } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { mockProperties } from '@/data/mockData';
 
 // Validation schema
 const propertyFormSchema = z.object({
@@ -81,6 +82,35 @@ const PropertyFormPage: React.FC = () => {
     },
   });
 
+  // Load existing property data when in edit mode
+  useEffect(() => {
+    if (isEditMode && id) {
+      const property = mockProperties.find(p => p.id === parseInt(id));
+      if (property) {
+        // Map property fields to form fields
+        form.reset({
+          title: property.name,
+          description: property.description,
+          price: property.price,
+          type: property.type,
+          status: property.status,
+          transactionType: property.contractType,
+          size: property.usableArea,
+          rooms: property.type === PropertyType.APARTMENT ? (property as any).rooms : 1,
+          bedrooms: 0, // Not in new structure
+          bathrooms: 1, // Not in new structure
+          floor: property.type === PropertyType.APARTMENT ? (property as any).floor : undefined,
+          yearBuilt: undefined, // Not in new structure
+          energyClass: property.buildingProperties?.energyEfficiencyClass,
+          street: property.address.street,
+          city: property.address.city,
+          zipCode: property.address.postalCode,
+          country: property.address.country,
+        });
+      }
+    }
+  }, [isEditMode, id, form]);
+
   const onSubmit = (data: PropertyFormValues) => {
     console.log('Form data:', data);
 
@@ -97,20 +127,18 @@ const PropertyFormPage: React.FC = () => {
   const typeLabels = {
     [PropertyType.APARTMENT]: 'Byt',
     [PropertyType.HOUSE]: 'Dům',
-    [PropertyType.COMMERCIAL]: 'Komerční',
     [PropertyType.LAND]: 'Pozemek',
   };
 
   const statusLabels = {
     [PropertyStatus.AVAILABLE]: 'Dostupné',
     [PropertyStatus.RESERVED]: 'Rezervováno',
-    [PropertyStatus.SOLD]: 'Prodáno',
-    [PropertyStatus.RENTED]: 'Pronajato',
+    [PropertyStatus.BOUGHT]: 'Prodáno',
   };
 
   const transactionLabels = {
     [TransactionType.SALE]: 'Prodej',
-    [TransactionType.RENT]: 'Pronájem',
+    [TransactionType.RENTAL]: 'Pronájem',
   };
 
   return (

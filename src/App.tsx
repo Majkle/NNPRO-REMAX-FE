@@ -17,6 +17,8 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ProfilePage from './pages/ProfilePage';
+import AgentProfilePage from './pages/AgentProfilePage';
+import AdminDashboard from './pages/AdminDashboard';
 import { Toaster } from './components/ui/toaster';
 
 // Create a client for TanStack Query
@@ -46,6 +48,7 @@ function App() {
               <Route path="/" element={<HomePage />} />
               <Route path="/properties" element={<PropertiesPage />} />
               <Route path="/properties/:id" element={<PropertyDetailPage />} />
+              <Route path="/agents/:id" element={<AgentProfilePage />} />
               <Route path="/reviews" element={<ReviewsPage />} />
 
               {/* Protected: Authenticated users only */}
@@ -62,6 +65,16 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <AppointmentsPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Protected: Admin only */}
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute requiredRoles={[UserRole.ADMIN]}>
+                    <AdminDashboard />
                   </ProtectedRoute>
                 }
               />
