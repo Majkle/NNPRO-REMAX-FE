@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Trash2, UserCog, Users, Shield } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Trash2, UserCog, Users, Shield, Ban, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -16,8 +16,9 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { User, UserRole } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { UserEditDialog } from '@/components/admin/UserEditDialog';
+import authService from '@/services/authService';
 
-// Mock users data
 const mockUsers: User[] = [
   {
     id: 1,
@@ -26,6 +27,7 @@ const mockUsers: User[] = [
     lastName: 'Novotný',
     phone: '+420 777 888 999',
     role: UserRole.AGENT,
+    isBlocked: false,
     createdAt: new Date('2023-01-01'),
     updatedAt: new Date('2023-01-01'),
   },
@@ -35,6 +37,7 @@ const mockUsers: User[] = [
     firstName: 'Jan',
     lastName: 'Dvořák',
     role: UserRole.CLIENT,
+    isBlocked: true,
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01'),
   },
@@ -44,6 +47,7 @@ const mockUsers: User[] = [
     firstName: 'Marie',
     lastName: 'Svobodová',
     role: UserRole.CLIENT,
+    isBlocked: false,
     createdAt: new Date('2024-01-05'),
     updatedAt: new Date('2024-01-05'),
   },
@@ -53,28 +57,82 @@ const mockUsers: User[] = [
     firstName: 'Pavel',
     lastName: 'Novák',
     role: UserRole.CLIENT,
+    isBlocked: false,
     createdAt: new Date('2024-01-10'),
     updatedAt: new Date('2024-01-10'),
+  },
+  {
+    id: 999,
+    email: 'admin@remax.cz',
+    firstName: 'Admin',
+    lastName: 'Správce',
+    role: UserRole.ADMIN,
+    isBlocked: false,
+    createdAt: new Date('2022-01-01'),
+    updatedAt: new Date('2022-01-01'),
   },
 ];
 
 const AdminDashboard: React.FC = () => {
   const [users, setUsers] = useState<User[]>(mockUsers);
+  // const [isLoading, setIsLoading] = useState(true); // Uncomment for API integration
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [userToBlock, setUserToBlock] = useState<User | null>(null);
+  const [userToEdit, setUserToEdit] = useState<User | null>(null);
   const { toast } = useToast();
 
-  const handleDeleteUser = (user: User) => {
-    setUserToDelete(user);
+  /*
+  // Uncomment this useEffect for backend integration
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        // setIsLoading(true);
+        const fetchedUsers = await authService.getUsers();
+        setUsers(fetchedUsers);
+      } catch (error) {
+        console.error('Failed to fetch users:', error);
+        toast({
+          title: 'Chyba při načítání uživatelů',
+          variant: 'destructive',
+        });
+      } finally {
+        // setIsLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, [toast]);
+  */
+
+  const handleDeleteUser = (user: User) => setUserToDelete(user);
+  const handleBlockUser = (user: User) => setUserToBlock(user);
+  const handleEditUser = (user: User) => setUserToEdit(user);
+
+  const handleUserUpdate = (updatedUser: Partial<User>) => {
+    setUsers(users.map((u) => (u.id === updatedUser.id ? { ...u, ...updatedUser } : u)));
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (userToDelete) {
-      setUsers(users.filter(u => u.id !== userToDelete.id));
+      // Mock logic
+      setUsers(users.filter((u) => u.id !== userToDelete.id));
       toast({
-        title: 'Uživatel smazán',
-        description: `Uživatel ${userToDelete.firstName} ${userToDelete.lastName} byl úspěšně odstraněn.`,
+        title: 'Uživatel smazán (Mock)',
+        description: `Uživatel ${userToDelete.firstName} ${userToDelete.lastName} byl odstraněn.`,
       });
       setUserToDelete(null);
+    }
+  };
+
+  const confirmBlock = async () => {
+    if (userToBlock) {
+      const isBlocked = !userToBlock.isBlocked;
+      // Mock logic
+      setUsers(users.map((u) => (u.id === userToBlock.id ? { ...u, isBlocked } : u)));
+      toast({
+        title: `Uživatel ${isBlocked ? 'zablokován' : 'odblokován'} (Mock)`,
+      });
+      setUserToBlock(null);
     }
   };
 
@@ -88,12 +146,60 @@ const AdminDashboard: React.FC = () => {
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
-  const agents = users.filter(u => u.role === UserRole.AGENT);
-  const clients = users.filter(u => u.role === UserRole.CLIENT);
+  const agents = users.filter((u) => u.role === UserRole.AGENT);
+  const clients = users.filter((u) => u.role === UserRole.CLIENT);
+
+  const renderUserList = (userList: User[]) => {
+    return userList.map((user) => (
+      <div
+        key={user.id}
+        className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+      >
+        <div className="flex items-center gap-4">
+          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+            <Users className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <p className="font-medium">
+                {user.firstName} {user.lastName}
+              </p>
+              {getRoleBadge(user.role)}
+              {user.isBlocked && <Badge variant="outline">Zablokován</Badge>}
+            </div>
+            <p className="text-sm text-muted-foreground">{user.email}</p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="ghost" size="sm" onClick={() => handleEditUser(user)}>
+            <Pencil className="h-4 w-4 mr-2" />
+            Upravit
+          </Button>
+          <Button
+            variant={user.isBlocked ? 'outline' : 'secondary'}
+            size="sm"
+            onClick={() => handleBlockUser(user)}
+            disabled={user.role === UserRole.ADMIN}
+          >
+            <Ban className="h-4 w-4 mr-2" />
+            {user.isBlocked ? 'Odblokovat' : 'Zablokovat'}
+          </Button>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => handleDeleteUser(user)}
+            disabled={user.role === UserRole.ADMIN}
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Smazat
+          </Button>
+        </div>
+      </div>
+    ));
+  };
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center gap-3">
         <div className="h-12 w-12 rounded-lg bg-red-100 flex items-center justify-center">
           <Shield className="h-6 w-6 text-red-600" />
@@ -104,7 +210,6 @@ const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -115,7 +220,6 @@ const AdminDashboard: React.FC = () => {
             <div className="text-2xl font-bold">{users.length}</div>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Makléři</CardTitle>
@@ -125,7 +229,6 @@ const AdminDashboard: React.FC = () => {
             <div className="text-2xl font-bold">{agents.length}</div>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Klienti</CardTitle>
@@ -137,7 +240,6 @@ const AdminDashboard: React.FC = () => {
         </Card>
       </div>
 
-      {/* Tabs for Users and Agents */}
       <Tabs defaultValue="all" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="all">Všichni uživatelé ({users.length})</TabsTrigger>
@@ -149,134 +251,48 @@ const AdminDashboard: React.FC = () => {
           <Card>
             <CardHeader>
               <CardTitle>Všichni uživatelé</CardTitle>
-              <CardDescription>Správa všech uživatelů v systému</CardDescription>
+              <CardDescription>Správa všech uživatelů v systému (simulace)</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {users.map((user) => (
-                  <div
-                    key={user.id}
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Users className="h-5 w-5 text-primary" />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium">
-                            {user.firstName} {user.lastName}
-                          </p>
-                          {getRoleBadge(user.role)}
-                        </div>
-                        <p className="text-sm text-muted-foreground">{user.email}</p>
-                      </div>
-                    </div>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleDeleteUser(user)}
-                    >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Smazat
-                    </Button>
-                  </div>
-                ))}
-              </div>
+              <div className="space-y-4">{renderUserList(users)}</div>
             </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="agents" className="mt-6">
-          <Card>
+           <Card>
             <CardHeader>
               <CardTitle>Makléři</CardTitle>
-              <CardDescription>Správa realitních makléřů</CardDescription>
+              <CardDescription>Správa realitních makléřů (simulace)</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {agents.map((agent) => (
-                  <div
-                    key={agent.id}
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                        <UserCog className="h-5 w-5 text-blue-600" />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium">
-                            {agent.firstName} {agent.lastName}
-                          </p>
-                          {getRoleBadge(agent.role)}
-                        </div>
-                        <p className="text-sm text-muted-foreground">{agent.email}</p>
-                        {agent.phone && (
-                          <p className="text-sm text-muted-foreground">{agent.phone}</p>
-                        )}
-                      </div>
-                    </div>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleDeleteUser(agent)}
-                    >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Smazat
-                    </Button>
-                  </div>
-                ))}
-              </div>
+              <div className="space-y-4">{renderUserList(agents)}</div>
             </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="clients" className="mt-6">
-          <Card>
+           <Card>
             <CardHeader>
               <CardTitle>Klienti</CardTitle>
-              <CardDescription>Správa klientů</CardDescription>
+              <CardDescription>Správa klientů (simulace)</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {clients.map((client) => (
-                  <div
-                    key={client.id}
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-                        <Users className="h-5 w-5 text-green-600" />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium">
-                            {client.firstName} {client.lastName}
-                          </p>
-                          {getRoleBadge(client.role)}
-                        </div>
-                        <p className="text-sm text-muted-foreground">{client.email}</p>
-                      </div>
-                    </div>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleDeleteUser(client)}
-                    >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Smazat
-                    </Button>
-                  </div>
-                ))}
-              </div>
+              <div className="space-y-4">{renderUserList(clients)}</div>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!userToDelete} onOpenChange={() => setUserToDelete(null)}>
+      {/* Dialogs */}
+      <UserEditDialog
+        user={userToEdit}
+        open={!!userToEdit}
+        onOpenChange={(isOpen) => !isOpen && setUserToEdit(null)}
+        onUserUpdate={handleUserUpdate}
+      />
+
+      <AlertDialog open={!!userToDelete} onOpenChange={(isOpen) => !isOpen && setUserToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Opravdu chcete smazat tohoto uživatele?</AlertDialogTitle>
@@ -296,8 +312,30 @@ const AdminDashboard: React.FC = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <AlertDialog open={!!userToBlock} onOpenChange={(isOpen) => !isOpen && setUserToBlock(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Opravdu chcete {userToBlock?.isBlocked ? 'odblokovat' : 'zablokovat'} tohoto uživatele?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Uživatel{' '}
+              <strong>
+                {userToBlock?.firstName} {userToBlock?.lastName}
+              </strong>{' '}
+              bude {userToBlock?.isBlocked ? 'odblokován' : 'zablokován'}.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Zrušit</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmBlock}>Potvrdit</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
 
 export default AdminDashboard;
+

@@ -100,6 +100,44 @@ const authService = {
     const response = await api.post<{ token: string }>('/auth/refresh');
     return response.data.token;
   },
+
+  /**
+   * Get all users (Admin)
+   */
+  getUsers: async (): Promise<User[]> => {
+    const response = await api.get<User[]>('/users');
+    return response.data;
+  },
+
+  /**
+   * Delete a user (Admin)
+   */
+  deleteUser: async (userId: number): Promise<void> => {
+    await api.delete(`/users/${userId}`);
+  },
+
+  /**
+   * Update user status (Admin)
+   */
+  updateUserStatus: async (userId: number, isBlocked: boolean): Promise<User> => {
+    const response = await api.patch<User>(`/users/${userId}`, { isBlocked });
+    return response.data;
+  },
+
+  /**
+   * Update a user's information (Admin)
+   */
+  updateUser: async (userId: number, data: Partial<User>): Promise<User> => {
+    const response = await api.put<User>(`/users/${userId}`, data);
+    return response.data;
+  },
+
+  /**
+   * Delete current user's profile
+   */
+  deleteProfile: async (): Promise<void> => {
+    await api.delete('/auth/profile');
+  },
 };
 
 export default authService;

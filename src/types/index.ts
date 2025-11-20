@@ -12,6 +12,7 @@ export interface User {
   lastName: string;
   phone?: string;
   role: UserRole;
+  isBlocked?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

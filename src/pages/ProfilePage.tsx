@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { User as UserIcon, Lock, Mail, Phone, UserCircle } from 'lucide-react';
@@ -7,6 +8,17 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import {
   Form,
   FormControl,
@@ -20,7 +32,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { UserRole } from '@/types';
 import authService from '@/services/authService';
 
-// Profile validation schema
 const profileSchema = z.object({
   firstName: z.string().min(2, 'Jméno musí mít alespoň 2 znaky'),
   lastName: z.string().min(2, 'Příjmení musí mít alespoň 2 znaky'),
@@ -28,7 +39,6 @@ const profileSchema = z.object({
   phone: z.string().optional(),
 });
 
-// Password change validation schema
 const passwordSchema = z.object({
   oldPassword: z.string().min(6, 'Heslo musí mít alespoň 6 znaků'),
   newPassword: z.string().min(6, 'Nové heslo musí mít alespoň 6 znaků'),
@@ -42,10 +52,12 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 type PasswordFormValues = z.infer<typeof passwordSchema>;
 
 const ProfilePage: React.FC = () => {
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, logout } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isProfileLoading, setIsProfileLoading] = useState(false);
   const [isPasswordLoading, setIsPasswordLoading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const profileForm = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -68,48 +80,89 @@ const ProfilePage: React.FC = () => {
 
   const onProfileSubmit = async (data: ProfileFormValues) => {
     setIsProfileLoading(true);
+    /*
+    // --- BACKEND INTEGRATION ---
     try {
       const updatedUser = await authService.updateProfile(data);
       updateUser(updatedUser);
-
       toast({
         title: 'Profil aktualizován',
-        description: 'Vaše údaje byly úspěšně uloženy.',
       });
     } catch (error) {
       toast({
         title: 'Chyba při ukládání',
-        description: 'Nepodařilo se aktualizovat profil. Zkuste to znovu.',
         variant: 'destructive',
       });
     } finally {
       setIsProfileLoading(false);
     }
+    */
+    // Mock logic
+    updateUser({ ...user!, ...data });
+    toast({
+      title: 'Profil aktualizován (Mock)',
+      description: 'Vaše údaje byly úspěšně uloženy v této session.',
+    });
+    setIsProfileLoading(false);
   };
 
   const onPasswordSubmit = async (data: PasswordFormValues) => {
     setIsPasswordLoading(true);
+    /*
+    // --- BACKEND INTEGRATION ---
     try {
       await authService.changePassword({
         oldPassword: data.oldPassword,
         newPassword: data.newPassword,
       });
-
       toast({
         title: 'Heslo změněno',
-        description: 'Vaše heslo bylo úspěšně aktualizováno.',
       });
-
       passwordForm.reset();
     } catch (error) {
       toast({
         title: 'Chyba při změně hesla',
-        description: 'Zkontrolujte své staré heslo a zkuste to znovu.',
         variant: 'destructive',
       });
     } finally {
       setIsPasswordLoading(false);
     }
+    */
+    // Mock logic
+    toast({
+      title: 'Heslo změněno (Mock)',
+      description: 'V reálné aplikaci by zde proběhla změna hesla.',
+    });
+    passwordForm.reset();
+    setIsPasswordLoading(false);
+  };
+
+  const handleDeleteAccount = async () => {
+    setIsDeleting(true);
+    /*
+    // --- BACKEND INTEGRATION ---
+    try {
+      await authService.deleteProfile();
+      toast({
+        title: 'Účet smazán',
+      });
+      logout();
+      navigate('/');
+    } catch (error) {
+      toast({
+        title: 'Chyba při mazání účtu',
+        variant: 'destructive',
+      });
+      setIsDeleting(false);
+    }
+    */
+    // Mock logic
+    toast({
+      title: 'Účet smazán (Mock)',
+      description: 'Váš účet byl smazán. Nyní budete odhlášeni.',
+    });
+    logout();
+    navigate('/');
   };
 
   const getRoleLabel = (role: UserRole) => {
@@ -134,7 +187,7 @@ const ProfilePage: React.FC = () => {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Můj profil</h1>
         <p className="text-muted-foreground">
-          Spravujte své osobní údaje a nastavení účtu
+          Spravujte své osobní údaje a nastavení účtu (simulace)
         </p>
       </div>
 
@@ -257,7 +310,7 @@ const ProfilePage: React.FC = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="security">
+        <TabsContent value="security" className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Změna hesla</CardTitle>
@@ -332,6 +385,45 @@ const ProfilePage: React.FC = () => {
                   </div>
                 </form>
               </Form>
+            </CardContent>
+          </Card>
+
+          <Card className="border-destructive">
+            <CardHeader>
+              <CardTitle>Nebezpečná zóna</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold">Smazat tento účet</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Tato akce je nevratná.
+                  </p>
+                </div>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive">Smazat účet</Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Jste si naprosto jisti?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Tato akce je nevratná. Váš účet bude smazán (v této simulaci budete pouze odhlášeni).
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel disabled={isDeleting}>Zrušit</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleDeleteAccount}
+                        disabled={isDeleting}
+                        className="bg-destructive hover:bg-destructive/90"
+                      >
+                        {isDeleting ? 'Mazání...' : 'Ano, smazat účet'}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
