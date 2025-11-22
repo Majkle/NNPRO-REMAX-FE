@@ -1,0 +1,353 @@
+// User types
+export enum UserRole {
+  ADMIN = 'ADMIN',
+  AGENT = 'AGENT',
+  CLIENT = 'CLIENT'
+}
+
+export interface User {
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  phone?: string;
+  role: UserRole;
+  isBlocked?: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Address Region Enum
+export enum AddressRegion {
+  PRAHA = 'PRAHA',
+  STREDOCESKY = 'STREDOCESKY',
+  JIHOCESKY = 'JIHOCESKY',
+  PLZENSKY = 'PLZENSKY',
+  KARLOVARSKY = 'KARLOVARSKY',
+  USTECKY = 'USTECKY',
+  LIBERECKY = 'LIBERECKY',
+  KRALOVEHRADECKY = 'KRALOVEHRADECKY',
+  PARDUBICKY = 'PARDUBICKY',
+  VYSOCINA = 'VYSOCINA',
+  JIHOMORAVSKY = 'JIHOMORAVSKY',
+  OLOMOUCKY = 'OLOMOUCKY',
+  ZLINSKY = 'ZLINSKY',
+  MORAVSKOSLEZSKY = 'MORAVSKOSLEZSKY'
+}
+
+// Address and Location types
+export interface Address {
+  id: number;
+  street: string;
+  city: string;
+  postalCode: string;
+  country: string;
+  flatNumber?: string;
+  region: AddressRegion;
+  latitude?: number;
+  longitude?: number;
+}
+
+// Building Properties Enums
+export enum ConstructionMaterial {
+  BRICK = 'BRICK',
+  PANEL = 'PANEL',
+  WOOD = 'WOOD',
+  STONE = 'STONE',
+  OTHER = 'OTHER'
+}
+
+export enum BuildingCondition {
+  NEW = 'NEW',
+  RENOVATED = 'RENOVATED',
+  GOOD = 'GOOD',
+  NEEDS_RENOVATION = 'NEEDS_RENOVATION',
+  DILAPIDATED = 'DILAPIDATED'
+}
+
+export enum EnergyEfficiencyClass {
+  A = 'A',
+  B = 'B',
+  C = 'C',
+  D = 'D',
+  E = 'E',
+  F = 'F',
+  G = 'G'
+}
+
+export enum BuildingLocation {
+  CITY_CENTER = 'CITY_CENTER',
+  SUBURBS = 'SUBURBS',
+  RURAL_AREA = 'RURAL_AREA',
+  QUITE_AREA = 'QUITE_AREA'
+}
+
+export interface BuildingProperties {
+  id: number;
+  constructionMaterial: ConstructionMaterial;
+  buildingCondition: BuildingCondition;
+  energyEfficiencyClass: EnergyEfficiencyClass;
+  buildingLocation: BuildingLocation;
+  isInProtectionZone: boolean;
+}
+
+// Utilities Enums and Interface
+export enum InternetConnection {
+  NONE = 'NONE',
+  DSL = 'DSL',
+  CABLE = 'CABLE',
+  FIBER_OPTIC = 'FIBER_OPTIC',
+  SATELLITE = 'SATELLITE'
+}
+
+export interface Utilities {
+  id: number;
+  hasWater: boolean;
+  hasWell: boolean;
+  hasElectricity: boolean;
+  hasGas: boolean;
+  hasSewerage: boolean;
+  hasCesspool: boolean;
+  hasHeating: boolean;
+  hasPhoneLine: boolean;
+  hasCableTV: boolean;
+  hasRecycling: boolean;
+  hasBarrierFreeAccess: boolean;
+  internetConnection: InternetConnection;
+  parkingPlaces: number;
+}
+
+// Transport Possibilities
+export interface TransportPossibilities {
+  id: number;
+  road: boolean;
+  highway: boolean;
+  train: boolean;
+  bus: boolean;
+  publicTransport: boolean;
+  airplane: boolean;
+  boat: boolean;
+  ferry: boolean;
+}
+
+// Civic Amenities
+export interface CivicAmenities {
+  id: number;
+  busStop: boolean;
+  trainStation: boolean;
+  postOffice: boolean;
+  atm: boolean;
+  generalPractitioner: boolean;
+  veterinarian: boolean;
+  elementarySchool: boolean;
+  kindergarten: boolean;
+  supermarket: boolean;
+  smallShop: boolean;
+  restaurant: boolean;
+  pub: boolean;
+  playground: boolean;
+  subway: boolean;
+}
+
+// Property types
+export enum PropertyType {
+  APARTMENT = 'APARTMENT',
+  HOUSE = 'HOUSE',
+  LAND = 'LAND'
+}
+
+export enum PropertyStatus {
+  AVAILABLE = 'AVAILABLE',
+  RESERVED = 'RESERVED',
+  BOUGHT = 'BOUGHT'
+}
+
+export enum TransactionType {
+  SALE = 'SALE',
+  RENTAL = 'RENTAL'
+}
+
+export enum PriceDisclosure {
+  ASK = 'ASK',
+  AGREEMENT = 'AGREEMENT',
+  NOT_DISCLOSED = 'NOT_DISCLOSED'
+}
+
+export enum Commission {
+  INCLUDED = 'INCLUDED',
+  EXCLUDED = 'EXCLUDED'
+}
+
+export enum Taxes {
+  INCLUDED = 'INCLUDED',
+  EXCLUDED = 'EXCLUDED'
+}
+
+export enum Equipment {
+  FURNISHED = 'FURNISHED',
+  UNFURNISHED = 'UNFURNISHED',
+  PARTIALLY_FURNISHED = 'PARTIALLY_FURNISHED'
+}
+
+// Base Real Estate Interface
+export interface RealEstateBase {
+  id: number;
+  listedAt: Date;
+  name: string;
+  description: string;
+  status: PropertyStatus;
+  usableArea: number;
+  contractType: TransactionType;
+  price: number;
+  previousPrice?: number; // Most recent previous price for quick access
+  priceDisclosure: PriceDisclosure;
+  commission: Commission;
+  taxes: Taxes;
+  address: Address;
+  availableFrom?: Date;
+  buildingProperties: BuildingProperties;
+  equipment: Equipment;
+  utilities: Utilities;
+  transportPossibilities: TransportPossibilities;
+  civicAmenities: CivicAmenities;
+  basement: boolean;
+  images: PropertyImage[];
+  priceHistory?: PriceHistory[]; // Full price history
+  agentId: number;
+  agent?: User;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Apartment Specific
+export enum ApartmentOwnershipType {
+  OWNERSHIP = 'OWNERSHIP',
+  COOPERATIVE_OWNERSHIP = 'COOPERATIVE_OWNERSHIP'
+}
+
+export interface Apartment extends RealEstateBase {
+  type: PropertyType.APARTMENT;
+  ownership: ApartmentOwnershipType;
+  floor: number;
+  totalFloors: number;
+  elevator: boolean;
+  balcony: boolean;
+  rooms: number;
+}
+
+// House Specific
+export enum HouseType {
+  DETACHED = 'DETACHED',
+  SEMI_DETACHED = 'SEMI_DETACHED',
+  TERRACED = 'TERRACED',
+  END_TERRACE = 'END_TERRACE'
+}
+
+export interface House extends RealEstateBase {
+  type: PropertyType.HOUSE;
+  plotArea: number;
+  houseType: HouseType;
+  stories: number;
+}
+
+// Land Specific
+export interface Land extends RealEstateBase {
+  type: PropertyType.LAND;
+  isForHousing: boolean;
+}
+
+// Union type for all properties
+export type Property = Apartment | House | Land;
+
+export interface PropertyImage {
+  id: number;
+  url: string;
+  isPrimary: boolean;
+  propertyId: number;
+}
+
+// Price History
+export interface PriceHistory {
+  id: number;
+  propertyId: number;
+  price: number;
+  changedAt: Date;
+  changedBy?: number; // User ID who changed the price
+  reason?: string; // Optional reason for price change
+}
+
+// Review types
+export interface Review {
+  id: number;
+  rating: number; // 1-5
+  comment: string;
+  propertyId?: number;
+  property?: Property;
+  agentId?: number;
+  agent?: User;
+  authorId: number;
+  author: User;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Appointment types
+export enum AppointmentStatus {
+  SCHEDULED = 'SCHEDULED',
+  CONFIRMED = 'CONFIRMED',
+  CANCELLED = 'CANCELLED',
+  COMPLETED = 'COMPLETED'
+}
+
+export enum AppointmentType {
+  PROPERTY_VIEWING = 'PROPERTY_VIEWING',
+  CONSULTATION = 'CONSULTATION',
+  ONLINE_MEETING = 'ONLINE_MEETING'
+}
+
+export interface Appointment {
+  id: number;
+  title: string;
+  description?: string;
+  type: AppointmentType;
+  status: AppointmentStatus;
+  startTime: Date;
+  endTime: Date;
+  propertyId?: number;
+  property?: Property;
+  agentId: number;
+  agent: User;
+  clientId: number;
+  client: User;
+  location?: string;
+  notes?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Form input types (for creating/updating)
+export type CreatePropertyInput = Omit<Property, 'id' | 'createdAt' | 'updatedAt' | 'agent' | 'address' | 'images'> & {
+  address: Omit<Address, 'id'>;
+};
+
+export type UpdatePropertyInput = Partial<CreatePropertyInput> & {
+  id: number;
+};
+
+export type CreateReviewInput = Omit<Review, 'id' | 'createdAt' | 'updatedAt' | 'author' | 'property' | 'agent'>;
+
+export type CreateAppointmentInput = Omit<Appointment, 'id' | 'createdAt' | 'updatedAt' | 'agent' | 'client' | 'property'>;
+
+// API Response types
+export interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface ApiError {
+  message: string;
+  code: string;
+  details?: Record<string, unknown>;
+}
