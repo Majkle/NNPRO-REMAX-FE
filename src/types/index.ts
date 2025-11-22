@@ -199,6 +199,7 @@ export interface RealEstateBase {
   usableArea: number;
   contractType: TransactionType;
   price: number;
+  previousPrice?: number; // Most recent previous price for quick access
   priceDisclosure: PriceDisclosure;
   commission: Commission;
   taxes: Taxes;
@@ -211,6 +212,7 @@ export interface RealEstateBase {
   civicAmenities: CivicAmenities;
   basement: boolean;
   images: PropertyImage[];
+  priceHistory?: PriceHistory[]; // Full price history
   agentId: number;
   agent?: User;
   createdAt: Date;
@@ -262,6 +264,16 @@ export interface PropertyImage {
   url: string;
   isPrimary: boolean;
   propertyId: number;
+}
+
+// Price History
+export interface PriceHistory {
+  id: number;
+  propertyId: number;
+  price: number;
+  changedAt: Date;
+  changedBy?: number; // User ID who changed the price
+  reason?: string; // Optional reason for price change
 }
 
 // Review types

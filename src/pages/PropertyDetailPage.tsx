@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -43,6 +43,7 @@ import { format } from 'date-fns';
 import { cs } from 'date-fns/locale';
 import { mockProperties } from '@/data/mockData';
 import { useAuth } from '@/contexts/AuthContext';
+import PriceDisplay from '@/components/PriceDisplay';
 
 const PropertyDetailPage: React.FC = () => {
   const navigate = useNavigate();
@@ -51,6 +52,9 @@ const PropertyDetailPage: React.FC = () => {
 
   // In real app, fetch property by ID
   const property = mockProperties.find(p => p.id === Number(id));
+
+  // Image gallery state
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
 
   // Check if current user is the agent who owns this property
   const canEdit = user?.id === property?.agentId && user?.role === UserRole.AGENT;
@@ -258,7 +262,7 @@ const PropertyDetailPage: React.FC = () => {
       <Card className="overflow-hidden">
         <div className="aspect-video relative bg-muted">
           <img
-            src={property.images.find(img => img.isPrimary)?.url || property.images[0]?.url}
+            src={selectedImageUrl || property.images.find(img => img.isPrimary)?.url || property.images[0]?.url}
             alt={property.name}
             className="object-cover w-full h-full"
           />
@@ -271,12 +275,20 @@ const PropertyDetailPage: React.FC = () => {
         </div>
         {property.images.length > 1 && (
           <div className="flex gap-2 p-4 overflow-x-auto">
-            {property.images.slice(1).map((image) => (
-              <div key={image.id} className="flex-shrink-0">
+            {property.images.map((image) => (
+              <div
+                key={image.id}
+                className="flex-shrink-0"
+                onClick={() => setSelectedImageUrl(image.url)}
+              >
                 <img
                   src={image.url}
                   alt="Property thumbnail"
-                  className="w-24 h-24 object-cover rounded-md cursor-pointer hover:opacity-80 transition-opacity"
+                  className={`w-24 h-24 object-cover rounded-md cursor-pointer hover:opacity-80 transition-opacity border-2 ${
+                    (selectedImageUrl === image.url || (!selectedImageUrl && image.isPrimary))
+                      ? 'border-primary'
+                      : 'border-transparent'
+                  }`}
                 />
               </div>
             ))}
@@ -290,8 +302,13 @@ const PropertyDetailPage: React.FC = () => {
           {/* Price */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-3xl text-primary">
-                {formatPrice(property.price, property.contractType)}
+              <CardTitle>
+                <PriceDisplay
+                  price={property.price}
+                  previousPrice={property.previousPrice}
+                  transactionType={property.contractType}
+                  showBadge={true}
+                />
               </CardTitle>
               <CardDescription>
                 {property.contractType === TransactionType.RENTAL ? 'Měsíční nájemné' : 'Prodejní cena'}

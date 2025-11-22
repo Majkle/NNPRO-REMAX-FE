@@ -32,7 +32,8 @@ export const mockApartments: Apartment[] = [
     status: PropertyStatus.AVAILABLE,
     usableArea: 85,
     contractType: TransactionType.SALE,
-    price: 8500000,
+    price: 7990000,
+    previousPrice: 8500000, // Price reduced!
     priceDisclosure: PriceDisclosure.NOT_DISCLOSED,
     commission: Commission.INCLUDED,
     taxes: Taxes.EXCLUDED,

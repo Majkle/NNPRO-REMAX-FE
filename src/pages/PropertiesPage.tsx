@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Search, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -6,17 +6,46 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PropertyStatus, PropertyType, TransactionType } from '@/types';
+import { Property, PropertyStatus, PropertyType, TransactionType } from '@/types';
 import { mockProperties } from '@/data/mockData';
+import propertyService from '@/services/propertyService';
+import PriceDisplay from '@/components/PriceDisplay';
+
+const PAGE_SIZE = 6;
 
 const PropertiesPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [transactionFilter, setTransactionFilter] = useState<string>('all');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  // const [isLoading, setIsLoading] = useState(true); // Uncomment for API integration
+  const [properties, setProperties] = useState<Property[]>(mockProperties);
 
-  const filteredProperties = useMemo(() => {
-    return mockProperties.filter(property => {
+  /*
+  // --- BACKEND INTEGRATION ---
+  useEffect(() => {
+    const fetchProperties = async () => {
+      try {
+        setIsLoading(true);
+        // The service function would need to be updated to accept filter parameters
+        const paginatedResponse = await propertyService.getProperties(page, PAGE_SIZE);
+        setProperties(paginatedResponse.data);
+        setTotalPages(Math.ceil(paginatedResponse.total / PAGE_SIZE));
+      } catch (error) {
+        console.error('Failed to fetch properties:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProperties();
+  }, [page, searchTerm, typeFilter, statusFilter, transactionFilter]);
+  */
+  
+  const paginatedAndFilteredProperties = useMemo(() => {
+    const filtered = properties.filter(property => {
       const matchesSearch = property.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         property.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
         property.address.city.toLowerCase().includes(searchTerm.toLowerCase());
@@ -27,7 +56,14 @@ const PropertiesPage: React.FC = () => {
 
       return matchesSearch && matchesType && matchesStatus && matchesTransaction;
     });
-  }, [searchTerm, typeFilter, statusFilter, transactionFilter, mockProperties]);
+
+    // Mock pagination logic
+    setTotalPages(Math.ceil(filtered.length / PAGE_SIZE));
+    const start = (page - 1) * PAGE_SIZE;
+    const end = start + PAGE_SIZE;
+    return filtered.slice(start, end);
+    
+  }, [searchTerm, typeFilter, statusFilter, transactionFilter, properties, page]);
 
   const getStatusBadgeVariant = (status: PropertyStatus) => {
     switch (status) {
@@ -60,18 +96,9 @@ const PropertiesPage: React.FC = () => {
     return labels[type];
   };
 
-  const formatPrice = (price: number, transactionType: TransactionType) => {
-    const formatted = new Intl.NumberFormat('cs-CZ', {
-      style: 'currency',
-      currency: 'CZK',
-      minimumFractionDigits: 0,
-    }).format(price);
-    return transactionType === TransactionType.RENTAL ? `${formatted}/měsíc` : formatted;
-  };
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold">Nemovitosti</h1>
@@ -85,7 +112,6 @@ const PropertiesPage: React.FC = () => {
         </Button>
       </div>
 
-      {/* Filters */}
       <Card>
         <CardHeader>
           <CardTitle>Vyhledávání a filtry</CardTitle>
@@ -93,7 +119,6 @@ const PropertiesPage: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Search */}
             <div className="relative">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
@@ -104,7 +129,6 @@ const PropertiesPage: React.FC = () => {
               />
             </div>
 
-            {/* Type Filter */}
             <Select value={typeFilter} onValueChange={setTypeFilter}>
               <SelectTrigger>
                 <SelectValue placeholder="Typ nemovitosti" />
@@ -117,7 +141,6 @@ const PropertiesPage: React.FC = () => {
               </SelectContent>
             </Select>
 
-            {/* Status Filter */}
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger>
                 <SelectValue placeholder="Status" />
@@ -130,7 +153,6 @@ const PropertiesPage: React.FC = () => {
               </SelectContent>
             </Select>
 
-            {/* Transaction Type Filter */}
             <Select value={transactionFilter} onValueChange={setTransactionFilter}>
               <SelectTrigger>
                 <SelectValue placeholder="Typ transakce" />
@@ -145,16 +167,9 @@ const PropertiesPage: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Results */}
       <div>
-        <div className="flex justify-between items-center mb-4">
-          <p className="text-sm text-muted-foreground">
-            Nalezeno {filteredProperties.length} {filteredProperties.length === 1 ? 'nemovitost' : 'nemovitostí'}
-          </p>
-        </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProperties.map((property) => (
+          {paginatedAndFilteredProperties.map((property) => (
             <Link key={property.id} to={`/properties/${property.id}`}>
               <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
                 <div className="aspect-video relative bg-muted overflow-hidden">
@@ -195,16 +210,18 @@ const PropertiesPage: React.FC = () => {
                   </div>
                 </CardContent>
                 <CardFooter className="flex justify-between items-center pt-0">
-                  <p className="text-2xl font-bold text-primary">
-                    {formatPrice(property.price, property.contractType)}
-                  </p>
+                  <PriceDisplay
+                    price={property.price}
+                    previousPrice={property.previousPrice}
+                    transactionType={property.contractType}
+                  />
                 </CardFooter>
               </Card>
             </Link>
           ))}
         </div>
 
-        {filteredProperties.length === 0 && (
+        {paginatedAndFilteredProperties.length === 0 && (
           <Card>
             <CardContent className="py-12 text-center">
               <p className="text-muted-foreground">
@@ -213,6 +230,18 @@ const PropertiesPage: React.FC = () => {
             </CardContent>
           </Card>
         )}
+      </div>
+      
+      <div className="flex justify-center items-center gap-4 mt-6">
+        <Button onClick={() => setPage(p => p - 1)} disabled={page <= 1}>
+          Předchozí
+        </Button>
+        <span className="text-sm font-medium">
+          Strana {page} z {totalPages}
+        </span>
+        <Button onClick={() => setPage(p => p + 1)} disabled={page >= totalPages}>
+          Další
+        </Button>
       </div>
     </div>
   );
