@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Trash2, UserCog, Users, Shield, Ban, Pencil } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Plus, Trash2, UserCog, Users, Shield, Ban, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -89,6 +90,7 @@ const AdminDashboard: React.FC = () => {
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [userToBlock, setUserToBlock] = useState<User | null>(null);
   const [userToEdit, setUserToEdit] = useState<User | null>(null);
+  const [userEditDialogOpen, setUserEditDialogOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -114,10 +116,23 @@ const AdminDashboard: React.FC = () => {
 
   const handleDeleteUser = (user: User) => setUserToDelete(user);
   const handleBlockUser = (user: User) => setUserToBlock(user);
-  const handleEditUser = (user: User) => setUserToEdit(user);
+  const handleEditUser = (user: User) => {
+    setUserToEdit(user);
+    setUserEditDialogOpen(true);
+  }
+  const handleCreateUser = () => {
+     setUserToEdit(null);
+     setUserEditDialogOpen(true);
+   }
 
   const handleUserUpdate = (updatedUser: Partial<User>) => {
+    setUserToEdit(null);
     setUsers(users.map((u) => (u.id === updatedUser.id ? { ...u, ...updatedUser } : u)));
+  };
+
+  const handleUserCreate = (createdUser: User) => {
+    users.push(createdUser);
+    setUsers(users);
   };
 
   const confirmDelete = async () => {
@@ -187,7 +202,7 @@ const AdminDashboard: React.FC = () => {
           <div>
             <div className="flex items-center gap-2">
               <p className="font-medium">
-                {user.personalInformation.firstName} {user.personalInformation.lastName}
+                {user.personalInformation.degree} {user.personalInformation.firstName} {user.personalInformation.lastName}
               </p>
               {getRoleBadge(user.role)}
               {user.isBlocked && <Badge variant="outline">Zablokován</Badge>}
@@ -225,14 +240,20 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <div className="h-12 w-12 rounded-lg bg-red-100 flex items-center justify-center">
-          <Shield className="h-6 w-6 text-red-600" />
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="flex items-center gap-3">
+          <div className="h-12 w-12 rounded-lg bg-red-100 flex items-center justify-center">
+            <Shield className="h-6 w-6 text-red-600" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+            <p className="text-muted-foreground mt-1">Správa uživatelů a makléřů</p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-          <p className="text-muted-foreground mt-1">Správa uživatelů a makléřů</p>
-        </div>
+        <Button onClick={() => handleCreateUser()}>
+          <Plus className="mr-2 h-4 w-4" />
+          Přidat uživatele
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -312,9 +333,10 @@ const AdminDashboard: React.FC = () => {
       {/* Dialogs */}
       <UserEditDialog
         user={userToEdit}
-        open={!!userToEdit}
-        onOpenChange={(isOpen) => !isOpen && setUserToEdit(null)}
+        open={userEditDialogOpen}
+        onOpenChange={(isOpen) => !isOpen && setUserEditDialogOpen(false)}
         onUserUpdate={handleUserUpdate}
+        onUserCreate={handleUserCreate}
       />
 
       <AlertDialog open={!!userToDelete} onOpenChange={(isOpen) => !isOpen && setUserToDelete(null)}>
