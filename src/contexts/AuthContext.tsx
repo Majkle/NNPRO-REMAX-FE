@@ -7,7 +7,7 @@ interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<void>;
   register: (username: string, email: string, password: string, firstName: string, lastName: string, role: UserRole) => Promise<void>;
   logout: () => void;
   updateUser: (user: User) => void;
@@ -47,7 +47,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       };
 
       // Mock login for now - use email to determine role for testing
-      const mockToken = 'mock-jwt-token-' + Date.now();
+      let mockToken = 'mock-jwt-token-' + Date.now();
 
       // Determine role based on email for testing
       let role: UserRole = UserRole.CLIENT;
@@ -55,6 +55,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       let lastName = 'User';
       let email = 'test@user.com';
       let userId = Date.now();
+      let createdAt = Date.now();
+      let updatedAt = Date.now();
 
       // Check for admin first
       if (username === 'admin') {
@@ -78,11 +80,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           email = 'jan.makler@remax.com';
         }
       } else {
-        const response = authService.login(request);
-        console.log(response);
+        const loginResponse = await authService.login(request);
+        localStorage.setItem('token', loginResponse.token);
+
+        const userResponse = await authService.getProfile();
+        console.log(userResponse);
+        mockToken = loginResponse.token;
         role = UserRole.CLIENT;
-        firstName = 'Petr';
-        lastName = 'Klient';
+        userId = userResponse.id;
+        firstName = userResponse.personalInformation.firstName;
+        lastName = userResponse.personalInformation.lastName;
+        email = userResponse.email;
+        createdAt = userResponse.createdAt;
       }
 
       const mockUser: User = {

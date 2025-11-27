@@ -8,10 +8,11 @@ export interface LoginRequest {
 
 export interface LoginResponse {
   token: string;
-  user: User;
+  expiresAt: User;
 }
 
 export interface RegisterRequest {
+  username: string;
   email: string;
   password: string;
   firstName: string;
@@ -80,8 +81,9 @@ const authService = {
   /**
    * Get current user profile
    */
-  getProfile: async (): Promise<User> => {
-    const response = await api.get<User>('/auth/profile');
+  // TODO: change User so it can be used here instead of any
+  getProfile: async (): Promise<any> => {
+    const response = await api.get<any>('/profile');
     return response.data;
   },
 
@@ -89,7 +91,7 @@ const authService = {
    * Update user profile
    */
   updateProfile: async (data: Partial<User>): Promise<User> => {
-    const response = await api.put<User>('/auth/profile', data);
+    const response = await api.put<User>('/profile', data);
     return response.data;
   },
 
@@ -136,7 +138,7 @@ const authService = {
    * Delete current user's profile
    */
   deleteProfile: async (): Promise<void> => {
-    await api.delete('/auth/profile');
+    await api.delete('/profile');
   },
 };
 
