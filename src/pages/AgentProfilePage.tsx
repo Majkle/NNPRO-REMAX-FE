@@ -15,12 +15,13 @@ const mockAgent: UserType = {
   id: 1,
   username: 'petr.novotny.remax',
   email: 'petr.novotny@remax.cz',
-  firstName: 'Petr',
-  lastName: 'Novotný',
-  phone: '+420 777 888 999',
+  personalInformation: {
+    firstName: 'Petr',
+    lastName: 'Novotný',
+    phoneNumber: '+420 777 888 999'
+  },
   role: UserRole.AGENT,
-  createdAt: new Date('2023-01-01'),
-  updatedAt: new Date('2023-01-01'),
+  createdAt: new Date('2023-01-01')
 };
 
 const mockAgentReviews: Review[] = [
@@ -34,11 +35,12 @@ const mockAgentReviews: Review[] = [
       id: 2,
       username: 'jan.dvorak',
       email: 'jan.dvorak@email.cz',
-      firstName: 'Jan',
-      lastName: 'Dvořák',
+      personalInformation: {
+        firstName: 'Jan',
+        lastName: 'Dvořák'
+      },
       role: UserRole.CLIENT,
-      createdAt: new Date('2024-01-01'),
-      updatedAt: new Date('2024-01-01'),
+      createdAt: new Date('2024-01-01')
     },
     createdAt: new Date('2024-02-15'),
     updatedAt: new Date('2024-02-15'),
@@ -53,11 +55,12 @@ const mockAgentReviews: Review[] = [
       id: 3,
       username: 'marie.svobodova',
       email: 'marie.svobodova@email.cz',
-      firstName: 'Marie',
-      lastName: 'Svobodová',
+      personalInformation: {
+        firstName: 'Marie',
+        lastName: 'Svobodová'
+      },
       role: UserRole.CLIENT,
-      createdAt: new Date('2024-01-05'),
-      updatedAt: new Date('2024-01-05'),
+      createdAt: new Date('2024-01-05')
     },
     createdAt: new Date('2024-03-01'),
     updatedAt: new Date('2024-03-01'),
@@ -72,11 +75,12 @@ const mockAgentReviews: Review[] = [
       id: 4,
       username: 'pavel.novak',
       email: 'pavel.novak@email.cz',
-      firstName: 'Pavel',
-      lastName: 'Novák',
+      personalInformation: {
+        firstName: 'Pavel',
+        lastName: 'Novák'
+      },
       role: UserRole.CLIENT,
-      createdAt: new Date('2024-01-10'),
-      updatedAt: new Date('2024-01-10'),
+      createdAt: new Date('2024-01-10')
     },
     createdAt: new Date('2024-03-10'),
     updatedAt: new Date('2024-03-10'),
@@ -174,7 +178,7 @@ const AgentProfilePage: React.FC = () => {
           <div className="flex items-start justify-between">
             <div>
               <h1 className="text-3xl font-bold">
-                {agent.firstName} {agent.lastName}
+                {agent.personalInformation.firstName} {agent.personalInformation.lastName}
               </h1>
               <p className="text-lg text-muted-foreground mt-1">Realitní makléř</p>
             </div>
@@ -268,7 +272,7 @@ const AgentProfilePage: React.FC = () => {
                       <div className="flex justify-between items-start">
                         <div>
                           <CardTitle className="text-base">
-                            {review.author.firstName} {review.author.lastName}
+                            {review.author.personalInformation.firstName} {review.author.personalInformation.lastName}
                           </CardTitle>
                           <CardDescription>
                             {format(review.createdAt, 'd. MMMM yyyy', { locale: cs })}
@@ -298,7 +302,7 @@ const AgentProfilePage: React.FC = () => {
                 </div>
                 <div>
                   <CardTitle>
-                    {agent.firstName} {agent.lastName}
+                    {agent.personalInformation.firstName} {agent.personalInformation.lastName}
                   </CardTitle>
                   <CardDescription>Realitní makléř</CardDescription>
                 </div>
@@ -306,11 +310,11 @@ const AgentProfilePage: React.FC = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-3 pb-4 border-b">
-                {agent.phone && (
+                {agent.personalInformation.phoneNumber && (
                   <div className="flex items-center gap-2 text-sm">
                     <Phone className="h-4 w-4 text-muted-foreground" />
-                    <a href={`tel:${agent.phone}`} className="hover:text-primary">
-                      {agent.phone}
+                    <a href={`tel:${agent.personalInformation.phoneNumber}`} className="hover:text-primary">
+                      {agent.personalInformation.phoneNumber}
                     </a>
                   </div>
                 )}

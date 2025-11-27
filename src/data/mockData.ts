@@ -112,12 +112,13 @@ export const mockApartments: Apartment[] = [
       id: 1,
       username: 'petr.novotny.remax',
       email: 'petr.novotny@remax.cz',
-      firstName: 'Petr',
-      lastName: 'Novotný',
-      phone: '+420 777 888 999',
+      personalInformation: {
+        firstName: 'Petr',
+        lastName: 'Novotný',
+        phoneNumber: '+420 777 888 999'
+      },
       role: UserRole.AGENT,
-      createdAt: new Date('2023-01-01'),
-      updatedAt: new Date('2023-01-01'),
+      createdAt: new Date('2023-01-01')
     },
     ownership: ApartmentOwnershipType.OWNERSHIP,
     floor: 4,

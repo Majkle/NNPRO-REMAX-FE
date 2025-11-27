@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { UserRole } from '@/types';
+import { UserRole, AddressRegion } from '@/types';
 
 // Validation schema
 const registerSchema = z.object({
@@ -35,8 +35,15 @@ const registerSchema = z.object({
   confirmPassword: z.string(),
   firstName: z.string().min(2, 'Jméno musí mít alespoň 2 znaky'),
   lastName: z.string().min(2, 'Příjmení musí mít alespoň 2 znaky'),
+  phoneNumber: z.string().min(9, 'Telefonní číslo musí mít alespoň 9 číslic'),
+  street: z.string().min(2, 'Jméno ulice musí mít alespoň 2 znaky'),
+  city: z.string().min(2, 'Jméno města musí mít alespoň 2 znaky'),
+  postalCode: z.string().min(5, 'PSČ musí mít alespoň 5 znaků'),
+  country: z.string().min(2, 'Jméno země musí mít alespoň 2 znaky'),
+  region: z.nativeEnum(AddressRegion),
   role: z.nativeEnum(UserRole),
-  phone: z.string().optional(),
+  degree: z.string(),
+  flatNumber: z.string().optional(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: 'Hesla se neshodují',
   path: ['confirmPassword'],
@@ -57,17 +64,24 @@ const RegisterPage: React.FC = () => {
       email: '',
       password: '',
       confirmPassword: '',
+      role: UserRole.CLIENT,
+      degree: '',
       firstName: '',
       lastName: '',
-      role: UserRole.CLIENT,
-      phone: '',
+      phoneNumber: '',
+      street: '',
+      city: '',
+      postalCode: '',
+      country: '',
+      region: AddressRegion.PRAHA,
+      flatNumber: ''
     },
   });
 
   const onSubmit = async (data: RegisterFormValues) => {
     setIsLoading(true);
     try {
-      await register(data.username, data.email, data.password, data.firstName, data.lastName, data.role);
+      await register(data.username, data.email, data.password, data.role, data.degree, data.firstName, data.lastName, data.phoneNumber, new Date(), data.street, data.city, data.postalCode, data.country, data.region, data.flatNumber);
 
       toast({
         title: 'Registrace úspěšná',
@@ -84,6 +98,23 @@ const RegisterPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const addressRegionLabels = {
+    [AddressRegion.PRAHA]: 'Praha',
+    [AddressRegion.STREDOCESKY]: 'Středočeský kraj',
+    [AddressRegion.JIHOCESKY]: 'Jihočeský kraj',
+    [AddressRegion.PLZENSKY]: 'Plzeňský kraj',
+    [AddressRegion.KARLOVARSKY]: 'Karlovarský kraj',
+    [AddressRegion.USTECKY]: 'Ústecký kraj',
+    [AddressRegion.LIBERECKY]: 'Liberecký kraj',
+    [AddressRegion.KRALOVEHRADECKY]: 'Královéhradecký kraj',
+    [AddressRegion.PARDUBICKY]: 'Pardubický kraj',
+    [AddressRegion.VYSOCINA]: 'Vysočina',
+    [AddressRegion.JIHOMORAVSKY]: 'Jihomoravský kraj',
+    [AddressRegion.OLOMOUCKY]: 'Olomoucký kraj',
+    [AddressRegion.ZLINSKY]: 'Zlínský kraj',
+    [AddressRegion.MORAVSKOSLEZSKY]: 'Moravskoslezský kraj'
   };
 
   const roleLabels = {
@@ -110,6 +141,20 @@ const RegisterPage: React.FC = () => {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="degree"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Titul</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Ing." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -148,7 +193,6 @@ const RegisterPage: React.FC = () => {
                     <FormLabel>Uživatelské jméno *</FormLabel>
                     <FormControl>
                       <Input
-                        type="username"
                         placeholder="vase.uzivatelske.jmeno"
                         autoComplete="username"
                         {...field}
@@ -180,14 +224,15 @@ const RegisterPage: React.FC = () => {
 
               <FormField
                 control={form.control}
-                name="phone"
+                name="phoneNumber"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Telefon</FormLabel>
+                    <FormLabel>Telefon *</FormLabel>
                     <FormControl>
                       <Input
                         type="tel"
                         placeholder="+420 123 456 789"
+                        autoComplete="phoneNumber"
                         {...field}
                       />
                     </FormControl>
@@ -263,6 +308,119 @@ const RegisterPage: React.FC = () => {
                   )}
                 />
               </div>
+
+              <FormField
+                control={form.control}
+                name="street"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Ulice a č. p. *</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Československých legií 565"
+                        autoComplete="street"
+                        {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="flatNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Číslo bytu</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="101"
+                        autoComplete="flatNumber"
+                        {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="city"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Obec *</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Pardubice I"
+                        autoComplete="city"
+                        {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="postalCode"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>PSČ *</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="530 02"
+                        autoComplete="postalCode"
+                        {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="country"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Země *</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Česká republika"
+                        autoComplete="country"
+                        {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="region"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Region *</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Vyberte region" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {Object.entries(addressRegionLabels).map(([value, label]) => (
+                          <SelectItem key={value} value={value}>
+                            {label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      Vyberte svůj region
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? 'Registrace...' : 'Zaregistrovat se'}

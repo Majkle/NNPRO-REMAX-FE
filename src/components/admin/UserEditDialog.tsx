@@ -60,8 +60,8 @@ export const UserEditDialog: React.FC<UserEditDialogProps> = ({
   useEffect(() => {
     if (user) {
       form.reset({
-        firstName: user.firstName,
-        lastName: user.lastName,
+        firstName: user.personalInformation.firstName,
+        lastName: user.personalInformation.lastName,
         email: user.email,
         role: user.role,
       });

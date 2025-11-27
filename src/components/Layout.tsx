@@ -30,8 +30,8 @@ const Layout: React.FC = () => {
 
   const getUserInitials = () => {
     if (!user) return 'U';
-    const firstInitial = user.firstName?.[0] || '';
-    const lastInitial = user.lastName?.[0] || '';
+    const firstInitial = user.personalInformation.firstName?.[0] || '';
+    const lastInitial = user.personalInformation.lastName?.[0] || '';
     return (firstInitial + lastInitial).toUpperCase() || 'U';
   };
 
@@ -108,10 +108,10 @@ const Layout: React.FC = () => {
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
                         <p className="text-sm font-medium leading-none">
-                          {user.firstName} {user.lastName}
+                          {user.personalInformation.firstName} {user.personalInformation.lastName}
                         </p>
                         <p className="text-xs leading-none text-muted-foreground">
-                          {user.email}
+                          {user.username} ({user.email})
                         </p>
                         <p className="text-xs leading-none text-muted-foreground mt-1">
                           {getRoleLabel(user.role)}
@@ -191,7 +191,7 @@ const Layout: React.FC = () => {
                       <DropdownMenuLabel className="font-normal">
                         <div className="flex flex-col space-y-1">
                           <p className="text-sm font-medium leading-none">
-                            {user.firstName} {user.lastName}
+                            {user.personalInformation.firstName} {user.personalInformation.lastName}
                           </p>
                           <p className="text-xs leading-none text-muted-foreground">
                             {getRoleLabel(user.role)}

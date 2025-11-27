@@ -1,5 +1,5 @@
 import api from './api';
-import { User, UserRole } from '@/types';
+import { User, UserRole, AddressRegion } from '@/types';
 
 export interface LoginRequest {
   username: string;
@@ -12,18 +12,36 @@ export interface LoginResponse {
 }
 
 export interface RegisterRequest {
-  username: string;
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  role: UserRole;
-  phone?: string;
+  username: string,
+  email: string,
+  password: string,
+  role: UserRole,
+  degree: string,
+  firstName: string,
+  lastName: string,
+  phoneNumber: string,
+  birthDate: Date,
+  street: string,
+  city: string,
+  postalCode: string,
+  country: string,
+  region: AddressRegion,
+  flatNumber?: string
 }
 
-export interface RegisterResponse {
-  token: string;
-  user: User;
+export interface ProfileUpdateRequest {
+  email: string,
+  degree: string,
+  firstName: string,
+  lastName: string,
+  phoneNumber: string,
+  birthDate: Date,
+  street: string,
+  city: string,
+  postalNumber: string,
+  country: string,
+  region: AddressRegion,
+  flatNumber?: string
 }
 
 export interface ResetPasswordRequest {
@@ -47,8 +65,8 @@ const authService = {
   /**
    * Register new user
    */
-  register: async (data: RegisterRequest): Promise<RegisterResponse> => {
-    const response = await api.post<RegisterResponse>('/auth/register', data);
+  register: async (data: RegisterRequest): Promise<User> => {
+    const response = await api.post<User>('/auth/register', data);
     return response.data;
   },
 
@@ -81,17 +99,16 @@ const authService = {
   /**
    * Get current user profile
    */
-  // TODO: change User so it can be used here instead of any
-  getProfile: async (): Promise<any> => {
-    const response = await api.get<any>('/profile');
+  getProfile: async (): Promise<User> => {
+    const response = await api.get<User>('/profile');
     return response.data;
   },
 
   /**
    * Update user profile
    */
-  updateProfile: async (data: Partial<User>): Promise<User> => {
-    const response = await api.put<User>('/profile', data);
+  updateProfile: async (data: ProfileUpdateRequest): Promise<User> => {
+    const response = await api.patch<User>('/profile', data);
     return response.data;
   },
 

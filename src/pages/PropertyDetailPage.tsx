@@ -689,18 +689,18 @@ const PropertyDetailPage: React.FC = () => {
                   </div>
                   <div>
                     <p className="font-semibold">
-                      {property.agent.firstName} {property.agent.lastName}
+                      {property.agent.personalInformation.firstName} {property.agent.personalInformation.lastName}
                     </p>
                     <p className="text-sm text-muted-foreground">Realitní makléř</p>
                   </div>
                 </div>
 
                 <div className="space-y-3">
-                  {property.agent.phone && (
+                  {property.agent.personalInformation.phoneNumber && (
                     <div className="flex items-center gap-2 text-sm">
                       <Phone className="h-4 w-4 text-muted-foreground" />
-                      <a href={`tel:${property.agent.phone}`} className="hover:text-primary">
-                        {property.agent.phone}
+                      <a href={`tel:${property.agent.personalInformation.phoneNumber}`} className="hover:text-primary">
+                        {property.agent.personalInformation.phoneNumber}
                       </a>
                     </div>
                   )}

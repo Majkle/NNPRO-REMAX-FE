@@ -5,17 +5,23 @@ export enum UserRole {
   CLIENT = 'CLIENT'
 }
 
+export interface PersonalInformation {
+  degree?: string;  // TODO: remove ?
+  firstName: string;
+  lastName: string;
+  phoneNumber?: string; // TODO: remove ?
+  birthDate?: Date; // TODO: remove ?
+  address?: Address;  // TODO: remove ?
+}
+
 export interface User {
   id: number;
   username: string;
   email: string;
-  firstName: string;
-  lastName: string;
-  phone?: string;
-  role: UserRole;
+  personalInformation: PersonalInformation;
+  role: UserRole;  // TODO: remove ?
   isBlocked?: boolean;
   createdAt: Date;
-  updatedAt: Date;
 }
 
 // Address Region Enum

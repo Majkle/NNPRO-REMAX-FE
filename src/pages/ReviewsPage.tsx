@@ -21,23 +21,25 @@ const mockReviews: Review[] = [
       id: 1,
       username: 'petr.novotny.remax',
       email: 'petr.novotny@remax.cz',
-      firstName: 'Petr',
-      lastName: 'Novotný',
-      phone: '+420 777 888 999',
+      personalInformation: {
+        firstName: 'Petr',
+        lastName: 'Novotný',
+        phoneNumber: '+420 777 888 999'
+      },
       role: UserRole.AGENT,
-      createdAt: new Date('2023-01-01'),
-      updatedAt: new Date('2023-01-01'),
+      createdAt: new Date('2023-01-01')
     },
     authorId: 2,
     author: {
       id: 2,
       username: 'jan.novak',
       email: 'jan.novak@example.com',
-      firstName: 'Jan',
-      lastName: 'Novák',
+      personalInformation: {
+        firstName: 'Jan',
+        lastName: 'Novák'
+      },
       role: UserRole.CLIENT,
-      createdAt: new Date('2024-01-01'),
-      updatedAt: new Date('2024-01-01'),
+      createdAt: new Date('2024-01-01')
     },
     createdAt: new Date('2024-01-20'),
     updatedAt: new Date('2024-01-20'),
@@ -51,23 +53,25 @@ const mockReviews: Review[] = [
       id: 1,
       username: 'petr.novotny.remax',
       email: 'petr.novotny@remax.cz',
-      firstName: 'Petr',
-      lastName: 'Novotný',
-      phone: '+420 777 888 999',
+      personalInformation: {
+        firstName: 'Petr',
+        lastName: 'Novotný',
+        phoneNumber: '+420 777 888 999'
+      },
       role: UserRole.AGENT,
-      createdAt: new Date('2023-01-01'),
-      updatedAt: new Date('2023-01-01'),
+      createdAt: new Date('2023-01-01')
     },
     authorId: 3,
     author: {
       id: 3,
       username: 'marie.svobodova',
       email: 'marie.svobodova@example.com',
-      firstName: 'Marie',
-      lastName: 'Svobodová',
+      personalInformation: {
+        firstName: 'Marie',
+        lastName: 'Svobodová'
+      },
       role: UserRole.CLIENT,
-      createdAt: new Date('2024-01-05'),
-      updatedAt: new Date('2024-01-05'),
+      createdAt: new Date('2024-01-05')
     },
     createdAt: new Date('2024-02-10'),
     updatedAt: new Date('2024-02-10'),
@@ -81,23 +85,25 @@ const mockReviews: Review[] = [
       id: 2,
       username: 'jana.dvorakova.remax',
       email: 'jana.dvorakova@remax.cz',
-      firstName: 'Jana',
-      lastName: 'Dvořáková',
-      phone: '+420 606 555 444',
+      personalInformation: {
+        firstName: 'Jana',
+        lastName: 'Dvořáková',
+        phoneNumber: '+420 606 555 444'
+      },
       role: UserRole.AGENT,
-      createdAt: new Date('2023-03-15'),
-      updatedAt: new Date('2023-03-15'),
+      createdAt: new Date('2023-03-15')
     },
     authorId: 4,
     author: {
       id: 4,
       username: 'pavel.kral',
       email: 'pavel.kral@example.com',
-      firstName: 'Pavel',
-      lastName: 'Král',
+      personalInformation: {
+        firstName: 'Pavel',
+        lastName: 'Král'
+      },
       role: UserRole.CLIENT,
-      createdAt: new Date('2024-02-01'),
-      updatedAt: new Date('2024-02-01'),
+      createdAt: new Date('2024-02-01')
     },
     createdAt: new Date('2024-03-05'),
     updatedAt: new Date('2024-03-05'),
@@ -134,8 +140,8 @@ const ReviewsPage: React.FC = () => {
   const filteredReviews = mockReviews.filter((review) => {
     const matchesSearch =
       review.comment.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      review.agent?.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      review.agent?.lastName.toLowerCase().includes(searchQuery.toLowerCase());
+      review.agent?.personalInformation.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      review.agent?.personalInformation.lastName.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesRating = filterRating === 'all' || review.rating.toString() === filterRating;
 
@@ -242,7 +248,7 @@ const ReviewsPage: React.FC = () => {
                     </div>
                     <div>
                       <CardTitle className="text-lg">
-                        {review.author.firstName} {review.author.lastName}
+                        {review.author.personalInformation.firstName} {review.author.personalInformation.lastName}
                       </CardTitle>
                       <CardDescription>
                         {format(review.createdAt, 'd. MMMM yyyy', { locale: cs })}
@@ -252,7 +258,7 @@ const ReviewsPage: React.FC = () => {
                   {review.agent && (
                     <div className="flex items-center gap-2 ml-13 mb-2">
                       <Badge variant="outline" className="text-xs">
-                        Makléř: {review.agent.firstName} {review.agent.lastName}
+                        Makléř: {review.agent.personalInformation.firstName} {review.agent.personalInformation.lastName}
                       </Badge>
                     </div>
                   )}

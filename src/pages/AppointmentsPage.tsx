@@ -26,22 +26,24 @@ const mockAppointments: Appointment[] = [
       id: 1,
       username: 'petr.novotny.remax',
       email: 'petr.novotny@remax.cz',
-      firstName: 'Petr',
-      lastName: 'Novotný',
+      personalInformation: {
+        firstName: 'Petr',
+        lastName: 'Novotný'
+      },
       role: UserRole.AGENT,
-      createdAt: new Date('2024-01-01'),
-      updatedAt: new Date('2024-01-01'),
+      createdAt: new Date('2024-01-01')
     },
     clientId: 2,
     client: {
       id: 2,
       username: 'jan.novak',
       email: 'jan.novak@example.com',
-      firstName: 'Jan',
-      lastName: 'Novák',
+      personalInformation: {
+        firstName: 'Jan',
+        lastName: 'Novák'
+      },
       role: UserRole.CLIENT,
-      createdAt: new Date('2024-01-01'),
-      updatedAt: new Date('2024-01-01'),
+      createdAt: new Date('2024-01-01')
     },
     location: 'Hlavní 123, Praha 1',
     createdAt: new Date('2024-10-20'),
@@ -60,22 +62,24 @@ const mockAppointments: Appointment[] = [
       id: 1,
       username: 'petr.novotny.remax',
       email: 'petr.novotny@remax.cz',
-      firstName: 'Petr',
-      lastName: 'Novotný',
+      personalInformation: {
+        firstName: 'Petr',
+        lastName: 'Novotný'
+      },
       role: UserRole.AGENT,
-      createdAt: new Date('2024-01-01'),
-      updatedAt: new Date('2024-01-01'),
+      createdAt: new Date('2024-01-01')
     },
     clientId: 3,
     client: {
       id: 3,
       username: 'marie.svobodova',
       email: 'marie.svobodova@example.com',
-      firstName: 'Marie',
-      lastName: 'Svobodová',
+      personalInformation: {
+        firstName: 'Marie',
+        lastName: 'Svobodová'
+      },
       role: UserRole.CLIENT,
-      createdAt: new Date('2024-01-05'),
-      updatedAt: new Date('2024-01-05'),
+      createdAt: new Date('2024-01-05')
     },
     location: 'Online - Google Meet',
     createdAt: new Date('2024-10-25'),
@@ -288,7 +292,7 @@ const AppointmentsPage: React.FC = () => {
                           </div>
                           <div className="flex items-center text-sm text-muted-foreground">
                             <User className="mr-2 h-4 w-4" />
-                            {appointment.client.firstName} {appointment.client.lastName}
+                            {appointment.client.personalInformation.firstName} {appointment.client.personalInformation.lastName}
                           </div>
                           <Badge variant="outline">{getTypeLabel(appointment.type)}</Badge>
                         </CardContent>
@@ -346,7 +350,7 @@ const AppointmentsPage: React.FC = () => {
                       </div>
                       <div className="flex items-center text-sm text-muted-foreground">
                         <User className="mr-2 h-4 w-4" />
-                        {appointment.client.firstName} {appointment.client.lastName}
+                        {appointment.client.personalInformation.firstName} {appointment.client.personalInformation.lastName}
                       </div>
                       <div className="flex gap-2">
                         <Badge variant="outline">{getTypeLabel(appointment.type)}</Badge>

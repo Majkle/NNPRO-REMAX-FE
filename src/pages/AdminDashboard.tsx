@@ -24,57 +24,62 @@ const mockUsers: User[] = [
     id: 1,
     username: 'petr.novotny.remax',
     email: 'petr.novotny@remax.cz',
-    firstName: 'Petr',
-    lastName: 'Novotný',
-    phone: '+420 777 888 999',
+    personalInformation: {
+      firstName: 'Petr',
+      lastName: 'Novotný',
+      phoneNumber: '+420 777 888 999'
+    },
     role: UserRole.AGENT,
     isBlocked: false,
-    createdAt: new Date('2023-01-01'),
-    updatedAt: new Date('2023-01-01'),
+    createdAt: new Date('2023-01-01')
   },
   {
     id: 2,
     username: 'jan.dvorak',
     email: 'jan.dvorak@email.cz',
-    firstName: 'Jan',
-    lastName: 'Dvořák',
+    personalInformation: {
+      firstName: 'Jan',
+      lastName: 'Dvořák'
+    },
     role: UserRole.CLIENT,
     isBlocked: true,
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date('2024-01-01'),
+    createdAt: new Date('2024-01-01')
   },
   {
     id: 3,
     username: 'marie.svobodova',
     email: 'marie.svobodova@email.cz',
-    firstName: 'Marie',
-    lastName: 'Svobodová',
+    personalInformation: {
+      firstName: 'Marie',
+      lastName: 'Svobodová'
+    },
     role: UserRole.CLIENT,
     isBlocked: false,
-    createdAt: new Date('2024-01-05'),
-    updatedAt: new Date('2024-01-05'),
+    createdAt: new Date('2024-01-05')
   },
   {
     id: 4,
     username: 'pavel.novak',
     email: 'pavel.novak@email.cz',
-    firstName: 'Pavel',
-    lastName: 'Novák',
+    personalInformation: {
+      firstName: 'Pavel',
+      lastName: 'Novák'
+    },
     role: UserRole.CLIENT,
     isBlocked: false,
-    createdAt: new Date('2024-01-10'),
-    updatedAt: new Date('2024-01-10'),
+    createdAt: new Date('2024-01-10')
   },
   {
     id: 999,
     username: 'admin',
     email: 'admin@remax.cz',
-    firstName: 'Admin',
-    lastName: 'Správce',
+    personalInformation: {
+      firstName: 'Admin',
+      lastName: 'Správce'
+    },
     role: UserRole.ADMIN,
     isBlocked: false,
-    createdAt: new Date('2022-01-01'),
-    updatedAt: new Date('2022-01-01'),
+    createdAt: new Date('2022-01-01')
   },
 ];
 
@@ -123,7 +128,7 @@ const AdminDashboard: React.FC = () => {
       setUsers(users.filter((u) => u.id !== userToDelete.id));
       toast({
         title: 'Uživatel smazán (Mock)',
-        description: `Uživatel ${userToDelete.firstName} ${userToDelete.lastName} byl odstraněn.`,
+        description: `Uživatel ${userToDelete.personalInformation.firstName} ${userToDelete.personalInformation.lastName} byl odstraněn.`,
       });
       setUserToDelete(null);
     }
@@ -167,7 +172,7 @@ const AdminDashboard: React.FC = () => {
           <div>
             <div className="flex items-center gap-2">
               <p className="font-medium">
-                {user.firstName} {user.lastName}
+                {user.personalInformation.firstName} {user.personalInformation.lastName}
               </p>
               {getRoleBadge(user.role)}
               {user.isBlocked && <Badge variant="outline">Zablokován</Badge>}
@@ -304,7 +309,7 @@ const AdminDashboard: React.FC = () => {
             <AlertDialogDescription>
               Tato akce je nevratná. Uživatel{' '}
               <strong>
-                {userToDelete?.firstName} {userToDelete?.lastName}
+                {userToDelete?.personalInformation.firstName} {userToDelete?.personalInformation.lastName}
               </strong>{' '}
               bude trvale odstraněn ze systému.
             </AlertDialogDescription>
@@ -327,7 +332,7 @@ const AdminDashboard: React.FC = () => {
             <AlertDialogDescription>
               Uživatel{' '}
               <strong>
-                {userToBlock?.firstName} {userToBlock?.lastName}
+                {userToBlock?.personalInformation.firstName} {userToBlock?.personalInformation.lastName}
               </strong>{' '}
               bude {userToBlock?.isBlocked ? 'odblokován' : 'zablokován'}.
             </AlertDialogDescription>
