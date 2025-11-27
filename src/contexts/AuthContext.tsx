@@ -8,7 +8,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (username: string, password: string) => Promise<void>;
-  register: (username: string, email: string, password: string, role: UserRole, degree: string, firstName: string, lastName: string, phoneNumber: string, birthDate: Date, street: string, city: string, postalNumber: string, country: string, region: AddressRegion, flatNumber?: string) => Promise<void>;
+  register: (username: string, email: string, password: string, degree: string, firstName: string, lastName: string, phoneNumber: string, birthDate: Date, street: string, city: string, postalNumber: string, country: string, region: AddressRegion, flatNumber?: string) => Promise<void>;
   logout: () => void;
   updateUser: (user: User) => void;
   hasRole: (roles: UserRole[]) => boolean;
@@ -64,7 +64,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     username: string,
     email: string,
     password: string,
-    role: UserRole,
     degree: string,
     firstName: string,
     lastName: string,
@@ -81,7 +80,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       username,
       email,
       password,
-      role,
       degree,
       firstName,
       lastName,
@@ -101,7 +99,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     try {
       const registerResponse = await authService.register(registerRequest);
-      registerResponse.role = role;
+      registerResponse.role = UserRole.CLIENT;
       localStorage.setItem('user', JSON.stringify(registerResponse));
       setUser(registerResponse);
 

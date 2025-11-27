@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { UserRole, AddressRegion } from '@/types';
+import { AddressRegion } from '@/types';
 
 // Validation schema
 const registerSchema = z.object({
@@ -41,7 +41,6 @@ const registerSchema = z.object({
   postalCode: z.string().min(5, 'PSČ musí mít alespoň 5 znaků'),
   country: z.string().min(2, 'Jméno země musí mít alespoň 2 znaky'),
   region: z.nativeEnum(AddressRegion),
-  role: z.nativeEnum(UserRole),
   degree: z.string(),
   flatNumber: z.string().optional(),
 }).refine((data) => data.password === data.confirmPassword, {
@@ -64,7 +63,6 @@ const RegisterPage: React.FC = () => {
       email: '',
       password: '',
       confirmPassword: '',
-      role: UserRole.CLIENT,
       degree: '',
       firstName: '',
       lastName: '',
@@ -81,7 +79,7 @@ const RegisterPage: React.FC = () => {
   const onSubmit = async (data: RegisterFormValues) => {
     setIsLoading(true);
     try {
-      await register(data.username, data.email, data.password, data.role, data.degree, data.firstName, data.lastName, data.phoneNumber, new Date(), data.street, data.city, data.postalCode, data.country, data.region, data.flatNumber);
+      await register(data.username, data.email, data.password, data.degree, data.firstName, data.lastName, data.phoneNumber, new Date(), data.street, data.city, data.postalCode, data.country, data.region, data.flatNumber);
 
       toast({
         title: 'Registrace úspěšná',
@@ -115,12 +113,6 @@ const RegisterPage: React.FC = () => {
     [AddressRegion.OLOMOUCKY]: 'Olomoucký kraj',
     [AddressRegion.ZLINSKY]: 'Zlínský kraj',
     [AddressRegion.MORAVSKOSLEZSKY]: 'Moravskoslezský kraj'
-  };
-
-  const roleLabels = {
-    [UserRole.CLIENT]: 'Klient',
-    [UserRole.AGENT]: 'Makléř',
-    [UserRole.ADMIN]: 'Administrátor',
   };
 
   return (
@@ -236,34 +228,6 @@ const RegisterPage: React.FC = () => {
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="role"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Role *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Vyberte roli" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {Object.entries(roleLabels).map(([value, label]) => (
-                          <SelectItem key={value} value={value}>
-                            {label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormDescription>
-                      Vyberte, zda jste klient, makléř nebo administrátor
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

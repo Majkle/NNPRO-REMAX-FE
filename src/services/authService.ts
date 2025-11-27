@@ -16,7 +16,6 @@ export interface RegisterRequest {
   username: string,
   email: string,
   password: string,
-  role: UserRole,
   degree: string,
   firstName: string,
   lastName: string,
