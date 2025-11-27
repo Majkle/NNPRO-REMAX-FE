@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, UserRole } from '@/types';
+import authService, { LoginRequest } from '@/services/authService';
 
 interface AuthContextType {
   user: User | null;
@@ -7,7 +8,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, firstName: string, lastName: string, role: UserRole) => Promise<void>;
+  register: (username: string, email: string, password: string, firstName: string, lastName: string, role: UserRole) => Promise<void>;
   logout: () => void;
   updateUser: (user: User) => void;
   hasRole: (roles: UserRole[]) => boolean;
@@ -37,9 +38,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsLoading(false);
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (username: string, password: string) => {
     try {
       // TODO: Replace with actual API call
+      const request: LoginRequest = {
+        username,
+        password
+      };
+
       // Mock login for now - use email to determine role for testing
       const mockToken = 'mock-jwt-token-' + Date.now();
 
@@ -47,27 +53,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       let role: UserRole = UserRole.CLIENT;
       let firstName = 'Test';
       let lastName = 'User';
+      let email = 'test@user.com';
       let userId = Date.now();
 
       // Check for admin first
-      if (email === 'admin@remax.cz') {
+      if (username === 'admin') {
         role = UserRole.ADMIN;
         userId = 999; // Special admin ID
         firstName = 'Admin';
         lastName = 'Správce';
-      } else if (email.includes('remax')) {
+        email = 'admin@remax.com';
+      } else if (username.includes('remax')) {
         // Check for RE/MAX agents (using remax in email)
         role = UserRole.AGENT;
         // Use specific mock agent data for petr.novotny@remax.cz
-        if (email === 'petr.novotny@remax.cz') {
+        if (username === 'petr.novotny.remax') {
           userId = 1; // Match the agentId in mock properties
           firstName = 'Petr';
           lastName = 'Novotný';
+          email = 'petr.novotny@remax.com';
         } else {
           firstName = 'Jan';
           lastName = 'Makléř';
+          email = 'jan.makler@remax.com';
         }
       } else {
+        const response = authService.login(request);
+        console.log(response);
         role = UserRole.CLIENT;
         firstName = 'Petr';
         lastName = 'Klient';
@@ -75,6 +87,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       const mockUser: User = {
         id: userId,
+        username,
         email,
         firstName,
         lastName,
@@ -95,6 +108,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const register = async (
+    username: string,
     email: string,
     password: string,
     firstName: string,
@@ -107,6 +121,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const mockToken = 'mock-jwt-token-' + Date.now();
       const mockUser: User = {
         id: Date.now(),
+        username,
         email,
         firstName,
         lastName,

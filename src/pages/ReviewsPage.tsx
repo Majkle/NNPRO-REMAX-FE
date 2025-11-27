@@ -19,6 +19,7 @@ const mockReviews: Review[] = [
     agentId: 1,
     agent: {
       id: 1,
+      username: 'petr.novotny.remax',
       email: 'petr.novotny@remax.cz',
       firstName: 'Petr',
       lastName: 'Novotný',
@@ -30,6 +31,7 @@ const mockReviews: Review[] = [
     authorId: 2,
     author: {
       id: 2,
+      username: 'jan.novak',
       email: 'jan.novak@example.com',
       firstName: 'Jan',
       lastName: 'Novák',
@@ -47,6 +49,7 @@ const mockReviews: Review[] = [
     agentId: 1,
     agent: {
       id: 1,
+      username: 'petr.novotny.remax',
       email: 'petr.novotny@remax.cz',
       firstName: 'Petr',
       lastName: 'Novotný',
@@ -58,6 +61,7 @@ const mockReviews: Review[] = [
     authorId: 3,
     author: {
       id: 3,
+      username: 'marie.svobodova',
       email: 'marie.svobodova@example.com',
       firstName: 'Marie',
       lastName: 'Svobodová',
@@ -75,6 +79,7 @@ const mockReviews: Review[] = [
     agentId: 2,
     agent: {
       id: 2,
+      username: 'jana.dvorakova.remax',
       email: 'jana.dvorakova@remax.cz',
       firstName: 'Jana',
       lastName: 'Dvořáková',
@@ -86,6 +91,7 @@ const mockReviews: Review[] = [
     authorId: 4,
     author: {
       id: 4,
+      username: 'pavel.kral',
       email: 'pavel.kral@example.com',
       firstName: 'Pavel',
       lastName: 'Král',

@@ -13,6 +13,7 @@ import { mockProperties } from '@/data/mockData';
 // Mock data - in real app, this would be fetched from API
 const mockAgent: UserType = {
   id: 1,
+  username: 'petr.novotny.remax',
   email: 'petr.novotny@remax.cz',
   firstName: 'Petr',
   lastName: 'Novotný',
@@ -31,6 +32,7 @@ const mockAgentReviews: Review[] = [
     authorId: 2,
     author: {
       id: 2,
+      username: 'jan.dvorak',
       email: 'jan.dvorak@email.cz',
       firstName: 'Jan',
       lastName: 'Dvořák',
@@ -49,6 +51,7 @@ const mockAgentReviews: Review[] = [
     authorId: 3,
     author: {
       id: 3,
+      username: 'marie.svobodova',
       email: 'marie.svobodova@email.cz',
       firstName: 'Marie',
       lastName: 'Svobodová',
@@ -67,6 +70,7 @@ const mockAgentReviews: Review[] = [
     authorId: 4,
     author: {
       id: 4,
+      username: 'pavel.novak',
       email: 'pavel.novak@email.cz',
       firstName: 'Pavel',
       lastName: 'Novák',

@@ -29,6 +29,7 @@ import { UserRole } from '@/types';
 
 // Validation schema
 const registerSchema = z.object({
+  username: z.string().min(2, 'Uživatelské jméno musí mít alespoň 2 znaky'),
   email: z.string().email('Neplatná emailová adresa'),
   password: z.string().min(6, 'Heslo musí mít alespoň 6 znaků'),
   confirmPassword: z.string(),
@@ -52,6 +53,7 @@ const RegisterPage: React.FC = () => {
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
+      username: '',
       email: '',
       password: '',
       confirmPassword: '',
@@ -65,7 +67,7 @@ const RegisterPage: React.FC = () => {
   const onSubmit = async (data: RegisterFormValues) => {
     setIsLoading(true);
     try {
-      await register(data.email, data.password, data.firstName, data.lastName, data.role);
+      await register(data.username, data.email, data.password, data.firstName, data.lastName, data.role);
 
       toast({
         title: 'Registrace úspěšná',
@@ -137,6 +139,25 @@ const RegisterPage: React.FC = () => {
                   )}
                 />
               </div>
+
+              <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Uživatelské jméno *</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="username"
+                        placeholder="vase.uzivatelske.jmeno"
+                        autoComplete="username"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <FormField
                 control={form.control}

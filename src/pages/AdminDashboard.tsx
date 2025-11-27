@@ -22,6 +22,7 @@ import authService from '@/services/authService';
 const mockUsers: User[] = [
   {
     id: 1,
+    username: 'petr.novotny.remax',
     email: 'petr.novotny@remax.cz',
     firstName: 'Petr',
     lastName: 'Novotný',
@@ -33,6 +34,7 @@ const mockUsers: User[] = [
   },
   {
     id: 2,
+    username: 'jan.dvorak',
     email: 'jan.dvorak@email.cz',
     firstName: 'Jan',
     lastName: 'Dvořák',
@@ -43,6 +45,7 @@ const mockUsers: User[] = [
   },
   {
     id: 3,
+    username: 'marie.svobodova',
     email: 'marie.svobodova@email.cz',
     firstName: 'Marie',
     lastName: 'Svobodová',
@@ -53,6 +56,7 @@ const mockUsers: User[] = [
   },
   {
     id: 4,
+    username: 'pavel.novak',
     email: 'pavel.novak@email.cz',
     firstName: 'Pavel',
     lastName: 'Novák',
@@ -63,6 +67,7 @@ const mockUsers: User[] = [
   },
   {
     id: 999,
+    username: 'admin',
     email: 'admin@remax.cz',
     firstName: 'Admin',
     lastName: 'Správce',

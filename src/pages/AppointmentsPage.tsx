@@ -24,7 +24,8 @@ const mockAppointments: Appointment[] = [
     agentId: 1,
     agent: {
       id: 1,
-      email: 'agent@example.com',
+      username: 'petr.novotny.remax',
+      email: 'petr.novotny@remax.cz',
       firstName: 'Petr',
       lastName: 'Novotný',
       role: UserRole.AGENT,
@@ -34,6 +35,7 @@ const mockAppointments: Appointment[] = [
     clientId: 2,
     client: {
       id: 2,
+      username: 'jan.novak',
       email: 'jan.novak@example.com',
       firstName: 'Jan',
       lastName: 'Novák',
@@ -56,7 +58,8 @@ const mockAppointments: Appointment[] = [
     agentId: 1,
     agent: {
       id: 1,
-      email: 'agent@example.com',
+      username: 'petr.novotny.remax',
+      email: 'petr.novotny@remax.cz',
       firstName: 'Petr',
       lastName: 'Novotný',
       role: UserRole.AGENT,
@@ -66,6 +69,7 @@ const mockAppointments: Appointment[] = [
     clientId: 3,
     client: {
       id: 3,
+      username: 'marie.svobodova',
       email: 'marie.svobodova@example.com',
       firstName: 'Marie',
       lastName: 'Svobodová',

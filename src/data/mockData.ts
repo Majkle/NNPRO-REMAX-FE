@@ -110,6 +110,7 @@ export const mockApartments: Apartment[] = [
     agentId: 1,
     agent: {
       id: 1,
+      username: 'petr.novotny.remax',
       email: 'petr.novotny@remax.cz',
       firstName: 'Petr',
       lastName: 'Novotný',

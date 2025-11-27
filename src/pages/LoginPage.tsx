@@ -20,7 +20,7 @@ import { useAuth } from '@/contexts/AuthContext';
 
 // Validation schema
 const loginSchema = z.object({
-  email: z.string().email('Neplatná emailová adresa'),
+  username: z.string().min(2, 'Uživatelské jméno musí mít alespoň 2 znaky'),
   password: z.string().min(6, 'Heslo musí mít alespoň 6 znaků'),
 });
 
@@ -35,7 +35,7 @@ const LoginPage: React.FC = () => {
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: '',
+      username: '',
       password: '',
     },
   });
@@ -43,7 +43,7 @@ const LoginPage: React.FC = () => {
   const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
     try {
-      await login(data.email, data.password);
+      await login(data.username, data.password);
 
       toast({
         title: 'Přihlášení úspěšné',
@@ -82,15 +82,15 @@ const LoginPage: React.FC = () => {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
-                name="email"
+                name="username"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>Uživatelské jméno</FormLabel>
                     <FormControl>
                       <Input
-                        type="email"
-                        placeholder="vas.email@example.com"
-                        autoComplete="email"
+                        type="text"
+                        placeholder="vase.uzivatelske.jmeno"
+                        autoComplete="username"
                         {...field}
                       />
                     </FormControl>
