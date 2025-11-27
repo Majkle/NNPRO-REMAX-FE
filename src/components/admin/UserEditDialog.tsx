@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
+import { UserCircle } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -89,9 +90,9 @@ export const UserEditDialog: React.FC<UserEditDialogProps> = ({
     }
   }, [user, form]);
 
-  const onSubmit = async (data: FormValues) => {
-    if (!user) return;
+  if (!user) return null;
 
+  const onSubmit = async (data: FormValues) => {
     /*
     // --- BACKEND INTEGRATION ---
     try {
@@ -117,6 +118,19 @@ export const UserEditDialog: React.FC<UserEditDialogProps> = ({
     });
 
     onOpenChange(false);
+  };
+
+  const getRoleLabel = (role: UserRole) => {
+    switch (role) {
+      case UserRole.ADMIN:
+        return 'Administrátor';
+      case UserRole.AGENT:
+        return 'Makléř';
+      case UserRole.CLIENT:
+        return 'Klient';
+      default:
+        return role;
+    }
   };
 
   const addressRegionLabels = {
@@ -145,6 +159,18 @@ export const UserEditDialog: React.FC<UserEditDialogProps> = ({
             Změňte informace o uživateli a uložte je.
           </DialogDescription>
         </DialogHeader>
+
+        {/* Username and Role Display (Read-only) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 rounded-lg border p-4 bg-muted/50">
+          <div className="flex items-center gap-2 mb-2">
+            <UserCircle className="h-5 w-5 text-muted-foreground" />
+            <span className="font-medium">{user.username}</span>
+          </div>
+          <p className="text-muted-foreground">
+            {getRoleLabel(user.role)}
+          </p>
+        </div>
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
@@ -154,7 +180,12 @@ export const UserEditDialog: React.FC<UserEditDialogProps> = ({
                 <FormItem>
                   <FormLabel>Email *</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input
+                      type="email"
+                      placeholder="vas.email@example.com"
+                      autoComplete="email"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -167,7 +198,7 @@ export const UserEditDialog: React.FC<UserEditDialogProps> = ({
                 <FormItem>
                   <FormLabel>Titul</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input placeholder="Ing." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -180,7 +211,7 @@ export const UserEditDialog: React.FC<UserEditDialogProps> = ({
                 <FormItem>
                   <FormLabel>Křestní jméno *</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input placeholder="Jan" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -193,7 +224,7 @@ export const UserEditDialog: React.FC<UserEditDialogProps> = ({
                 <FormItem>
                   <FormLabel>Příjmení *</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input placeholder="Novák" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -206,7 +237,12 @@ export const UserEditDialog: React.FC<UserEditDialogProps> = ({
                 <FormItem>
                   <FormLabel>Telefonní číslo *</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input
+                      type="tel"
+                      placeholder="+420 123 456 789"
+                      autoComplete="phoneNumber"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -219,7 +255,10 @@ export const UserEditDialog: React.FC<UserEditDialogProps> = ({
                 <FormItem>
                   <FormLabel>Ulice a č. p. *</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input
+                      placeholder="Československých legií 565"
+                      autoComplete="street"
+                      {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -232,7 +271,10 @@ export const UserEditDialog: React.FC<UserEditDialogProps> = ({
                 <FormItem>
                   <FormLabel>Číslo bytu</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input
+                      placeholder="101"
+                      autoComplete="flatNumber"
+                      {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -245,7 +287,10 @@ export const UserEditDialog: React.FC<UserEditDialogProps> = ({
                 <FormItem>
                   <FormLabel>Obec *</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input
+                      placeholder="Pardubice I"
+                      autoComplete="city"
+                      {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -258,7 +303,10 @@ export const UserEditDialog: React.FC<UserEditDialogProps> = ({
                 <FormItem>
                   <FormLabel>PSČ *</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input
+                      placeholder="530 02"
+                      autoComplete="postalCode"
+                      {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -271,7 +319,10 @@ export const UserEditDialog: React.FC<UserEditDialogProps> = ({
                 <FormItem>
                   <FormLabel>Země *</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input
+                      placeholder="Česká republika"
+                      autoComplete="country"
+                      {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

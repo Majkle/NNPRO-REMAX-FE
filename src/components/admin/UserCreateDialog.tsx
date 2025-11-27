@@ -188,7 +188,11 @@ export const UserCreateDialog: React.FC<UserCreateDialogProps> = ({
                 <FormItem>
                   <FormLabel>Uživatelské jméno *</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input
+                       placeholder="vase.uzivatelske.jmeno"
+                       autoComplete="username"
+                       {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -201,7 +205,12 @@ export const UserCreateDialog: React.FC<UserCreateDialogProps> = ({
                 <FormItem>
                   <FormLabel>E-mail *</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input
+                      type="email"
+                      placeholder="vas.email@example.com"
+                      autoComplete="email"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -252,7 +261,7 @@ export const UserCreateDialog: React.FC<UserCreateDialogProps> = ({
                 <FormItem>
                   <FormLabel>Titul</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input placeholder="Ing." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -265,7 +274,7 @@ export const UserCreateDialog: React.FC<UserCreateDialogProps> = ({
                 <FormItem>
                   <FormLabel>Křestní jméno *</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input placeholder="Jan" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -278,7 +287,7 @@ export const UserCreateDialog: React.FC<UserCreateDialogProps> = ({
                 <FormItem>
                   <FormLabel>Příjmení *</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input placeholder="Novák" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -291,7 +300,12 @@ export const UserCreateDialog: React.FC<UserCreateDialogProps> = ({
                 <FormItem>
                   <FormLabel>Telefonní číslo *</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input
+                      type="tel"
+                      placeholder="+420 123 456 789"
+                      autoComplete="phoneNumber"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -304,7 +318,10 @@ export const UserCreateDialog: React.FC<UserCreateDialogProps> = ({
                 <FormItem>
                   <FormLabel>Ulice a č. p. *</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input
+                      placeholder="Československých legií 565"
+                      autoComplete="street"
+                      {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -317,7 +334,10 @@ export const UserCreateDialog: React.FC<UserCreateDialogProps> = ({
                 <FormItem>
                   <FormLabel>Číslo bytu</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input
+                      placeholder="101"
+                      autoComplete="flatNumber"
+                      {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -330,7 +350,10 @@ export const UserCreateDialog: React.FC<UserCreateDialogProps> = ({
                 <FormItem>
                   <FormLabel>Obec *</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input
+                      placeholder="Pardubice I"
+                      autoComplete="city"
+                      {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -343,7 +366,10 @@ export const UserCreateDialog: React.FC<UserCreateDialogProps> = ({
                 <FormItem>
                   <FormLabel>PSČ *</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input
+                      placeholder="530 02"
+                      autoComplete="postalCode"
+                      {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -356,7 +382,10 @@ export const UserCreateDialog: React.FC<UserCreateDialogProps> = ({
                 <FormItem>
                   <FormLabel>Země *</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input
+                      placeholder="Česká republika"
+                      autoComplete="country"
+                      {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
