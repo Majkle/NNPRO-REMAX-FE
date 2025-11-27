@@ -18,6 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { User, UserRole } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { UserEditDialog } from '@/components/admin/UserEditDialog';
+import { UserCreateDialog } from '@/components/admin/UserCreateDialog';
 import authService from '@/services/authService';
 
 /*const mockUsers: User[] = [
@@ -90,7 +91,7 @@ const AdminDashboard: React.FC = () => {
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [userToBlock, setUserToBlock] = useState<User | null>(null);
   const [userToEdit, setUserToEdit] = useState<User | null>(null);
-  const [userEditDialogOpen, setUserEditDialogOpen] = useState(false);
+  const [userCreateDialogOpen, setUserCreateDialogOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -116,17 +117,13 @@ const AdminDashboard: React.FC = () => {
 
   const handleDeleteUser = (user: User) => setUserToDelete(user);
   const handleBlockUser = (user: User) => setUserToBlock(user);
-  const handleEditUser = (user: User) => {
-    setUserToEdit(user);
-    setUserEditDialogOpen(true);
-  }
+  const handleEditUser = (user: User) => setUserToEdit(user);
   const handleCreateUser = () => {
      setUserToEdit(null);
-     setUserEditDialogOpen(true);
-   }
+     setUserCreateDialogOpen(true);
+   };
 
   const handleUserUpdate = (updatedUser: Partial<User>) => {
-    setUserToEdit(null);
     setUsers(users.map((u) => (u.id === updatedUser.id ? { ...u, ...updatedUser } : u)));
   };
 
@@ -331,12 +328,17 @@ const AdminDashboard: React.FC = () => {
       </Tabs>
 
       {/* Dialogs */}
+      <UserCreateDialog
+        open={userCreateDialogOpen}
+        onOpenChange={(isOpen) => !isOpen && setUserCreateDialogOpen(false)}
+        onUserCreate={handleUserCreate}
+        
+      />
       <UserEditDialog
         user={userToEdit}
-        open={userEditDialogOpen}
-        onOpenChange={(isOpen) => !isOpen && setUserEditDialogOpen(false)}
+        open={!!userToEdit}
+        onOpenChange={(isOpen) => !isOpen && setUserToEdit(null)}
         onUserUpdate={handleUserUpdate}
-        onUserCreate={handleUserCreate}
       />
 
       <AlertDialog open={!!userToDelete} onOpenChange={(isOpen) => !isOpen && setUserToDelete(null)}>
