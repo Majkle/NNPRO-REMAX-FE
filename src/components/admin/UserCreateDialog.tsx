@@ -31,7 +31,10 @@ interface UserCreateDialogProps {
 }
 
 const formSchema = z.object({
+  username: z.string().min(2, 'Uživatelské jméno musí mít alespoň 2 znaky'),
   email: z.string().email('Neplatná emailová adresa'),
+  password: z.string().min(6, 'Heslo musí mít alespoň 6 znaků'),
+  confirmPassword: z.string(),
   role: z.nativeEnum(UserRole),
   firstName: z.string().min(2, 'Jméno musí mít alespoň 2 znaky'),
   lastName: z.string().min(2, 'Příjmení musí mít alespoň 2 znaky'),
@@ -43,6 +46,9 @@ const formSchema = z.object({
   region: z.nativeEnum(AddressRegion),
   degree: z.string().optional(),
   flatNumber: z.string().optional(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: 'Hesla se neshodují',
+  path: ['confirmPassword'],
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -57,6 +63,10 @@ export const UserCreateDialog: React.FC<UserCreateDialogProps> = ({
     resolver: zodResolver(formSchema),
     defaultValues: {
       role: UserRole.AGENT,
+      username: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
       degree: '',
       firstName: '',
       lastName: '',
@@ -92,7 +102,7 @@ export const UserCreateDialog: React.FC<UserCreateDialogProps> = ({
     // Mock logic
     onUserCreate({
       id: Math.floor(Math.random() * 10000)+1000,
-      username: data.firstName + "." + data.lastName,
+      username: data.username,
       email: data.email,
       role: data.role,
       createdAt: new Date(),
@@ -173,10 +183,10 @@ export const UserCreateDialog: React.FC<UserCreateDialogProps> = ({
             />
             <FormField
               control={form.control}
-              name="email"
+              name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email *</FormLabel>
+                  <FormLabel>Uživatelské jméno *</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -184,6 +194,57 @@ export const UserCreateDialog: React.FC<UserCreateDialogProps> = ({
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>E-mail *</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Heslo *</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder="••••••••"
+                        autoComplete="new-password"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Potvrdit heslo *</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder="••••••••"
+                        autoComplete="confirm-password"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             <FormField
               control={form.control}
               name="degree"

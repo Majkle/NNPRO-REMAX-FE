@@ -57,6 +57,7 @@ export const UserEditDialog: React.FC<UserEditDialogProps> = ({
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      email: '',
       degree: '',
       firstName: '',
       lastName: '',

@@ -263,7 +263,7 @@ const RegisterPage: React.FC = () => {
                         <Input
                           type="password"
                           placeholder="••••••••"
-                          autoComplete="new-password"
+                          autoComplete="confirm-password"
                           {...field}
                         />
                       </FormControl>
