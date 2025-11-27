@@ -9,6 +9,7 @@ export interface LoginRequest {
 export interface LoginResponse {
   token: string;
   expiresAt: User;
+  role: string;
 }
 
 export interface RegisterRequest {

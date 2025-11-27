@@ -50,7 +50,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setToken(loginResponse.token);
 
       const userResponse = await authService.getProfile();
-      userResponse.role = UserRole.ADMIN; // TODO
+      userResponse.role = loginResponse.role as unknown as UserRole;
+      console.log(userResponse.role);
       localStorage.setItem('user', JSON.stringify(userResponse));
       setUser(userResponse);
     } catch (error) {
