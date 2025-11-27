@@ -19,7 +19,7 @@ import { useToast } from '@/hooks/use-toast';
 import { UserEditDialog } from '@/components/admin/UserEditDialog';
 import authService from '@/services/authService';
 
-const mockUsers: User[] = [
+/*const mockUsers: User[] = [
   {
     id: 1,
     username: 'petr.novotny.remax',
@@ -81,23 +81,22 @@ const mockUsers: User[] = [
     isBlocked: false,
     createdAt: new Date('2022-01-01')
   },
-];
+];*/
 
 const AdminDashboard: React.FC = () => {
-  const [users, setUsers] = useState<User[]>(mockUsers);
-  // const [isLoading, setIsLoading] = useState(true); // Uncomment for API integration
+  const [users, setUsers] = useState<User[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [userToBlock, setUserToBlock] = useState<User | null>(null);
   const [userToEdit, setUserToEdit] = useState<User | null>(null);
   const { toast } = useToast();
 
-  /*
-  // Uncomment this useEffect for backend integration
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        // setIsLoading(true);
+        setIsLoading(true);
         const fetchedUsers = await authService.getUsers();
+
         setUsers(fetchedUsers);
       } catch (error) {
         console.error('Failed to fetch users:', error);
@@ -106,13 +105,12 @@ const AdminDashboard: React.FC = () => {
           variant: 'destructive',
         });
       } finally {
-        // setIsLoading(false);
+        setIsLoading(false);
       }
     };
 
     fetchUsers();
   }, [toast]);
-  */
 
   const handleDeleteUser = (user: User) => setUserToDelete(user);
   const handleBlockUser = (user: User) => setUserToBlock(user);

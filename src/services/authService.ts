@@ -124,7 +124,7 @@ const authService = {
    * Get all users (Admin)
    */
   getUsers: async (): Promise<User[]> => {
-    const response = await api.get<User[]>('/users');
+    const response = await api.get<User[]>('/admin/users');
     return response.data;
   },
 
