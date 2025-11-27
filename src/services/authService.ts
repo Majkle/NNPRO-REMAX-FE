@@ -131,8 +131,8 @@ const authService = {
   /**
    * Delete a user (Admin)
    */
-  deleteUser: async (userId: number): Promise<void> => {
-    await api.delete(`/users/${userId}`);
+  deleteUser: async (username: string): Promise<void> => {
+    await api.delete(`/admin/users/${username}`);
   },
 
   /**

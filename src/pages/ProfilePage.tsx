@@ -105,6 +105,7 @@ const ProfilePage: React.FC = () => {
   }
 
   const onProfileSubmit = async (data: ProfileFormValues) => {
+    console.log("veni");
     setIsProfileLoading(true);
     // -- BACKEND INTEGRATION --
     try {

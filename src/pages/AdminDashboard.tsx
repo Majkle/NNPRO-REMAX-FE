@@ -123,12 +123,21 @@ const AdminDashboard: React.FC = () => {
   const confirmDelete = async () => {
     if (userToDelete) {
       // Mock logic
-      setUsers(users.filter((u) => u.id !== userToDelete.id));
-      toast({
-        title: 'Uživatel smazán (Mock)',
-        description: `Uživatel ${userToDelete.personalInformation.firstName} ${userToDelete.personalInformation.lastName} byl odstraněn.`,
-      });
-      setUserToDelete(null);
+      try {
+        await authService.deleteUser(userToDelete.username);
+        setUsers(users.filter((u) => u.id !== userToDelete.id));
+        toast({
+          title: 'Uživatel smazán',
+          description: `Uživatel ${userToDelete.personalInformation.firstName} ${userToDelete.personalInformation.lastName} byl odstraněn.`,
+        });
+      } catch (error) {
+        toast({
+          title: 'Chyba při mazání uživatele',
+          variant: 'destructive',
+        });
+      } finally {
+        setUserToDelete(null);
+      }
     }
   };
 
