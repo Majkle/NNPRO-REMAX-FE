@@ -20,10 +20,9 @@ const PropertiesPage: React.FC = () => {
   const [transactionFilter, setTransactionFilter] = useState<string>('all');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  // const [isLoading, setIsLoading] = useState(true); // Uncomment for API integration
+  const [isLoading, setIsLoading] = useState(true);
   const [properties, setProperties] = useState<Property[]>(mockProperties);
 
-  /*
   // --- BACKEND INTEGRATION ---
   useEffect(() => {
     const fetchProperties = async () => {
@@ -31,8 +30,8 @@ const PropertiesPage: React.FC = () => {
         setIsLoading(true);
         // The service function would need to be updated to accept filter parameters
         const paginatedResponse = await propertyService.getProperties(page, PAGE_SIZE);
-        setProperties(paginatedResponse.data);
-        setTotalPages(Math.ceil(paginatedResponse.total / PAGE_SIZE));
+        setProperties(properties.concat(paginatedResponse.content));
+        setTotalPages(Math.ceil(paginatedResponse.totalElements / PAGE_SIZE));
       } catch (error) {
         console.error('Failed to fetch properties:', error);
       } finally {
@@ -42,7 +41,6 @@ const PropertiesPage: React.FC = () => {
 
     fetchProperties();
   }, [page, searchTerm, typeFilter, statusFilter, transactionFilter]);
-  */
   
   const paginatedAndFilteredProperties = useMemo(() => {
     const filtered = properties.filter(property => {
