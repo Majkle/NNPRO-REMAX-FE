@@ -18,8 +18,8 @@ const mockAppointments: Appointment[] = [
     description: 'Prohlídka moderního bytu 3+kk',
     type: AppointmentType.PROPERTY_VIEWING,
     status: AppointmentStatus.CONFIRMED,
-    startTime: new Date('2024-11-05T10:00:00'),
-    endTime: new Date('2024-11-05T11:00:00'),
+    startTime: new Date('2025-12-05T10:00:00'),
+    endTime: new Date('2025-12-05T11:00:00'),
     propertyId: 1,
     agentId: 1,
     agent: {
@@ -46,8 +46,8 @@ const mockAppointments: Appointment[] = [
       createdAt: new Date('2024-01-01')
     },
     location: 'Hlavní 123, Praha 1',
-    createdAt: new Date('2024-10-20'),
-    updatedAt: new Date('2024-10-20'),
+    createdAt: new Date('2025-10-20'),
+    updatedAt: new Date('2025-10-20'),
   },
   {
     id: 2,
@@ -55,8 +55,8 @@ const mockAppointments: Appointment[] = [
     description: 'Konzultace ohledně hypotéky a financování nemovitosti',
     type: AppointmentType.CONSULTATION,
     status: AppointmentStatus.SCHEDULED,
-    startTime: new Date('2024-11-06T14:00:00'),
-    endTime: new Date('2024-11-06T15:00:00'),
+    startTime: new Date('2025-12-06T14:00:00'),
+    endTime: new Date('2025-12-06T15:00:00'),
     agentId: 1,
     agent: {
       id: 1,
@@ -82,14 +82,15 @@ const mockAppointments: Appointment[] = [
       createdAt: new Date('2024-01-05')
     },
     location: 'Online - Google Meet',
-    createdAt: new Date('2024-10-25'),
-    updatedAt: new Date('2024-10-25'),
+    createdAt: new Date('2025-10-25'),
+    updatedAt: new Date('2025-10-25'),
   },
 ];
 
 const AppointmentsPage: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [activeTab, setActiveTab] = useState('calendar');
+  const [appointments, setAppointments] = useState<Appointment[]>(mockAppointments);
 
   const getStatusBadgeVariant = (status: AppointmentStatus) => {
     switch (status) {
@@ -138,13 +139,25 @@ const AppointmentsPage: React.FC = () => {
     }
   };
 
+  const today = new Date();
+
+  const isSameMonth = (date1: Date, date2: Date) => {
+    return date1.getMonth() == date2.getMonth() && date1.getFullYear() == date2.getFullYear();
+  }
+
+  const appointmentsThisMonth = appointments
+    .filter((apt) => isSameMonth(apt.startTime, today) && apt.status !== AppointmentStatus.CANCELLED)
+    .sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
+
   const appointmentsOnSelectedDate = selectedDate
-    ? mockAppointments.filter((apt) => isSameDay(apt.startTime, selectedDate))
+    ? appointments.filter((apt) => isSameDay(apt.startTime, selectedDate))
     : [];
 
-  const upcomingAppointments = mockAppointments
+  const upcomingAppointments = appointments
     .filter((apt) => apt.startTime >= new Date() && apt.status !== AppointmentStatus.CANCELLED)
     .sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
+
+  const doneAppointments = appointments.filter((apt) => apt.status === AppointmentStatus.COMPLETED);
 
   return (
     <div className="space-y-6">
@@ -170,7 +183,7 @@ const AppointmentsPage: React.FC = () => {
               <div>
                 <p className="text-sm text-muted-foreground">Dnes</p>
                 <p className="text-2xl font-bold">
-                  {mockAppointments.filter(apt =>
+                  {appointments.filter(apt =>
                     isSameDay(apt.startTime, new Date())
                   ).length}
                 </p>
@@ -195,7 +208,7 @@ const AppointmentsPage: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Tento měsíc</p>
-                <p className="text-2xl font-bold">{mockAppointments.length}</p>
+                <p className="text-2xl font-bold">{appointmentsThisMonth.length}</p>
               </div>
               <CalendarIcon className="h-8 w-8 text-purple-500" />
             </div>
@@ -206,14 +219,10 @@ const AppointmentsPage: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Dokončeno</p>
-                <p className="text-2xl font-bold">
-                  {mockAppointments.filter(apt =>
-                    apt.status === AppointmentStatus.COMPLETED
-                  ).length}
-                </p>
+                <p className="text-2xl font-bold">{doneAppointments.length}</p>
               </div>
               <Badge variant="outline" className="text-lg">
-                100%
+                {+(100 * doneAppointments.length / appointments.length).toFixed(2)}%
               </Badge>
             </div>
           </CardContent>

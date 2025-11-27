@@ -142,7 +142,6 @@ const AdminDashboard: React.FC = () => {
 
   const confirmBlock = async () => {
     if (userToBlock) {
-      //const isBlocked = userToBlock.isBlocked;
       const isntBlocked = !userToBlock.isBlocked;
       try {
         (isntBlocked) ? await authService.blockUser(userToBlock.username) : await authService.unblockUser(userToBlock.username);
