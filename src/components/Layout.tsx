@@ -133,13 +133,13 @@ const Layout: React.FC = () => {
                         <span>Profil</span>
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
+                    { /* <DropdownMenuItem asChild>
                       <Link to="/profile" className="cursor-pointer">
                         <Settings className="mr-2 h-4 w-4" />
                         <span>Nastavení</span>
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
+                    <DropdownMenuSeparator /> */ }
                     <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
                       <LogOut className="mr-2 h-4 w-4" />
                       <span>Odhlásit se</span>
@@ -242,7 +242,7 @@ const Layout: React.FC = () => {
       <footer className="border-t mt-auto">
         <div className="container mx-auto px-4 py-6">
           <p className="text-center text-sm text-muted-foreground">
-            © 2024 RE/MAX Realitní kancelář. Všechna práva vyhrazena.
+            © 2025 RE/MAX Realitní kancelář. Všechna práva vyhrazena.
           </p>
         </div>
       </footer>
