@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -44,14 +45,33 @@ import { cs } from 'date-fns/locale';
 import { mockProperties } from '@/data/mockData';
 import { useAuth } from '@/contexts/AuthContext';
 import PriceDisplay from '@/components/PriceDisplay';
+import propertyService from '@/services/propertyService';
 
 const PropertyDetailPage: React.FC = () => {
   const navigate = useNavigate();
+  const [property, setProperty] = useState<Property>();
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
+  const [isLoading, setIsLoading] = useState(true);
 
-  // In real app, fetch property by ID
-  const property = mockProperties.find(p => p.id === Number(id));
+  useEffect(() => {
+    setIsLoading(true);
+
+    const fetchProperty = async () => {
+      try {
+        const response = await propertyService.getProperty(Number(id));
+        setProperty(response);
+      } catch (error) {
+        // for mocking purposes - DELETE
+        if (axios.isAxiosError(error) && (error.status === 403 || error.status === 404)) {
+          setProperty(mockProperties.find(p => p.id === Number(id)))
+        }
+      }
+    };
+    fetchProperty();
+
+    setIsLoading(true);
+  }, []);
 
   // Image gallery state
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
@@ -152,14 +172,22 @@ const PropertyDetailPage: React.FC = () => {
   };
 
   if (!property) {
-    return (
-      <div className="text-center py-12">
-        <h2 className="text-2xl font-bold mb-4">Nemovitost nenalezena</h2>
-        <Button onClick={() => navigate('/properties')}>
-          Zpět na přehled
-        </Button>
-      </div>
-    );
+    if (isLoading) {
+      return (
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-bold mb-4">Načítání nemovitosti...</h2>
+        </div>
+      );
+    } else {
+      return (
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-bold mb-4">Nemovitost nenalezena</h2>
+          <Button onClick={() => navigate('/properties')}>
+            Zpět na přehled
+          </Button>
+        </div>
+      );
+    }
   }
 
   const renderApartmentDetails = () => {
