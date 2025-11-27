@@ -28,6 +28,7 @@ import {
 import { PropertyType, PropertyStatus, TransactionType } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { mockProperties } from '@/data/mockData';
+import propertyService from '@/services/propertyService';
 
 // Validation schema
 const propertyFormSchema = z.object({
@@ -111,14 +112,32 @@ const PropertyFormPage: React.FC = () => {
     }
   }, [isEditMode, id, form]);
 
-  const onSubmit = (data: PropertyFormValues) => {
+  const onSubmit = async (data: PropertyFormValues) => {
     console.log('Form data:', data);
+    try {
+      if (isEditMode && id) {
+        const response = await propertyService.updateProperty(parseInt(id), {...data, id: parseInt(id)});
 
-    // TODO: API call to save property
-    toast({
-      title: isEditMode ? 'Nemovitost upravena' : 'Nemovitost přidána',
-      description: `Nemovitost "${data.title}" byla úspěšně ${isEditMode ? 'upravena' : 'přidána'}.`,
-    });
+        // for mocking purposes
+        const property = mockProperties.find(p => p.id === parseInt(id));
+        if (property) {
+          Object.assign(property, response);
+        }
+      } else {
+        //const response = await propertyService.createProperty(data);
+        //mockProperties.push(response);
+      }
+
+      toast({
+        title: isEditMode ? 'Nemovitost upravena' : 'Nemovitost přidána',
+        description: `Nemovitost "${data.title}" byla úspěšně ${isEditMode ? 'upravena' : 'přidána'}.`,
+      });
+    } catch (error) {
+      toast({
+        title: `Chyba při ${isEditMode ? 'úpravě' : 'přidávání'} nemovitosti.`,
+        variant: 'destructive',
+      });
+    }
 
     // Navigate back to properties list
     navigate('/properties');

@@ -108,7 +108,6 @@ const ProfilePage: React.FC = () => {
     setIsProfileLoading(true);
     // -- BACKEND INTEGRATION --
     try {
-      console.log("start");
       const request: ProfileUpdateRequest = {
         email: data.email,
         degree: data.degree || '',
@@ -123,13 +122,10 @@ const ProfilePage: React.FC = () => {
         region: data.region,
         flatNumber: data.flatNumber
       };
-      console.log("before update");
       const updatedUser = await authService.updateProfile(request);
-      console.log("after update");
       updatedUser.role = user.role;
       updatedUser.isBlocked = user.isBlocked;
       updateUser(updatedUser);
-      console.log("after save");
       toast({
         title: 'Profil aktualizován',
       });
@@ -141,7 +137,6 @@ const ProfilePage: React.FC = () => {
     } finally {
       setIsProfileLoading(false);
     }
-      console.log("finish");
   };
 
   const onPasswordSubmit = async (data: PasswordFormValues) => {

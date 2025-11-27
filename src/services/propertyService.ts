@@ -43,7 +43,7 @@ const propertyService = {
    * @param params - Search and filter parameters.
    */
   searchProperties: async (params: PropertySearchParams): Promise<PaginatedResponse<Property>> => {
-    const response = await api.get<PaginatedResponse<Property>>('/real-estates/search', { params });
+    const response = await api.get<PaginatedResponse<Property>>('/real-estates', { params });
     return response.data;
   },
 
