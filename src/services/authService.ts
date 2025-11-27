@@ -136,6 +136,20 @@ const authService = {
   },
 
   /**
+   * Block a user indefinitely (Admin)
+   */
+  blockUser: async (username: string): Promise<void> => {
+    await api.post(`/admin/block/${username}`, {});
+  },
+
+  /**
+   * Unblock a user indefinitely (Admin)
+   */
+  unblockUser: async (username: string): Promise<void> => {
+    await api.post(`/admin/unblock/${username}`, {});
+  },
+
+  /**
    * Update user status (Admin)
    */
   updateUserStatus: async (userId: number, isBlocked: boolean): Promise<User> => {

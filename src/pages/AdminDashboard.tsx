@@ -122,7 +122,6 @@ const AdminDashboard: React.FC = () => {
 
   const confirmDelete = async () => {
     if (userToDelete) {
-      // Mock logic
       try {
         await authService.deleteUser(userToDelete.username);
         setUsers(users.filter((u) => u.id !== userToDelete.id));
@@ -143,13 +142,23 @@ const AdminDashboard: React.FC = () => {
 
   const confirmBlock = async () => {
     if (userToBlock) {
-      const isBlocked = !userToBlock.isBlocked;
-      // Mock logic
-      setUsers(users.map((u) => (u.id === userToBlock.id ? { ...u, isBlocked } : u)));
-      toast({
-        title: `Uživatel ${isBlocked ? 'zablokován' : 'odblokován'} (Mock)`,
-      });
-      setUserToBlock(null);
+      //const isBlocked = userToBlock.isBlocked;
+      const isntBlocked = !userToBlock.isBlocked;
+      try {
+        (isntBlocked) ? await authService.blockUser(userToBlock.username) : await authService.unblockUser(userToBlock.username);
+        setUsers(users.map((u) => (u.id === userToBlock.id ? { ...u, isBlocked: isntBlocked } : u)));
+        toast({
+          title: `Uživatel ${isntBlocked ? 'zablokován' : 'odblokován'}`,
+          description: `Uživatel ${userToBlock.personalInformation.firstName} ${userToBlock.personalInformation.lastName} byl ${isntBlocked ? 'zablokován' : 'odblokován'}.`,
+        });
+      } catch (error) {
+        toast({
+          title: 'Chyba při blokování uživatele',
+          variant: 'destructive',
+        });
+      } finally {
+        setUserToBlock(null);
+      }
     }
   };
 
