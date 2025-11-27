@@ -120,10 +120,12 @@ const RegisterPage: React.FC = () => {
       <Card className="w-full max-w-2xl">
         <CardHeader className="space-y-1 flex flex-col items-center">
           <div className="flex items-center gap-2 mb-2">
-            <Building2 className="h-8 w-8 text-red-600" />
-            <span className="font-bold text-2xl">
-              <span className="text-red-600">RE/MAX</span>
-            </span>
+            <Link to="/" className="flex items-center space-x-2">
+              <Building2 className="h-8 w-8 text-red-600" />
+              <span className="font-bold text-2xl">
+                <span className="text-red-600">RE/MAX</span>
+              </span>
+            </Link>
           </div>
           <CardTitle className="text-2xl font-bold text-center">Registrace</CardTitle>
           <CardDescription className="text-center">
