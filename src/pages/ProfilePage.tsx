@@ -172,7 +172,6 @@ const ProfilePage: React.FC = () => {
 
   const handleDeleteAccount = async () => {
     setIsDeleting(true);
-    /*
     // --- BACKEND INTEGRATION ---
     try {
       await authService.deleteProfile();
@@ -188,14 +187,6 @@ const ProfilePage: React.FC = () => {
       });
       setIsDeleting(false);
     }
-    */
-    // Mock logic
-    toast({
-      title: 'Účet smazán (Mock)',
-      description: 'Váš účet byl smazán. Nyní budete odhlášeni.',
-    });
-    logout();
-    navigate('/');
   };
 
   const getRoleLabel = (role: UserRole) => {
