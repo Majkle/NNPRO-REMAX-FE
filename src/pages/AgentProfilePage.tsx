@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Review, User as UserType, UserRole, PropertyType, PropertyStatus, TransactionType } from '@/types';
 import { format } from 'date-fns';
 import { cs } from 'date-fns/locale';
-import { mockProperties } from '@/data/mockData';
+import { mockProperties, mockReviews } from '@/data/mockData';
 
 // Mock data - in real app, this would be fetched from API
 const mockAgent: UserType = {
@@ -22,70 +22,13 @@ const mockAgent: UserType = {
   updatedAt: new Date('2023-01-01'),
 };
 
-const mockAgentReviews: Review[] = [
-  {
-    id: 1,
-    rating: 5,
-    comment: 'Výborný makléř, velmi profesionální přístup. Pomohl nám najít perfektní byt přesně podle našich požadavků. Vřele doporučuji!',
-    agentId: 1,
-    authorId: 2,
-    author: {
-      id: 2,
-      email: 'jan.dvorak@email.cz',
-      firstName: 'Jan',
-      lastName: 'Dvořák',
-      role: UserRole.CLIENT,
-      createdAt: new Date('2024-01-01'),
-      updatedAt: new Date('2024-01-01'),
-    },
-    createdAt: new Date('2024-02-15'),
-    updatedAt: new Date('2024-02-15'),
-  },
-  {
-    id: 2,
-    rating: 5,
-    comment: 'Skvělá komunikace, rychlé odpovědi na dotazy. Pan Novotný má skvělé znalosti trhu a vyjednal pro nás velmi dobrou cenu.',
-    agentId: 1,
-    authorId: 3,
-    author: {
-      id: 3,
-      email: 'marie.svobodova@email.cz',
-      firstName: 'Marie',
-      lastName: 'Svobodová',
-      role: UserRole.CLIENT,
-      createdAt: new Date('2024-01-05'),
-      updatedAt: new Date('2024-01-05'),
-    },
-    createdAt: new Date('2024-03-01'),
-    updatedAt: new Date('2024-03-01'),
-  },
-  {
-    id: 3,
-    rating: 4,
-    comment: 'Profesionální jednání, ochotný a vstřícný. Jediné malé minus bylo, že občas byl těžko dostupný, ale jinak super služby.',
-    agentId: 1,
-    authorId: 4,
-    author: {
-      id: 4,
-      email: 'pavel.novak@email.cz',
-      firstName: 'Pavel',
-      lastName: 'Novák',
-      role: UserRole.CLIENT,
-      createdAt: new Date('2024-01-10'),
-      updatedAt: new Date('2024-01-10'),
-    },
-    createdAt: new Date('2024-03-10'),
-    updatedAt: new Date('2024-03-10'),
-  },
-];
-
 const AgentProfilePage: React.FC = () => {
   const navigate = useNavigate();
   // const { id } = useParams<{ id: string }>();
   // In real app, fetch agent by ID using the id parameter
   const agent = mockAgent;
   const properties = mockProperties.filter(p => p.agentId === agent.id);
-  const reviews = mockAgentReviews;
+  const reviews = mockReviews.filter(r => r.agentId === agent.id);
 
   const averageRating = reviews.length > 0
     ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length

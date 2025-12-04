@@ -18,7 +18,9 @@ import {
   InternetConnection,
   ApartmentOwnershipType,
   HouseType,
-  UserRole
+  UserRole,
+  Review,
+  User
 } from '@/types';
 
 // Mock Apartment Properties
@@ -407,4 +409,107 @@ export const mockProperties: Property[] = [
   ...mockApartments,
   ...mockHouses,
   ...mockLands,
+];
+
+// Mock Users (Clients)
+export const mockClients: User[] = [
+  {
+    id: 2,
+    email: 'jan.dvorak@email.cz',
+    firstName: 'Jan',
+    lastName: 'Dvořák',
+    role: UserRole.CLIENT,
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01'),
+  },
+  {
+    id: 3,
+    email: 'marie.svobodova@email.cz',
+    firstName: 'Marie',
+    lastName: 'Svobodová',
+    role: UserRole.CLIENT,
+    createdAt: new Date('2024-01-05'),
+    updatedAt: new Date('2024-01-05'),
+  },
+  {
+    id: 4,
+    email: 'pavel.novak@email.cz',
+    firstName: 'Pavel',
+    lastName: 'Novák',
+    role: UserRole.CLIENT,
+    createdAt: new Date('2024-01-10'),
+    updatedAt: new Date('2024-01-10'),
+  },
+  {
+    id: 5,
+    email: 'eva.kralova@email.cz',
+    firstName: 'Eva',
+    lastName: 'Králová',
+    role: UserRole.CLIENT,
+    createdAt: new Date('2024-01-15'),
+    updatedAt: new Date('2024-01-15'),
+  },
+  {
+    id: 6,
+    email: 'martin.cerny@email.cz',
+    firstName: 'Martin',
+    lastName: 'Černý',
+    role: UserRole.CLIENT,
+    createdAt: new Date('2024-01-20'),
+    updatedAt: new Date('2024-01-20'),
+  },
+];
+
+// Mock Reviews (for agents)
+export const mockReviews: Review[] = [
+  {
+    id: 1,
+    rating: 5,
+    comment: 'Výborný makléř, velmi profesionální přístup. Pomohl nám najít perfektní byt přesně podle našich požadavků. Vřele doporučuji!',
+    agentId: 1,
+    authorId: 2,
+    author: mockClients[0],
+    createdAt: new Date('2024-02-15'),
+    updatedAt: new Date('2024-02-15'),
+  },
+  {
+    id: 2,
+    rating: 5,
+    comment: 'Skvělá komunikace, rychlé odpovědi na dotazy. Pan Novotný má skvělé znalosti trhu a vyjednal pro nás velmi dobrou cenu.',
+    agentId: 1,
+    authorId: 3,
+    author: mockClients[1],
+    createdAt: new Date('2024-03-01'),
+    updatedAt: new Date('2024-03-01'),
+  },
+  {
+    id: 3,
+    rating: 4,
+    comment: 'Profesionální jednání, ochotný a vstřícný. Jediné malé minus bylo, že občas byl těžko dostupný, ale jinak super služby.',
+    agentId: 1,
+    authorId: 4,
+    author: mockClients[2],
+    createdAt: new Date('2024-03-10'),
+    updatedAt: new Date('2024-03-10'),
+  },
+  {
+    id: 4,
+    rating: 5,
+    comment: 'Díky panu Novotnému jsme prodali náš byt během měsíce za výbornou cenu. Jeho zkušenosti a profesionalita jsou na vysoké úrovni.',
+    agentId: 1,
+    authorId: 5,
+    author: mockClients[3],
+    createdAt: new Date('2024-03-20'),
+    updatedAt: new Date('2024-03-20'),
+  },
+  {
+    id: 5,
+    rating: 4,
+    comment: 'Velmi spokojený s jeho službami. Pomohl nám s celým procesem koupě domu od začátku do konce. Malé zpoždění v komunikaci, ale jinak výborné.',
+    agentId: 1,
+    authorId: 6,
+    author: mockClients[4],
+    createdAt: new Date('2024-04-05'),
+    updatedAt: new Date('2024-04-05'),
+  },
 ];
