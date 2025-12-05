@@ -6,4 +6,30 @@ module.exports = {
       '@': path.resolve(__dirname, 'src'),
     },
   },
+  jest: {
+    configure: {
+      moduleNameMapper: {
+        '^@/(.*)$': '<rootDir>/src/$1',
+      },
+      collectCoverageFrom: [
+        'src/**/*.{js,jsx,ts,tsx}',
+        '!src/**/*.d.ts',
+        '!src/index.tsx',
+        '!src/reportWebVitals.ts',
+        '!src/setupTests.ts',
+        '!src/**/*.test.{ts,tsx}',
+        '!src/services/**', // Exclude API services (no REST tests)
+        '!src/types/**',    // Exclude type definitions
+      ],
+      coverageThreshold: {
+        global: {
+          branches: 80,
+          functions: 80,
+          lines: 80,
+          statements: 80,
+        },
+      },
+      coverageReporters: ['text', 'lcov', 'html'],
+    },
+  },
 };
