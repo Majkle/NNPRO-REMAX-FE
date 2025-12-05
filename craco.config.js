@@ -10,7 +10,13 @@ module.exports = {
     configure: {
       moduleNameMapper: {
         '^@/(.*)$': '<rootDir>/src/$1',
+        '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+        '\\.(jpg|jpeg|png|gif|svg)$': '<rootDir>/__mocks__/fileMock.js',
+        '^axios$': require.resolve('axios'),
       },
+      transformIgnorePatterns: [
+        '/node_modules/(?!axios)',
+      ],
       collectCoverageFrom: [
         'src/**/*.{js,jsx,ts,tsx}',
         '!src/**/*.d.ts',
