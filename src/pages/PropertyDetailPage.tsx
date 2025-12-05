@@ -45,6 +45,7 @@ import { cs } from 'date-fns/locale';
 import { mockProperties } from '@/data/mockData';
 import { useAuth } from '@/contexts/AuthContext';
 import PriceDisplay from '@/components/PriceDisplay';
+import PropertyMap from '@/components/PropertyMap';
 import propertyService from '@/services/propertyService';
 
 const PropertyDetailPage: React.FC = () => {
@@ -755,7 +756,7 @@ const PropertyDetailPage: React.FC = () => {
             <CardHeader>
               <CardTitle>Lokace</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
+            <CardContent className="space-y-4">
               <div className="flex items-start gap-2">
                 <MapPin className="h-4 w-4 text-muted-foreground mt-1 flex-shrink-0" />
                 <div>
@@ -769,6 +770,16 @@ const PropertyDetailPage: React.FC = () => {
                   <p className="text-sm text-muted-foreground">{property.address.country}</p>
                 </div>
               </div>
+
+              {/* Map */}
+              {property.address.latitude && property.address.longitude && (
+                <PropertyMap
+                  latitude={property.address.latitude}
+                  longitude={property.address.longitude}
+                  propertyName={property.name}
+                  address={`${property.address.street}, ${property.address.city}`}
+                />
+              )}
             </CardContent>
           </Card>
         </div>
