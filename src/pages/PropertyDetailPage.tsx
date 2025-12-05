@@ -195,7 +195,7 @@ const PropertyDetailPage: React.FC = () => {
     if (property.type !== PropertyType.APARTMENT) return null;
     const apt = property;
     return (
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="flex justify-between py-2 border-b">
           <span className="text-muted-foreground">Počet pokojů:</span>
           <span className="font-medium">{apt.rooms}</span>
@@ -226,7 +226,7 @@ const PropertyDetailPage: React.FC = () => {
     if (property.type !== PropertyType.HOUSE) return null;
     const house = property;
     return (
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="flex justify-between py-2 border-b">
           <span className="text-muted-foreground">Plocha pozemku:</span>
           <span className="font-medium">{house.plotArea} m²</span>
@@ -252,7 +252,7 @@ const PropertyDetailPage: React.FC = () => {
     if (property.type !== PropertyType.LAND) return null;
     const land = property;
     return (
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="flex justify-between py-2 border-b">
           <span className="text-muted-foreground">Určeno pro bydlení:</span>
           <span className="font-medium">{land.isForHousing ? 'Ano' : 'Ne'}</span>
@@ -347,7 +347,7 @@ const PropertyDetailPage: React.FC = () => {
 
           {/* Tabs for organized information */}
           <Tabs defaultValue="details" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-2 h-auto p-2">
               <TabsTrigger value="details">Detaily</TabsTrigger>
               <TabsTrigger value="utilities">Vybavení</TabsTrigger>
               <TabsTrigger value="transport">Doprava</TabsTrigger>
@@ -373,7 +373,7 @@ const PropertyDetailPage: React.FC = () => {
                   <CardTitle>Základní parametry</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div className="flex justify-between py-2 border-b">
                       <span className="text-muted-foreground">Užitná plocha:</span>
                       <span className="font-medium">{property.usableArea} m²</span>
@@ -412,7 +412,7 @@ const PropertyDetailPage: React.FC = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div className="flex justify-between py-2 border-b">
                       <span className="text-muted-foreground">Materiál:</span>
                       <span className="font-medium">{getMaterialLabel(property.buildingProperties.constructionMaterial)}</span>
@@ -447,7 +447,7 @@ const PropertyDetailPage: React.FC = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {property.utilities.hasWater && (
                       <div className="flex items-center gap-2 text-sm">
                         <Check className="h-4 w-4 text-green-600" />
@@ -544,7 +544,7 @@ const PropertyDetailPage: React.FC = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {property.transportPossibilities.road && (
                       <div className="flex items-center gap-2 text-sm">
                         <Check className="h-4 w-4 text-green-600" />
@@ -607,7 +607,7 @@ const PropertyDetailPage: React.FC = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {property.civicAmenities.busStop && (
                       <div className="flex items-center gap-2 text-sm">
                         <Check className="h-4 w-4 text-green-600" />
