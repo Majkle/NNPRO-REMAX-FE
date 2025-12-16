@@ -215,7 +215,7 @@ const PropertyDetailPage: React.FC = () => {
         <div className="flex justify-between py-2 border-b">
           <span className="text-muted-foreground">Typ vlastnictví:</span>
           <span className="font-medium">
-            {apt.ownership === ApartmentOwnershipType.OWNERSHIP ? 'Osobní' : 'Družstevní'}
+            {apt.ownershipType === ApartmentOwnershipType.OWNERSHIP ? 'Osobní' : 'Družstevní'}
           </span>
         </div>
       </div>
@@ -291,7 +291,10 @@ const PropertyDetailPage: React.FC = () => {
       <Card className="overflow-hidden">
         <div className="aspect-video relative bg-muted">
           <img
-            src={selectedImageUrl || property.images.find(img => img.isPrimary)?.url || property.images[0]?.url}
+            src={selectedImageUrl ||
+              (property.images ?
+               (property.images.find(img => img.isPrimary)?.url || property.images[0]?.url) :
+               '')}
             alt={property.name}
             className="object-cover w-full h-full"
           />
@@ -302,7 +305,7 @@ const PropertyDetailPage: React.FC = () => {
             <Badge variant="outline">{getTypeLabel(property.type)}</Badge>
           </div>
         </div>
-        {property.images.length > 1 && (
+        {property.images && property.images.length > 1 && (
           <div className="flex gap-2 p-4 overflow-x-auto">
             {property.images.map((image) => (
               <div

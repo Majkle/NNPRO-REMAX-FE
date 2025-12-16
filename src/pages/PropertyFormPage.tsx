@@ -25,10 +25,138 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { PropertyType, PropertyStatus, TransactionType } from '@/types';
+import {
+  CreatePropertyInput, CreateApartment, CreateHouse, CreateLand,
+  Property,
+  PropertyType,
+  PropertyStatus,
+  TransactionType,
+  PriceDisclosure,
+  Commission,
+  Taxes,
+  Utilities,
+  Equipment,
+  InternetConnection,
+  ConstructionMaterial,
+  BuildingCondition,
+  EnergyEfficiencyClass,
+  BuildingLocation,
+  AddressRegion,
+  ApartmentOwnershipType,
+  HouseType,
+} from '@/types';
 import { useToast } from '@/hooks/use-toast';
-import { mockProperties } from '@/data/mockData';
 import propertyService from '@/services/propertyService';
+
+const newApartment = (baseObj: CreatePropertyInput, data: PropertyFormValues): CreateApartment => {
+  return {
+           ...baseObj,
+           ownershipType: ApartmentOwnershipType.COOPERATIVE_OWNERSHIP,
+           floor: data.floor || 1,
+           totalFloors: data.floor || 1,
+           elevator: true,
+           balcony: false,
+           rooms: data.rooms
+  };
+};
+
+const newHouse = (baseObj: CreatePropertyInput, data: PropertyFormValues): CreateHouse => {
+  return {
+           ...baseObj,
+           plotArea: data.size,
+           houseType: HouseType.DETACHED,
+           stories: data.floor || 1
+  };
+};
+
+const newLand = (baseObj: CreatePropertyInput, data: PropertyFormValues): CreateLand => {
+  return {
+           ...baseObj,
+           isForHousing: true
+  };
+};
+
+const newPropertyObject = async (data: PropertyFormValues): Promise<Property> => {
+  let baseObj = {
+           name: data.title,
+           usableArea: data.size,
+           contractType: data.transactionType,
+           listedAt: new Date(),
+           priceDisclosure: PriceDisclosure.NOT_DISCLOSED,
+           commission: Commission.INCLUDED,
+           taxes: Taxes.INCLUDED,
+           equipment: Equipment.FURNISHED,
+           type: data.type,
+           description: data.description,
+           price: data.price,
+           status: data.status,
+           utilities: {
+             hasWater: true,
+             hasWell: true,
+             hasElectricity: true,
+             hasGas: true,
+             hasSewerage: true,
+             hasCesspool: true,
+             hasHeating: true,
+             hasPhoneLine: true,
+             hasCableTV: true,
+             hasRecycling: true,
+             hasBarrierFreeAccess: true,
+             internetConnection: InternetConnection.DSL,
+             parkingPlaces: 1
+           },
+           civicAmenities: {
+             busStop: false,
+             trainStation: false,
+             postOffice: false,
+             atm: false,
+             generalPractitioner: false,
+             veterinarian: false,
+             elementarySchool: false,
+             kindergarten: false,
+             supermarket: false,
+             smallShop: false,
+             restaurant: false,
+             pub: false,
+             playground: false,
+             subway: false
+           },
+           transportPossibilities: {
+              road: true,
+              highway: false,
+              train: false,
+              bus: true,
+              publicTransport: true,
+              airplane: false,
+              boat: false,
+              ferry: false,
+            },
+           basement: false,
+           agentId: 7,
+           buildingProperties: {
+             constructionMaterial: ConstructionMaterial.BRICK,
+             buildingCondition: BuildingCondition.GOOD,
+             energyEfficiencyClass: EnergyEfficiencyClass.A,
+             buildingLocation: BuildingLocation.SUBURBS,
+             isInProtectionZone: false
+           },
+           address: {
+             street: data.street,
+             city: data.city,
+             postalCode: data.zipCode,
+             country: data.country,
+             region: AddressRegion.PRAHA
+           }
+  };
+
+  if (data.type === PropertyType.APARTMENT) {
+    return await propertyService.createApartment(newApartment(baseObj, data));
+  }
+  if (data.type === PropertyType.HOUSE) {
+    return await propertyService.createHouse(newHouse(baseObj, data));
+  }
+  return await propertyService.createLand(newLand(baseObj, data));
+};
 
 // Validation schema
 const propertyFormSchema = z.object({
@@ -85,47 +213,47 @@ const PropertyFormPage: React.FC = () => {
 
   // Load existing property data when in edit mode
   useEffect(() => {
-    if (isEditMode && id) {
-      const property = mockProperties.find(p => p.id === parseInt(id));
-      if (property) {
-        // Map property fields to form fields
-        form.reset({
-          title: property.name,
-          description: property.description,
-          price: property.price,
-          type: property.type,
-          status: property.status,
-          transactionType: property.contractType,
-          size: property.usableArea,
-          rooms: property.type === PropertyType.APARTMENT ? (property as any).rooms : 1,
-          bedrooms: 0, // Not in new structure
-          bathrooms: 1, // Not in new structure
-          floor: property.type === PropertyType.APARTMENT ? (property as any).floor : undefined,
-          yearBuilt: undefined, // Not in new structure
-          energyClass: property.buildingProperties?.energyEfficiencyClass,
-          street: property.address.street,
-          city: property.address.city,
-          zipCode: property.address.postalCode,
-          country: property.address.country,
-        });
+    const loadExistingProperty = async (id: string | undefined) => {
+      try {
+        if (isEditMode && id) {
+          const property = await propertyService.getProperty(parseInt(id));
+          if (property) {
+            // Map property fields to form fields
+            form.reset({
+              title: property.name,
+              description: property.description,
+              price: property.price,
+              type: property.type,
+              status: property.status,
+              transactionType: property.contractType,
+              size: property.usableArea,
+              rooms: property.type === PropertyType.APARTMENT ? (property as any).rooms : 1,
+              bedrooms: 0, // Not in new structure
+              bathrooms: 1, // Not in new structure
+              floor: property.type === PropertyType.APARTMENT ? (property as any).floor : undefined,
+              yearBuilt: undefined, // Not in new structure
+              energyClass: property.buildingProperties?.energyEfficiencyClass,
+              street: property.address.street,
+              city: property.address.city,
+              zipCode: property.address.postalCode,
+              country: property.address.country,
+            });
+          }
+        }
+      } catch (error) {
+         console.error('Failed to fetch property:', error);
       }
-    }
+    };
+
+    loadExistingProperty(id);
   }, [isEditMode, id, form]);
 
   const onSubmit = async (data: PropertyFormValues) => {
-    console.log('Form data:', data);
     try {
       if (isEditMode && id) {
-        const response = await propertyService.updateProperty(parseInt(id), {...data, id: parseInt(id)});
-
-        // for mocking purposes
-        const property = mockProperties.find(p => p.id === parseInt(id));
-        if (property) {
-          Object.assign(property, response);
-        }
+        const response = await propertyService.patchProperty(parseInt(id), {...data, id: parseInt(id)});
       } else {
-        //const response = await propertyService.createProperty(data);
-        //mockProperties.push(response);
+        const response = await newPropertyObject(data);
       }
 
       toast({

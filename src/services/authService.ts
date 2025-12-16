@@ -29,6 +29,25 @@ export interface RegisterRequest {
   flatNumber?: string
 }
 
+export interface CreateUserRequest {
+  username: string,
+  email: string,
+  password: string,
+  degree: string,
+  firstName: string,
+  lastName: string,
+  phoneNumber: string,
+  birthDate: Date,
+  street: string,
+  city: string,
+  postalCode: string,
+  country: string,
+  region: AddressRegion,
+  flatNumber?: string,
+  licenseNumber?: number,
+  about?: string
+}
+
 export interface ProfileUpdateRequest {
   email: string,
   degree: string,
@@ -86,7 +105,7 @@ const authService = {
    * Request password reset
    */
   requestPasswordReset: async (data: ResetPasswordRequest): Promise<void> => {
-    await api.post('/auth/reset-password', data);
+    await api.post('/auth/password-reset/request', data);
   },
 
   /**
@@ -155,6 +174,25 @@ const authService = {
   updateUserStatus: async (userId: number, isBlocked: boolean): Promise<User> => {
     const response = await api.patch<User>(`/users/${userId}`, { isBlocked });
     return response.data;
+  },
+
+  /**
+   * Create a new user (Admin)
+   */
+  createUser: async (role: UserRole, data: CreateUserRequest): Promise<User> => {
+    if (role === UserRole.AGENT) {
+      const response = await api.post<User>(`/admin/realtors`, {
+        ...data,
+        licenseNumber: 10000 + Math.floor(Math.random() * 89999),
+        about:''
+      });
+      return {...response.data, role: UserRole.AGENT};
+    } else if (role === UserRole.ADMIN) {
+      const response = await api.post<User>(`/admin/admins`, data);
+      return {...response.data, role: UserRole.ADMIN};
+    } else {
+      throw new Error('User must not be a client!');
+    }
   },
 
   /**

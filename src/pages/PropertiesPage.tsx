@@ -18,33 +18,47 @@ const PropertiesPage: React.FC = () => {
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [transactionFilter, setTransactionFilter] = useState<string>('all');
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
-  const [properties, setProperties] = useState<Property[]>(mockProperties);
+  const [properties, setProperties] = useState<Property[]>([]);
 
   // --- BACKEND INTEGRATION ---
   useEffect(() => {
+    let cancelled = false;
+
     const fetchProperties = async () => {
       try {
         setIsLoading(true);
         // The service function would need to be updated to accept filter parameters
         const paginatedResponse = await propertyService.getProperties(page, PAGE_SIZE);
-        setProperties(properties.concat(paginatedResponse.content));
-        setTotalPages(Math.ceil(paginatedResponse.totalElements / PAGE_SIZE));
+        if (!cancelled) {
+          setProperties(prev => prev.concat(paginatedResponse.content));
+          setTotalPages(Math.ceil(paginatedResponse.totalElements / PAGE_SIZE));
+        }
       } catch (error) {
         console.error('Failed to fetch properties:', error);
       } finally {
-        setIsLoading(false);
+        if (!cancelled) setIsLoading(false);
       }
     };
 
     fetchProperties();
-  }, [page, searchTerm, typeFilter, statusFilter, transactionFilter]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [page]);
+
+  useEffect(() => {
+    setPage(0);
+    //setProperties([]);
+  }, [searchTerm, typeFilter, statusFilter, transactionFilter]);
   
   const paginatedAndFilteredProperties = useMemo(() => {
     const filtered = properties.filter(property => {
-      const matchesSearch = property.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      const matchesSearch = !searchTerm ||
+        property.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         property.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
         property.address.city.toLowerCase().includes(searchTerm.toLowerCase());
 
@@ -55,9 +69,8 @@ const PropertiesPage: React.FC = () => {
       return matchesSearch && matchesType && matchesStatus && matchesTransaction;
     });
 
-    // Mock pagination logic
     setTotalPages(Math.ceil(filtered.length / PAGE_SIZE));
-    const start = (page - 1) * PAGE_SIZE;
+    const start = page * PAGE_SIZE;
     const end = start + PAGE_SIZE;
     return filtered.slice(start, end);
     
@@ -172,7 +185,10 @@ const PropertiesPage: React.FC = () => {
               <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
                 <div className="aspect-video relative bg-muted overflow-hidden">
                   <img
-                    src={property.images.find(img => img.isPrimary)?.url || property.images[0]?.url}
+                    src={property.images ?
+                      (property.images.find(img => img.isPrimary)?.url || property.images[0]?.url) :
+                      ''
+                    }
                     alt={property.name}
                     className="object-cover w-full h-full"
                   />
@@ -231,7 +247,7 @@ const PropertiesPage: React.FC = () => {
       </div>
       
       <div className="flex justify-center items-center gap-4 mt-6">
-        <Button onClick={() => setPage(p => p - 1)} disabled={page <= 1}>
+        <Button onClick={() => setPage(p => p - 1)} disabled={page <= 0}>
           Předchozí
         </Button>
         <span className="text-sm font-medium">

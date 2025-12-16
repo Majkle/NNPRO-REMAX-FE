@@ -234,7 +234,7 @@ export enum ApartmentOwnershipType {
 
 export interface Apartment extends RealEstateBase {
   type: PropertyType.APARTMENT;
-  ownership: ApartmentOwnershipType;
+  ownershipType: ApartmentOwnershipType;
   floor: number;
   totalFloors: number;
   elevator: boolean;
@@ -333,11 +333,46 @@ export interface Appointment {
 }
 
 // Form input types (for creating/updating)
-export type CreatePropertyInput = Omit<Property, 'id' | 'createdAt' | 'updatedAt' | 'agent' | 'address' | 'images'> & {
-  address: Omit<Address, 'id'>;
+export type CreatePropertyInput = Omit<Property, 'id' | 'createdAt' | 'updatedAt' | 'agent' | 'address' | 'images' | 'utilities' | 'civicAmenities' | 'buildingProperties' | 'transportPossibilities'> & {
+  address: Omit<Address, 'id'>,
+  utilities: Omit<Utilities, 'id'>,
+  civicAmenities: Omit<CivicAmenities, 'id'>,
+  transportPossibilities: Omit<TransportPossibilities, 'id'>,
+  buildingProperties: Omit<BuildingProperties, 'id'>
+};
+
+export type CreateApartment = CreatePropertyInput & {
+  ownershipType: ApartmentOwnershipType;
+  floor: number;
+  totalFloors: number;
+  elevator: boolean;
+  balcony: boolean;
+  rooms: number;
+};
+
+export type CreateHouse = CreatePropertyInput & {
+  plotArea: number;
+  houseType: HouseType;
+  stories: number;
+};
+
+export type CreateLand = CreatePropertyInput & {
+  isForHousing: boolean;
 };
 
 export type UpdatePropertyInput = Partial<CreatePropertyInput> & {
+  id: number;
+};
+
+export type UpdateApartment = Partial<CreateApartment> & {
+  id: number;
+};
+
+export type UpdateHouse = Partial<CreateHouse> & {
+  id: number;
+};
+
+export type UpdateLand = Partial<CreateLand> & {
   id: number;
 };
 

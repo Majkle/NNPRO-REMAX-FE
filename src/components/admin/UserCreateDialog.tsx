@@ -81,14 +81,17 @@ export const UserCreateDialog: React.FC<UserCreateDialogProps> = ({
   });
 
   const onSubmit = async (data: FormValues) => {
-    /*
     // --- BACKEND INTEGRATION ---
     try {
-      const createdUser = await authService.createUser( data);
-      onUserCreate(createdUser);
+      const createdUser = await authService.createUser(data.role, {
+        ...data,
+        degree: data.degree || '',
+        birthDate: new Date()
+      });
       toast({
         title: 'Uživatel vytvořen',
       });
+      onUserCreate(createdUser);
     } catch (error) {
       console.error('Failed to create user:', error);
       toast({
@@ -97,36 +100,6 @@ export const UserCreateDialog: React.FC<UserCreateDialogProps> = ({
       });
       return;
     }
-    */
-
-    // Mock logic
-    onUserCreate({
-      id: Math.floor(Math.random() * 10000)+1000,
-      username: data.username,
-      email: data.email,
-      role: data.role,
-      createdAt: new Date(),
-      isBlocked: false,
-      personalInformation: {
-        degree: data.degree || '',
-        firstName: data.firstName,
-        lastName: data.lastName,
-        birthDate: new Date(),
-        phoneNumber: data.phoneNumber,
-        address: {
-          id: Math.floor(Math.random() * 10000)+1000,
-          street: data.street,
-          city: data.city,
-          flatNumber: data.flatNumber,
-          postalCode: data.postalCode,
-          country: data.country,
-          region: data.region
-        }
-      }
-    });
-    toast({
-      title: 'Uživatel vytvořen (Mock)',
-    });
 
     onOpenChange(false);
   };
@@ -172,7 +145,6 @@ export const UserCreateDialog: React.FC<UserCreateDialogProps> = ({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value={UserRole.CLIENT}>Klient</SelectItem>
                       <SelectItem value={UserRole.AGENT}>Makléř</SelectItem>
                       <SelectItem value={UserRole.ADMIN}>Admin</SelectItem>
                     </SelectContent>

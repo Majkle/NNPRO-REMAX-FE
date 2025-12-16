@@ -17,80 +17,14 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { User, UserRole } from '@/types';
 import { useToast } from '@/hooks/use-toast';
-import { UserEditDialog } from '@/components/admin/UserEditDialog';
 import { UserCreateDialog } from '@/components/admin/UserCreateDialog';
 import authService from '@/services/authService';
-
-/*const mockUsers: User[] = [
-  {
-    id: 1,
-    username: 'petr.novotny.remax',
-    email: 'petr.novotny@remax.cz',
-    personalInformation: {
-      firstName: 'Petr',
-      lastName: 'Novotný',
-      phoneNumber: '+420 777 888 999'
-    },
-    role: UserRole.AGENT,
-    isBlocked: false,
-    createdAt: new Date('2023-01-01')
-  },
-  {
-    id: 2,
-    username: 'jan.dvorak',
-    email: 'jan.dvorak@email.cz',
-    personalInformation: {
-      firstName: 'Jan',
-      lastName: 'Dvořák'
-    },
-    role: UserRole.CLIENT,
-    isBlocked: true,
-    createdAt: new Date('2024-01-01')
-  },
-  {
-    id: 3,
-    username: 'marie.svobodova',
-    email: 'marie.svobodova@email.cz',
-    personalInformation: {
-      firstName: 'Marie',
-      lastName: 'Svobodová'
-    },
-    role: UserRole.CLIENT,
-    isBlocked: false,
-    createdAt: new Date('2024-01-05')
-  },
-  {
-    id: 4,
-    username: 'pavel.novak',
-    email: 'pavel.novak@email.cz',
-    personalInformation: {
-      firstName: 'Pavel',
-      lastName: 'Novák'
-    },
-    role: UserRole.CLIENT,
-    isBlocked: false,
-    createdAt: new Date('2024-01-10')
-  },
-  {
-    id: 999,
-    username: 'admin',
-    email: 'admin@remax.cz',
-    personalInformation: {
-      firstName: 'Admin',
-      lastName: 'Správce'
-    },
-    role: UserRole.ADMIN,
-    isBlocked: false,
-    createdAt: new Date('2022-01-01')
-  },
-];*/
 
 const AdminDashboard: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [userToBlock, setUserToBlock] = useState<User | null>(null);
-  const [userToEdit, setUserToEdit] = useState<User | null>(null);
   const [userCreateDialogOpen, setUserCreateDialogOpen] = useState(false);
   const { toast } = useToast();
 
@@ -117,9 +51,7 @@ const AdminDashboard: React.FC = () => {
 
   const handleDeleteUser = (user: User) => setUserToDelete(user);
   const handleBlockUser = (user: User) => setUserToBlock(user);
-  const handleEditUser = (user: User) => setUserToEdit(user);
   const handleCreateUser = () => {
-     setUserToEdit(null);
      setUserCreateDialogOpen(true);
    };
 
@@ -208,10 +140,6 @@ const AdminDashboard: React.FC = () => {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="ghost" size="sm" onClick={() => handleEditUser(user)}>
-            <Pencil className="h-4 w-4 mr-2" />
-            Upravit
-          </Button>
           <Button
             variant={user.isBlocked ? 'outline' : 'secondary'}
             size="sm"
@@ -333,12 +261,6 @@ const AdminDashboard: React.FC = () => {
         onOpenChange={(isOpen) => !isOpen && setUserCreateDialogOpen(false)}
         onUserCreate={handleUserCreate}
         
-      />
-      <UserEditDialog
-        user={userToEdit}
-        open={!!userToEdit}
-        onOpenChange={(isOpen) => !isOpen && setUserToEdit(null)}
-        onUserUpdate={handleUserUpdate}
       />
 
       <AlertDialog open={!!userToDelete} onOpenChange={(isOpen) => !isOpen && setUserToDelete(null)}>

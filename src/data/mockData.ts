@@ -120,7 +120,7 @@ export const mockApartments: Apartment[] = [
       role: UserRole.AGENT,
       createdAt: new Date('2023-01-01')
     },
-    ownership: ApartmentOwnershipType.OWNERSHIP,
+    ownershipType: ApartmentOwnershipType.OWNERSHIP,
     floor: 4,
     totalFloors: 8,
     elevator: true,
@@ -210,7 +210,7 @@ export const mockApartments: Apartment[] = [
       { id: 16, url: 'https://placehold.co/800x600/6366F1/white?text=Mal%C3%BD+byt', isPrimary: true, propertyId: 6 },
     ],
     agentId: 1,
-    ownership: ApartmentOwnershipType.COOPERATIVE_OWNERSHIP,
+    ownershipType: ApartmentOwnershipType.COOPERATIVE_OWNERSHIP,
     floor: 2,
     totalFloors: 8,
     elevator: true,
