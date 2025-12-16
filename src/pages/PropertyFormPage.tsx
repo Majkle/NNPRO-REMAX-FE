@@ -61,7 +61,7 @@ const createPropertyAPIPayload = async (data: PropertyFormValues): Promise<Creat
   }
 
   const basePayload: CreatePropertyAPIInput = {
-    realEstateType: data.type,
+    type: data.type,
     name: data.title,
     description: data.description,
     status: data.status,
@@ -87,7 +87,6 @@ const createPropertyAPIPayload = async (data: PropertyFormValues): Promise<Creat
       energyEfficiencyClass: data.energyClass,
       buildingLocation: data.buildingLocation,
       inProtectionZone: data.inProtectionZone,
-      isInProtectionZone: data.inProtectionZone,
     },
     equipment: data.equipment,
     utilities: {
@@ -101,7 +100,7 @@ const createPropertyAPIPayload = async (data: PropertyFormValues): Promise<Creat
     civicAmenities: {
       amenities: data.civicAmenities,
     },
-    imageIds: imageIds.length > 0 ? imageIds : undefined,
+    images: imageIds.length > 0 ? imageIds : undefined,
   };
 
   if (data.type === PropertyType.APARTMENT) {
@@ -273,6 +272,9 @@ const PropertyFormPage: React.FC = () => {
 
       const payload = await createPropertyAPIPayload(data);
 
+      console.log('=== Creating property ===');
+      console.log('Payload:', JSON.stringify(payload, null, 2));
+
       let response: Property;
       if (isEditMode && id) {
         throw new Error('Edit mode not fully implemented yet');
@@ -284,6 +286,7 @@ const PropertyFormPage: React.FC = () => {
         } else {
           response = await propertyService.createLand(payload as CreateLandAPI);
         }
+        console.log('Property created:', response);
       }
 
       toast({

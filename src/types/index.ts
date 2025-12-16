@@ -429,7 +429,7 @@ export type CreateLand = CreatePropertyInput & {
 
 // API input types (for sending to backend)
 export interface CreatePropertyAPIInput {
-  realEstateType: PropertyType;
+  type: PropertyType;
   name: string;
   description: string;
   status: PropertyStatus;
@@ -438,16 +438,29 @@ export interface CreatePropertyAPIInput {
   priceDisclosure: PriceDisclosure;
   commission: Commission;
   taxes: Taxes;
-  availableFrom?: string; // ISO date string
+  availableFrom?: string;
   basement: boolean;
   price: number;
-  address: Omit<Address, 'id'>;
-  buildingProperties: Omit<BuildingProperties, 'id'> & { inProtectionZone: boolean };
+  address: {
+    street: string;
+    city: string;
+    postalCode: string;
+    country: string;
+    flatNumber?: string;
+    region: AddressRegion;
+  };
+  buildingProperties: {
+    constructionMaterial: ConstructionMaterial;
+    buildingCondition: BuildingCondition;
+    energyEfficiencyClass: EnergyEfficiencyClass;
+    buildingLocation: BuildingLocation;
+    inProtectionZone: boolean;
+  };
   equipment: Equipment;
   utilities: UtilitiesAPI;
   transportPossibilities: TransportPossibilitiesAPI;
   civicAmenities: CivicAmenitiesAPI;
-  imageIds?: number[];
+  images?: number[];
 }
 
 export type CreateApartmentAPI = CreatePropertyAPIInput & {
