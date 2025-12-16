@@ -1,5 +1,5 @@
 import api from './api';
-import { Property, CreateApartment, CreateHouse, CreateLand, UpdatePropertyInput, PaginatedResponse, PropertyType, PropertyStatus, TransactionType, PriceHistory } from '@/types';
+import { Property, CreateApartmentAPI, CreateHouseAPI, CreateLandAPI, UpdatePropertyInput, PaginatedResponse, PropertyType, PropertyStatus, TransactionType, PriceHistory } from '@/types';
 
 export interface PropertySearchParams {
   page?: number;
@@ -73,7 +73,7 @@ const propertyService = {
    * Create a new apartment.
    * @param data - The data for the new property.
    */
-  createApartment: async (data: CreateApartment): Promise<Property> => {
+  createApartment: async (data: CreateApartmentAPI): Promise<Property> => {
     const response = await api.post<Property>('/real-estates', data);
     return response.data;
   },
@@ -82,7 +82,7 @@ const propertyService = {
    * Create a new house.
    * @param data - The data for the new property.
    */
-  createHouse: async (data: CreateHouse): Promise<Property> => {
+  createHouse: async (data: CreateHouseAPI): Promise<Property> => {
     const response = await api.post<Property>('/real-estates', data);
     return response.data;
   },
@@ -91,7 +91,7 @@ const propertyService = {
    * Create a new land.
    * @param data - The data for the new property.
    */
-  createLand: async (data: CreateLand): Promise<Property> => {
+  createLand: async (data: CreateLandAPI): Promise<Property> => {
     const response = await api.post<Property>('/real-estates', data);
     return response.data;
   },

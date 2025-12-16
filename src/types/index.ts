@@ -114,6 +114,20 @@ export enum InternetConnection {
   SATELLITE = 'SATELLITE'
 }
 
+export enum AvailableUtility {
+  WATER = 'WATER',
+  WELL = 'WELL',
+  ELECTRICITY = 'ELECTRICITY',
+  GAS = 'GAS',
+  SEWERAGE = 'SEWERAGE',
+  CESSPOOL = 'CESSPOOL',
+  HEATING = 'HEATING',
+  PHONE_LINE = 'PHONE_LINE',
+  CABLE_TV = 'CABLE_TV',
+  RECYCLING = 'RECYCLING',
+  BARRIER_FREE_ACCESS = 'BARRIER_FREE_ACCESS'
+}
+
 export interface Utilities {
   id: number;
   hasWater: boolean;
@@ -131,7 +145,25 @@ export interface Utilities {
   parkingPlaces: number;
 }
 
+// API format for Utilities (using arrays)
+export interface UtilitiesAPI {
+  availableUtilities: AvailableUtility[];
+  internetConnection: InternetConnection;
+  parkingPlaces: number;
+}
+
 // Transport Possibilities
+export enum TransportPossibility {
+  ROAD = 'ROAD',
+  HIGHWAY = 'HIGHWAY',
+  TRAIN = 'TRAIN',
+  BUS = 'BUS',
+  PUBLIC_TRANSPORT = 'PUBLIC_TRANSPORT',
+  AIRPLANE = 'AIRPLANE',
+  BOAT = 'BOAT',
+  FERRY = 'FERRY'
+}
+
 export interface TransportPossibilities {
   id: number;
   road: boolean;
@@ -144,7 +176,29 @@ export interface TransportPossibilities {
   ferry: boolean;
 }
 
+// API format for Transport Possibilities (using arrays)
+export interface TransportPossibilitiesAPI {
+  possibilities: TransportPossibility[];
+}
+
 // Civic Amenities
+export enum CivicAmenity {
+  BUS_STOP = 'BUS_STOP',
+  TRAIN_STATION = 'TRAIN_STATION',
+  POST_OFFICE = 'POST_OFFICE',
+  ATM = 'ATM',
+  GENERAL_PRACTITIONER = 'GENERAL_PRACTITIONER',
+  VETERINARIAN = 'VETERINARIAN',
+  ELEMENTARY_SCHOOL = 'ELEMENTARY_SCHOOL',
+  KINDERGARTEN = 'KINDERGARTEN',
+  SUPERMARKET = 'SUPERMARKET',
+  SMALL_SHOP = 'SMALL_SHOP',
+  RESTAURANT = 'RESTAURANT',
+  PUB = 'PUB',
+  PLAYGROUND = 'PLAYGROUND',
+  SUBWAY = 'SUBWAY'
+}
+
 export interface CivicAmenities {
   id: number;
   busStop: boolean;
@@ -161,6 +215,11 @@ export interface CivicAmenities {
   pub: boolean;
   playground: boolean;
   subway: boolean;
+}
+
+// API format for Civic Amenities (using arrays)
+export interface CivicAmenitiesAPI {
+  amenities: CivicAmenity[];
 }
 
 // Property types
@@ -340,7 +399,7 @@ export interface Appointment {
   updatedAt: Date;
 }
 
-// Form input types (for creating/updating)
+// Form input types (for creating/updating) - Frontend format
 export type CreatePropertyInput = Omit<Property, 'id' | 'createdAt' | 'updatedAt' | 'agent' | 'address' | 'images' | 'utilities' | 'civicAmenities' | 'buildingProperties' | 'transportPossibilities'> & {
   address: Omit<Address, 'id'>,
   utilities: Omit<Utilities, 'id'>,
@@ -365,6 +424,48 @@ export type CreateHouse = CreatePropertyInput & {
 };
 
 export type CreateLand = CreatePropertyInput & {
+  isForHousing: boolean;
+};
+
+// API input types (for sending to backend)
+export interface CreatePropertyAPIInput {
+  realEstateType: PropertyType;
+  name: string;
+  description: string;
+  status: PropertyStatus;
+  usableArea: number;
+  contractType: TransactionType;
+  priceDisclosure: PriceDisclosure;
+  commission: Commission;
+  taxes: Taxes;
+  availableFrom?: string; // ISO date string
+  basement: boolean;
+  price: number;
+  address: Omit<Address, 'id'>;
+  buildingProperties: Omit<BuildingProperties, 'id'> & { inProtectionZone: boolean };
+  equipment: Equipment;
+  utilities: UtilitiesAPI;
+  transportPossibilities: TransportPossibilitiesAPI;
+  civicAmenities: CivicAmenitiesAPI;
+  imageIds?: number[];
+}
+
+export type CreateApartmentAPI = CreatePropertyAPIInput & {
+  ownershipType: ApartmentOwnershipType;
+  floor: number;
+  totalFloors: number;
+  elevator: boolean;
+  balcony: boolean;
+  rooms: number;
+};
+
+export type CreateHouseAPI = CreatePropertyAPIInput & {
+  plotArea: number;
+  houseType: HouseType;
+  stories: number;
+};
+
+export type CreateLandAPI = CreatePropertyAPIInput & {
   isForHousing: boolean;
 };
 
