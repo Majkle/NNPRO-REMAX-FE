@@ -1,5 +1,5 @@
 import api from './api';
-import { Review, CreateReviewInput, PaginatedResponse } from '@/types';
+import { Review, CreateReviewInput, PaginatedResponse, SimplifiedUser } from '@/types';
 
 export interface ReviewSearchParams {
   propertyId?: number;
@@ -37,6 +37,22 @@ const reviewService = {
   },
 
   /**
+   * Fetch all reviews.
+   */
+  getAllReviews: async (): Promise<Review[]> => {
+    const response = await api.get<Review[]>('/reviews', {});
+    return response.data;
+  },
+
+  /**
+   * Fetch all agents.
+   */
+  getAllAgents: async (): Promise<SimplifiedUser[]> => {
+    const response = await api.get<SimplifiedUser[]>('/reviews/realtors', {});
+    return response.data;
+  },
+
+  /**
    * Get a single review by ID.
    * @param id - The ID of the review.
    */
@@ -48,10 +64,19 @@ const reviewService = {
   /**
    * Get reviews for a specific agent.
    * @param agentId - The ID of the agent.
+   */
+  getAgentReviews: async (agentId: number): Promise<Review[]> => {
+    const response = await api.get<Review[]>(`/reviews/realtor/${agentId}`);
+    return response.data;
+  },
+
+  /**
+   * Get reviews for a specific agent.
+   * @param agentId - The ID of the agent.
    * @param page - Page number.
    * @param limit - Items per page.
    */
-  getAgentReviews: async (agentId: number, page: number = 1, limit: number = 10): Promise<PaginatedResponse<Review>> => {
+  getPaginatedAgentReviews: async (agentId: number, page: number = 1, limit: number = 10): Promise<PaginatedResponse<Review>> => {
     const response = await api.get<PaginatedResponse<Review>>(`/agents/${agentId}/reviews`, {
       params: { page, limit }
     });
@@ -64,7 +89,7 @@ const reviewService = {
    * @param page - Page number.
    * @param limit - Items per page.
    */
-  getPropertyReviews: async (propertyId: number, page: number = 1, limit: number = 10): Promise<PaginatedResponse<Review>> => {
+  getPaginatedPropertyReviews: async (propertyId: number, page: number = 1, limit: number = 10): Promise<PaginatedResponse<Review>> => {
     const response = await api.get<PaginatedResponse<Review>>(`/properties/${propertyId}/reviews`, {
       params: { page, limit }
     });

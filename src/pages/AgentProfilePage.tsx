@@ -1,103 +1,71 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Mail, Phone, Star, MapPin, Calendar, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Review, User as UserType, UserRole, PropertyType, PropertyStatus, TransactionType } from '@/types';
+import { Review, User as UserType, UserRole, PropertyType, PropertyStatus, TransactionType, Property } from '@/types';
 import { format } from 'date-fns';
 import { cs } from 'date-fns/locale';
-import { mockProperties } from '@/data/mockData';
-
-// Mock data - in real app, this would be fetched from API
-const mockAgent: UserType = {
-  id: 1,
-  username: 'petr.novotny.remax',
-  email: 'petr.novotny@remax.cz',
-  personalInformation: {
-    firstName: 'Petr',
-    lastName: 'Novotný',
-    phoneNumber: '+420 777 888 999'
-  },
-  role: UserRole.AGENT,
-  createdAt: new Date('2023-01-01')
-};
-
-const mockAgentReviews: Review[] = [
-  {
-    id: 1,
-    rating: 5,
-    comment: 'Výborný makléř, velmi profesionální přístup. Pomohl nám najít perfektní byt přesně podle našich požadavků. Vřele doporučuji!',
-    agentId: 1,
-    authorId: 2,
-    author: {
-      id: 2,
-      username: 'jan.dvorak',
-      email: 'jan.dvorak@email.cz',
-      personalInformation: {
-        firstName: 'Jan',
-        lastName: 'Dvořák'
-      },
-      role: UserRole.CLIENT,
-      createdAt: new Date('2024-01-01')
-    },
-    createdAt: new Date('2024-02-15'),
-    updatedAt: new Date('2024-02-15'),
-  },
-  {
-    id: 2,
-    rating: 5,
-    comment: 'Skvělá komunikace, rychlé odpovědi na dotazy. Pan Novotný má skvělé znalosti trhu a vyjednal pro nás velmi dobrou cenu.',
-    agentId: 1,
-    authorId: 3,
-    author: {
-      id: 3,
-      username: 'marie.svobodova',
-      email: 'marie.svobodova@email.cz',
-      personalInformation: {
-        firstName: 'Marie',
-        lastName: 'Svobodová'
-      },
-      role: UserRole.CLIENT,
-      createdAt: new Date('2024-01-05')
-    },
-    createdAt: new Date('2024-03-01'),
-    updatedAt: new Date('2024-03-01'),
-  },
-  {
-    id: 3,
-    rating: 4,
-    comment: 'Profesionální jednání, ochotný a vstřícný. Jediné malé minus bylo, že občas byl těžko dostupný, ale jinak super služby.',
-    agentId: 1,
-    authorId: 4,
-    author: {
-      id: 4,
-      username: 'pavel.novak',
-      email: 'pavel.novak@email.cz',
-      personalInformation: {
-        firstName: 'Pavel',
-        lastName: 'Novák'
-      },
-      role: UserRole.CLIENT,
-      createdAt: new Date('2024-01-10')
-    },
-    createdAt: new Date('2024-03-10'),
-    updatedAt: new Date('2024-03-10'),
-  },
-];
+import { useToast } from '@/hooks/use-toast';
+import reviewService from '@/services/reviewService';
+import authService from '@/services/authService';
 
 const AgentProfilePage: React.FC = () => {
   const navigate = useNavigate();
-  // const { id } = useParams<{ id: string }>();
-  // In real app, fetch agent by ID using the id parameter
-  const agent = mockAgent;
-  const properties = mockProperties.filter(p => p.agentId === agent.id);
-  const reviews = mockAgentReviews;
+  const { id } = useParams<{ id: string }>();
+  const [isLoading, setIsLoading] = useState(true);
+  const [agent, setAgent] = useState<UserType>();
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [averageRating, setAverageRating] = useState(0.0);
+  const { toast } = useToast();
 
-  const averageRating = reviews.length > 0
-    ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
-    : 0;
+  useEffect(() => {
+    const fetchAgent = async () => {
+      try {
+        setIsLoading(true);
+        const fetchedAgent = await authService.getSpecificProfile(parseInt(id || ''));
+
+        setAgent(fetchedAgent);
+      } catch (error) {
+        console.error('Failed to fetch agent:', error);
+        toast({
+          title: 'Chyba při načítání makléře',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    const fetchReviews = async () => {
+      try {
+        setIsLoading(true);
+        const fetchedReviews = await reviewService.getAgentReviews(parseInt(id || ''));
+
+        setReviews(fetchedReviews);
+      } catch (error) {
+        console.error('Failed to fetch reviews:', error);
+        toast({
+          title: 'Chyba při načítání recenzí',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAgent();
+    fetchReviews();
+  }, []);
+
+  useEffect(() => {
+    setAverageRating(reviews.length > 0
+                         ? reviews.reduce((sum, review) => sum + review.overall, 0) / reviews.length
+                         : 0);
+  }, [reviews]);
 
   const getStatusBadgeVariant = (status: PropertyStatus) => {
     switch (status) {
@@ -274,15 +242,12 @@ const AgentProfilePage: React.FC = () => {
                           <CardTitle className="text-base">
                             {review.author.personalInformation.firstName} {review.author.personalInformation.lastName}
                           </CardTitle>
-                          <CardDescription>
-                            {format(review.createdAt, 'd. MMMM yyyy', { locale: cs })}
-                          </CardDescription>
                         </div>
-                        {renderStars(review.rating)}
+                        {renderStars(review.overall)}
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-muted-foreground">{review.comment}</p>
+                      <p className="text-muted-foreground">{review.text}</p>
                     </CardContent>
                   </Card>
                 ))

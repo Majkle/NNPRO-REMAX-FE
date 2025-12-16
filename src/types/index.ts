@@ -19,9 +19,16 @@ export interface User {
   username: string;
   email: string;
   personalInformation: PersonalInformation;
-  role: UserRole;  // TODO: remove ?
+  role: UserRole;
   isBlocked?: boolean;
   createdAt: Date;
+}
+
+export interface SimplifiedUser {
+  id: number;
+  degree?: string;
+  firstName: string;
+  lastName: string;
 }
 
 // Address Region Enum
@@ -286,16 +293,17 @@ export interface PriceHistory {
 // Review types
 export interface Review {
   id: number;
-  rating: number; // 1-5
-  comment: string;
-  propertyId?: number;
-  property?: Property;
-  agentId?: number;
+  overall: number;
+  speed: number;
+  communication: number;
+  professionality: number;
+  fairness: number;
+  text: string;
+  realtorId: number;
   agent?: User;
-  authorId: number;
+  authorClientId?: number;
+  clientDisplayName?: string;
   author: User;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 // Appointment types
@@ -376,7 +384,7 @@ export type UpdateLand = Partial<CreateLand> & {
   id: number;
 };
 
-export type CreateReviewInput = Omit<Review, 'id' | 'createdAt' | 'updatedAt' | 'author' | 'property' | 'agent'>;
+export type CreateReviewInput = Omit<Review, 'id' | 'author' | 'property' | 'agent' | 'clientDisplayName'>;
 
 export type CreateAppointmentInput = Omit<Appointment, 'id' | 'createdAt' | 'updatedAt' | 'agent' | 'client' | 'property'>;
 

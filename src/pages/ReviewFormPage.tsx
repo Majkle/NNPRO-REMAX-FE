@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -25,13 +25,8 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import reviewService from '@/services/reviewService';
+import { SimplifiedUser } from '@/types';
 
-// Mock agents data
-const mockAgents = [
-  { id: 1, firstName: 'Petr', lastName: 'Novotný' },
-  { id: 2, firstName: 'Jana', lastName: 'Dvořáková' },
-  { id: 3, firstName: 'Martin', lastName: 'Svoboda' },
-];
 // Validation schema
 const reviewFormSchema = z.object({
   agentId: z.number().min(1, 'Vyberte makléře'),
@@ -46,6 +41,8 @@ const ReviewFormPage: React.FC = () => {
   const { toast } = useToast();
   const [hoveredStar, setHoveredStar] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [agents, setAgents] = useState<SimplifiedUser[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const form = useForm<ReviewFormValues>({
     resolver: zodResolver(reviewFormSchema),
@@ -57,12 +54,40 @@ const ReviewFormPage: React.FC = () => {
   });
   const selectedRating = form.watch('rating');
 
+  useEffect(() => {
+    const fetchAgents = async () => {
+    try {
+      setIsLoading(true);
+      const fetchedAgents = await reviewService.getAllAgents();
+
+      setAgents(fetchedAgents);
+    } catch (error) {
+      console.error('Failed to fetch agents:', error);
+      toast({
+        title: 'Chyba při načítání makléřů',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  fetchAgents();
+  }, []);
+
   const onSubmit = async (data: ReviewFormValues) => {
     setIsSubmitting(true);
-    /*
     // --- BACKEND INTEGRATION ---
     try {
-      await reviewService.createReview(data);
+      await reviewService.createReview({
+          overall: data.rating,
+          speed: data.rating,
+          communication: data.rating,
+          professionality: data.rating,
+          fairness: data.rating,
+          text: data.comment,
+          realtorId: data.agentId
+      });
       toast({ title: 'Recenze přidána' });
       navigate('/reviews');
     } catch (error) {
@@ -70,15 +95,7 @@ const ReviewFormPage: React.FC = () => {
     } finally {
       setIsSubmitting(false);
     }
-    */
 
-    // Mock logic
-    console.log('Review data:', data);
-    const agent = mockAgents.find(a => a.id === data.agentId);
-    toast({
-      title: 'Recenze přidána (Mock)',
-      description: `Vaše recenze pro makléře ${agent?.firstName} ${agent?.lastName} byla úspěšně přidána.`,
-    });
     navigate('/reviews');
     setIsSubmitting(false);
   };
@@ -149,9 +166,9 @@ const ReviewFormPage: React.FC = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {mockAgents.map((agent) => (
+                        {agents.map((agent) => (
                           <SelectItem key={agent.id} value={agent.id.toString()}>
-                            {agent.firstName} {agent.lastName}
+                            {agent.degree} {agent.firstName} {agent.lastName}
                           </SelectItem>
                         ))}
                       </SelectContent>

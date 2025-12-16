@@ -124,6 +124,14 @@ const authService = {
   },
 
   /**
+   * Get a specific user profile
+   */
+  getSpecificProfile: async (userId: number): Promise<User> => {
+    const response = await api.get<User>(`/profile/${userId}`);
+    return response.data;
+  },
+
+  /**
    * Update user profile
    */
   updateProfile: async (data: ProfileUpdateRequest): Promise<User> => {

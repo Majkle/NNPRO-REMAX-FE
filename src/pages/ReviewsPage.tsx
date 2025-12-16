@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Star, Search, User as UserIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -6,113 +6,57 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Review, UserRole } from '@/types';
+import { Review, UserRole, User } from '@/types';
 import { format } from 'date-fns';
 import { cs } from 'date-fns/locale';
-
-// Mock data - pouze recenze makléřů
-const mockReviews: Review[] = [
-  {
-    id: 1,
-    rating: 5,
-    comment: 'Výborný makléř! Pan Novotný mi pomohl najít perfektní byt. Profesionální přístup, rychlá komunikace a perfektní znalost trhu.',
-    agentId: 1,
-    agent: {
-      id: 1,
-      username: 'petr.novotny.remax',
-      email: 'petr.novotny@remax.cz',
-      personalInformation: {
-        firstName: 'Petr',
-        lastName: 'Novotný',
-        phoneNumber: '+420 777 888 999'
-      },
-      role: UserRole.AGENT,
-      createdAt: new Date('2023-01-01')
-    },
-    authorId: 2,
-    author: {
-      id: 2,
-      username: 'jan.novak',
-      email: 'jan.novak@example.com',
-      personalInformation: {
-        firstName: 'Jan',
-        lastName: 'Novák'
-      },
-      role: UserRole.CLIENT,
-      createdAt: new Date('2024-01-01')
-    },
-    createdAt: new Date('2024-01-20'),
-    updatedAt: new Date('2024-01-20'),
-  },
-  {
-    id: 2,
-    rating: 4,
-    comment: 'Profesionální přístup, oceňuji rychlou komunikaci a ochotu. Doporučuji!',
-    agentId: 1,
-    agent: {
-      id: 1,
-      username: 'petr.novotny.remax',
-      email: 'petr.novotny@remax.cz',
-      personalInformation: {
-        firstName: 'Petr',
-        lastName: 'Novotný',
-        phoneNumber: '+420 777 888 999'
-      },
-      role: UserRole.AGENT,
-      createdAt: new Date('2023-01-01')
-    },
-    authorId: 3,
-    author: {
-      id: 3,
-      username: 'marie.svobodova',
-      email: 'marie.svobodova@example.com',
-      personalInformation: {
-        firstName: 'Marie',
-        lastName: 'Svobodová'
-      },
-      role: UserRole.CLIENT,
-      createdAt: new Date('2024-01-05')
-    },
-    createdAt: new Date('2024-02-10'),
-    updatedAt: new Date('2024-02-10'),
-  },
-  {
-    id: 3,
-    rating: 5,
-    comment: 'Skvělá spolupráce! Makléř byl vždy k dispozici, poradil s financováním a celý proces proběhl hladce.',
-    agentId: 2,
-    agent: {
-      id: 2,
-      username: 'jana.dvorakova.remax',
-      email: 'jana.dvorakova@remax.cz',
-      personalInformation: {
-        firstName: 'Jana',
-        lastName: 'Dvořáková',
-        phoneNumber: '+420 606 555 444'
-      },
-      role: UserRole.AGENT,
-      createdAt: new Date('2023-03-15')
-    },
-    authorId: 4,
-    author: {
-      id: 4,
-      username: 'pavel.kral',
-      email: 'pavel.kral@example.com',
-      personalInformation: {
-        firstName: 'Pavel',
-        lastName: 'Král'
-      },
-      role: UserRole.CLIENT,
-      createdAt: new Date('2024-02-01')
-    },
-    createdAt: new Date('2024-03-05'),
-    updatedAt: new Date('2024-03-05'),
-  },
-];
+import reviewService from '@/services/reviewService';
+import authService from '@/services/authService';
+import { useToast } from '@/hooks/use-toast';
 
 const ReviewsPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterRating, setFilterRating] = useState<string>('all');
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+    try {
+      setIsLoading(true);
+      const fetchedReviews = await reviewService.getAllReviews();
+
+      let idSet: Record<number, User> = {};
+      for (const r of fetchedReviews) {
+        if (!(r.realtorId in idSet)) {
+          const user = await authService.getSpecificProfile(r.realtorId);
+          idSet[r.realtorId] = user;
+        }
+        r.agent = idSet[r.realtorId];
+
+        if (r.authorClientId) {
+          if (!(r.authorClientId in idSet)) {
+            const user = await authService.getSpecificProfile(r.authorClientId);
+            idSet[r.authorClientId] = user;
+          }
+          r.author = idSet[r.authorClientId];
+        }
+      }
+
+      setReviews(fetchedReviews);
+    } catch (error) {
+      console.error('Failed to fetch reviews:', error);
+      toast({
+        title: 'Chyba při načítání recenzí',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  fetchReviews();
+  }, []);
 
   const renderStars = (rating: number) => {
     return (
@@ -133,17 +77,17 @@ const ReviewsPage: React.FC = () => {
 
   const getAverageRating = (reviews: Review[]) => {
     if (reviews.length === 0) return 0;
-    const sum = reviews.reduce((acc, review) => acc + review.rating, 0);
+    const sum = reviews.reduce((acc, review) => acc + review.overall, 0);
     return (sum / reviews.length).toFixed(1);
   };
 
-  const filteredReviews = mockReviews.filter((review) => {
+  const filteredReviews = reviews.filter((review) => {
     const matchesSearch =
-      review.comment.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      review.text.toLowerCase().includes(searchQuery.toLowerCase()) ||
       review.agent?.personalInformation.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       review.agent?.personalInformation.lastName.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesRating = filterRating === 'all' || review.rating.toString() === filterRating;
+    const matchesRating = filterRating === 'all' || review.overall.toString() === filterRating;
 
     return matchesSearch && matchesRating;
   });
@@ -171,7 +115,7 @@ const ReviewsPage: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Celkem recenzí</p>
-                <p className="text-3xl font-bold">{mockReviews.length}</p>
+                <p className="text-3xl font-bold">{reviews.length}</p>
               </div>
               <Star className="h-8 w-8 text-yellow-400" />
             </div>
@@ -182,9 +126,9 @@ const ReviewsPage: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Průměrné hodnocení</p>
-                <p className="text-3xl font-bold">{getAverageRating(mockReviews)}</p>
+                <p className="text-3xl font-bold">{getAverageRating(reviews)}</p>
               </div>
-              {renderStars(Math.round(Number(getAverageRating(mockReviews))))}
+              {renderStars(Math.round(Number(getAverageRating(reviews))))}
             </div>
           </CardContent>
         </Card>
@@ -194,11 +138,11 @@ const ReviewsPage: React.FC = () => {
               <div>
                 <p className="text-sm text-muted-foreground">5★ recenzí</p>
                 <p className="text-3xl font-bold">
-                  {mockReviews.filter(r => r.rating === 5).length}
+                  {reviews.filter(r => r.overall === 5).length}
                 </p>
               </div>
               <Badge variant="default" className="text-lg">
-                {Math.round((mockReviews.filter(r => r.rating === 5).length / mockReviews.length) * 100)}%
+                {Math.round((reviews.filter(r => r.overall === 5).length / reviews.length) * 100)}%
               </Badge>
             </div>
           </CardContent>
@@ -250,9 +194,6 @@ const ReviewsPage: React.FC = () => {
                       <CardTitle className="text-lg">
                         {review.author.personalInformation.firstName} {review.author.personalInformation.lastName}
                       </CardTitle>
-                      <CardDescription>
-                        {format(review.createdAt, 'd. MMMM yyyy', { locale: cs })}
-                      </CardDescription>
                     </div>
                   </div>
                   {review.agent && (
@@ -264,12 +205,12 @@ const ReviewsPage: React.FC = () => {
                   )}
                 </div>
                 <div className="flex flex-col items-end gap-2">
-                  {renderStars(review.rating)}
+                  {renderStars(review.overall)}
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">{review.comment}</p>
+              <p className="text-muted-foreground">{review.text}</p>
             </CardContent>
           </Card>
         ))}
