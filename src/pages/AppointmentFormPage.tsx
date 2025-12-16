@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -32,35 +32,21 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { AppointmentType } from '@/types';
+import { AppointmentType, SimplifiedUser, SimplifiedRealEstate, AppointmentStatus } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import appointmentService from '@/services/appointmentService';
+import reviewService from '@/services/reviewService';
 
-// Mock agents data
-const mockAgents = [
-  { id: 1, firstName: 'Petr', lastName: 'Novotný' },
-  { id: 2, firstName: 'Jana', lastName: 'Dvořáková' },
-  { id: 3, firstName: 'Martin', lastName: 'Svoboda' },
-];
-
-// Mock properties data
-const mockProperties = [
-  { id: 1, title: 'Moderní byt 3+kk v centru Prahy' },
-  { id: 2, title: 'Rodinný dům se zahradou, Brno' },
-  { id: 3, title: 'Komerční prostory, Ostrava' },
-];
 // Validation schema
 const appointmentFormSchema = z.object({
   title: z.string().min(5, 'Nadpis musí mít alespoň 5 znaků').max(100, 'Nadpis je příliš dlouhý'),
   description: z.string().optional(),
   type: z.nativeEnum(AppointmentType),
   agentId: z.number().min(1, 'Vyberte makléře'),
-  propertyId: z.number().optional(),
+  propertyId: z.number().min(1, 'Vyberte nemovitost'),
   date: z.date(),
-  startTime: z.string().min(1, 'Vyberte čas schůzky'),
-  location: z.string().optional(),
-  notes: z.string().optional(),
+  startTime: z.string().min(1, 'Vyberte čas schůzky')
 });
 
 type AppointmentFormValues = z.infer<typeof appointmentFormSchema>;
@@ -69,26 +55,75 @@ const AppointmentFormPage: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [agents, setAgents] = useState<SimplifiedUser[]>([]);
+  const [estates, setEstates] = useState<SimplifiedRealEstate[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const form = useForm<AppointmentFormValues>({
     resolver: zodResolver(appointmentFormSchema),
     defaultValues: {
       title: '',
       description: '',
-      type: AppointmentType.PROPERTY_VIEWING,
-      agentId: 0,
-      notes: '',
+      type: AppointmentType.OFFLINE,
+      agentId: 0
     },
   });
   const selectedType = form.watch('type');
 
+  useEffect(() => {
+    const fetchAgents = async () => {
+    try {
+      setIsLoading(true);
+      const fetchedAgents = await reviewService.getAllAgents();
+
+      setAgents(fetchedAgents);
+    } catch (error) {
+      console.error('Failed to fetch agents:', error);
+      toast({
+        title: 'Chyba při načítání makléřů',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchEstates = async () => {
+    try {
+      setIsLoading(true);
+      const fetchedEstates = await appointmentService.getAllEstates();
+
+      setEstates(fetchedEstates);
+    } catch (error) {
+      console.error('Failed to fetch real estates:', error);
+      toast({
+        title: 'Chyba při načítání nemovitostí',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  fetchAgents();
+  fetchEstates();
+  }, []);
+
   const onSubmit = async (data: AppointmentFormValues) => {
     setIsSubmitting(true);
-    /*
     // --- BACKEND INTEGRATION ---
     try {
-      const payload = { ...data }; // Adjust payload as needed for API
-      await appointmentService.createAppointment(payload);
+      const timestr = data.date.toDateString() + ' ' + data.startTime + data.date.toTimeString().substring(5);
+      await appointmentService.createAppointment({
+        title: data.title,
+        description: data.description,
+        meetingType: data.type,
+        meetingStatus: AppointmentStatus.PENDING,
+        meetingTime: new Date(Date.parse(timestr)),
+        realEstateId: data.propertyId,
+        realtorId: data.agentId,
+        clientId: JSON.parse(localStorage.getItem('user') || '').id
+      });
       toast({ title: 'Schůzka naplánována' });
       navigate('/appointments');
     } catch (error) {
@@ -96,23 +131,14 @@ const AppointmentFormPage: React.FC = () => {
     } finally {
       setIsSubmitting(false);
     }
-    */
-    
-    // Mock logic
-    console.log('Appointment data:', data);
-    const agent = mockAgents.find(a => a.id === data.agentId);
-    toast({
-      title: 'Schůzka naplánována (Mock)',
-      description: `Vaše schůzka s makléřem ${agent?.firstName} ${agent?.lastName} byla úspěšně naplánována.`,
-    });
+
     navigate('/appointments');
     setIsSubmitting(false);
   };
 
   const typeLabels = {
-    [AppointmentType.PROPERTY_VIEWING]: 'Prohlídka nemovitosti',
-    [AppointmentType.CONSULTATION]: 'Konzultace',
-    [AppointmentType.ONLINE_MEETING]: 'Online schůzka',
+    [AppointmentType.OFFLINE]: 'Offline',
+    [AppointmentType.ONLINE]: 'Online'
   };
 
   return (
@@ -218,7 +244,7 @@ const AppointmentFormPage: React.FC = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {mockAgents.map((agent) => (
+                        {agents.map((agent) => (
                           <SelectItem key={agent.id} value={agent.id.toString()}>
                             {agent.firstName} {agent.lastName}
                           </SelectItem>
@@ -230,14 +256,14 @@ const AppointmentFormPage: React.FC = () => {
                 )}
               />
 
-              {/* Property (optional, shown for viewing type) */}
-              {selectedType === AppointmentType.PROPERTY_VIEWING && (
+              {/* Property */}
+              {selectedType === AppointmentType.OFFLINE && (
                 <FormField
                   control={form.control}
                   name="propertyId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Nemovitost (volitelné)</FormLabel>
+                      <FormLabel>Nemovitost</FormLabel>
                       <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString()}>
                         <FormControl>
                           <SelectTrigger>
@@ -245,7 +271,7 @@ const AppointmentFormPage: React.FC = () => {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {mockProperties.map((property) => (
+                          {estates.map((property) => (
                             <SelectItem key={property.id} value={property.id.toString()}>
                               {property.title}
                             </SelectItem>
@@ -322,50 +348,6 @@ const AppointmentFormPage: React.FC = () => {
                     <FormDescription>
                       Vyberte čas začátku schůzky
                     </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Location */}
-              <FormField
-                control={form.control}
-                name="location"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Místo konání (volitelné)</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Např. Hlavní 123, Praha 1 nebo Online - Google Meet" {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      Adresa nebo odkaz na online schůzku
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Poznámky</CardTitle>
-              <CardDescription>Další informace k schůzce</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <FormField
-                control={form.control}
-                name="notes"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Poznámky (volitelné)</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Jakékoliv další informace nebo požadavky..."
-                        className="min-h-[100px]"
-                        {...field}
-                      />
-                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}

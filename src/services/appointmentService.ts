@@ -1,5 +1,5 @@
 import api from './api';
-import { Appointment, CreateAppointmentInput, PaginatedResponse, AppointmentStatus, AppointmentType } from '@/types';
+import { Appointment, CreateAppointmentInput, PaginatedResponse, AppointmentStatus, AppointmentType, SimplifiedRealEstate } from '@/types';
 
 export interface AppointmentSearchParams {
   page?: number;
@@ -31,7 +31,7 @@ const appointmentService = {
    * @param params - Search and filter parameters.
    */
   getAppointments: async (params: AppointmentSearchParams = {}): Promise<PaginatedResponse<Appointment>> => {
-    const response = await api.get<PaginatedResponse<Appointment>>('/appointments', { params });
+    const response = await api.get<PaginatedResponse<Appointment>>('/meetings', { params });
     return response.data;
   },
 
@@ -40,7 +40,7 @@ const appointmentService = {
    * @param id - The ID of the appointment.
    */
   getAppointment: async (id: number): Promise<Appointment> => {
-    const response = await api.get<Appointment>(`/appointments/${id}`);
+    const response = await api.get<Appointment>(`/meetings/${id}`);
     return response.data;
   },
 
@@ -49,8 +49,8 @@ const appointmentService = {
    * @param agentId - The ID of the agent.
    * @param params - Additional filter parameters.
    */
-  getAppointmentsByAgent: async (agentId: number, params: Omit<AppointmentSearchParams, 'agentId'> = {}): Promise<PaginatedResponse<Appointment>> => {
-    const response = await api.get<PaginatedResponse<Appointment>>(`/agents/${agentId}/appointments`, { params });
+  getAppointmentsByAgent: async (agentId: number, params: Omit<AppointmentSearchParams, 'agentId'> = {}): Promise<Appointment[]> => {
+    const response = await api.get<Appointment[]>(`/agents/${agentId}/appointments`, { params });
     return response.data;
   },
 
@@ -59,8 +59,8 @@ const appointmentService = {
    * @param clientId - The ID of the client.
    * @param params - Additional filter parameters.
    */
-  getAppointmentsByClient: async (clientId: number, params: Omit<AppointmentSearchParams, 'clientId'> = {}): Promise<PaginatedResponse<Appointment>> => {
-    const response = await api.get<PaginatedResponse<Appointment>>(`/clients/${clientId}/appointments`, { params });
+  getAppointmentsByClient: async (clientId: number, params: Omit<AppointmentSearchParams, 'clientId'> = {}): Promise<Appointment[]> => {
+    const response = await api.get<Appointment[]>(`/clients/${clientId}/appointments`, { params });
     return response.data;
   },
 
@@ -122,7 +122,7 @@ const appointmentService = {
    * @param data - The appointment data.
    */
   createAppointment: async (data: CreateAppointmentInput): Promise<Appointment> => {
-    const response = await api.post<Appointment>('/appointments', data);
+    const response = await api.post<Appointment>('/meetings', data);
     return response.data;
   },
 
@@ -132,7 +132,7 @@ const appointmentService = {
    * @param data - The updated appointment data.
    */
   updateAppointment: async (id: number, data: Partial<CreateAppointmentInput>): Promise<Appointment> => {
-    const response = await api.put<Appointment>(`/appointments/${id}`, data);
+    const response = await api.put<Appointment>(`/meetings/${id}`, data);
     return response.data;
   },
 
@@ -205,6 +205,22 @@ const appointmentService = {
    */
   deleteAppointment: async (id: number): Promise<void> => {
     await api.delete(`/appointments/${id}`);
+  },
+
+  /**
+   * Fetch all estates.
+   */
+  getAllEstates: async (): Promise<SimplifiedRealEstate[]> => {
+    const response = await api.get<SimplifiedRealEstate[]>('/meetings/estates');
+    return response.data;
+  },
+
+  /**
+   * Get appointments of current user.
+   */
+  getAppointmentsByCurrentUser: async (): Promise<Appointment[]> => {
+    const response = await api.get<Appointment[]>('/meetings/my');
+    return response.data;
   },
 };
 

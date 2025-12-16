@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Calendar as CalendarIcon, Clock, MapPin, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -6,101 +6,75 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar } from '@/components/ui/calendar';
-import { Appointment, AppointmentStatus, AppointmentType, UserRole } from '@/types';
+import { Appointment, AppointmentStatus, AppointmentType, UserRole, User as UserType, Property } from '@/types';
 import { format, isSameDay } from 'date-fns';
 import { cs } from 'date-fns/locale';
-
-// Mock data
-const mockAppointments: Appointment[] = [
-  {
-    id: 1,
-    title: 'Prohlídka bytu v centru Prahy',
-    description: 'Prohlídka moderního bytu 3+kk',
-    type: AppointmentType.PROPERTY_VIEWING,
-    status: AppointmentStatus.CONFIRMED,
-    startTime: new Date('2025-12-05T10:00:00'),
-    endTime: new Date('2025-12-05T11:00:00'),
-    propertyId: 1,
-    agentId: 1,
-    agent: {
-      id: 1,
-      username: 'petr.novotny.remax',
-      email: 'petr.novotny@remax.cz',
-      personalInformation: {
-        firstName: 'Petr',
-        lastName: 'Novotný'
-      },
-      role: UserRole.AGENT,
-      createdAt: new Date('2024-01-01')
-    },
-    clientId: 2,
-    client: {
-      id: 2,
-      username: 'jan.novak',
-      email: 'jan.novak@example.com',
-      personalInformation: {
-        firstName: 'Jan',
-        lastName: 'Novák'
-      },
-      role: UserRole.CLIENT,
-      createdAt: new Date('2024-01-01')
-    },
-    location: 'Hlavní 123, Praha 1',
-    createdAt: new Date('2025-10-20'),
-    updatedAt: new Date('2025-10-20'),
-  },
-  {
-    id: 2,
-    title: 'Konzultace k financování',
-    description: 'Konzultace ohledně hypotéky a financování nemovitosti',
-    type: AppointmentType.CONSULTATION,
-    status: AppointmentStatus.SCHEDULED,
-    startTime: new Date('2025-12-06T14:00:00'),
-    endTime: new Date('2025-12-06T15:00:00'),
-    agentId: 1,
-    agent: {
-      id: 1,
-      username: 'petr.novotny.remax',
-      email: 'petr.novotny@remax.cz',
-      personalInformation: {
-        firstName: 'Petr',
-        lastName: 'Novotný'
-      },
-      role: UserRole.AGENT,
-      createdAt: new Date('2024-01-01')
-    },
-    clientId: 3,
-    client: {
-      id: 3,
-      username: 'marie.svobodova',
-      email: 'marie.svobodova@example.com',
-      personalInformation: {
-        firstName: 'Marie',
-        lastName: 'Svobodová'
-      },
-      role: UserRole.CLIENT,
-      createdAt: new Date('2024-01-05')
-    },
-    location: 'Online - Google Meet',
-    createdAt: new Date('2025-10-25'),
-    updatedAt: new Date('2025-10-25'),
-  },
-];
+import { useToast } from '@/hooks/use-toast';
+import appointmentService from '@/services/appointmentService';
+import authService from '@/services/authService';
+import propertyService from '@/services/propertyService';
 
 const AppointmentsPage: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [activeTab, setActiveTab] = useState('calendar');
-  const [appointments, setAppointments] = useState<Appointment[]>(mockAppointments);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+      const fetchAppointments = async () => {
+      try {
+        setIsLoading(true);
+        const fetchedAppointments = await appointmentService.getAppointmentsByCurrentUser();
+
+        let idSet: Record<number, UserType> = {};
+        let propertyIdSet: Record<number, Property> = {};
+        for (const a of fetchedAppointments) {
+          a.meetingTime = new Date(Date.parse(a.meetingTime.toString()));
+
+          if (!(a.realtorId in idSet)) {
+            const user = await authService.getSpecificProfile(a.realtorId);
+            idSet[a.realtorId] = user;
+          }
+          a.agent = idSet[a.realtorId];
+
+          if (!(a.clientId in idSet)) {
+            const user = await authService.getSpecificProfile(a.clientId);
+            idSet[a.clientId] = user;
+          }
+          a.client = idSet[a.clientId];
+
+          if (a.realEstateId) {
+            if (!(a.realEstateId in propertyIdSet)) {
+              const user = await propertyService.getProperty(a.realEstateId);
+              propertyIdSet[a.realEstateId] = user;
+            }
+            a.property = propertyIdSet[a.realEstateId];
+          }
+        }
+
+        setAppointments(fetchedAppointments);
+      } catch (error) {
+        console.error('Failed to fetch appointments:', error);
+        toast({
+          title: 'Chyba při načítání schůzek',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAppointments();
+    }, []);
 
   const getStatusBadgeVariant = (status: AppointmentStatus) => {
     switch (status) {
-      case AppointmentStatus.SCHEDULED:
+      case AppointmentStatus.PENDING:
         return 'secondary';
       case AppointmentStatus.CONFIRMED:
         return 'default';
-      case AppointmentStatus.COMPLETED:
-        return 'outline';
-      case AppointmentStatus.CANCELLED:
+      case AppointmentStatus.CANCELED:
         return 'destructive';
       default:
         return 'default';
@@ -109,30 +83,26 @@ const AppointmentsPage: React.FC = () => {
 
   const getStatusLabel = (status: AppointmentStatus) => {
     const labels = {
-      [AppointmentStatus.SCHEDULED]: 'Naplánováno',
+      [AppointmentStatus.PENDING]: 'Naplánováno',
       [AppointmentStatus.CONFIRMED]: 'Potvrzeno',
-      [AppointmentStatus.COMPLETED]: 'Dokončeno',
-      [AppointmentStatus.CANCELLED]: 'Zrušeno',
+      [AppointmentStatus.CANCELED]: 'Zrušeno',
     };
     return labels[status];
   };
 
   const getTypeLabel = (type: AppointmentType) => {
     const labels = {
-      [AppointmentType.PROPERTY_VIEWING]: 'Prohlídka',
-      [AppointmentType.CONSULTATION]: 'Konzultace',
-      [AppointmentType.ONLINE_MEETING]: 'Online schůzka',
+      [AppointmentType.OFFLINE]: 'Offline',
+      [AppointmentType.ONLINE]: 'Online'
     };
     return labels[type];
   };
 
   const getTypeIcon = (type: AppointmentType) => {
     switch (type) {
-      case AppointmentType.PROPERTY_VIEWING:
+      case AppointmentType.OFFLINE:
         return MapPin;
-      case AppointmentType.CONSULTATION:
-        return User;
-      case AppointmentType.ONLINE_MEETING:
+      case AppointmentType.ONLINE:
         return CalendarIcon;
       default:
         return CalendarIcon;
@@ -142,22 +112,21 @@ const AppointmentsPage: React.FC = () => {
   const today = new Date();
 
   const isSameMonth = (date1: Date, date2: Date) => {
+    console.log(date1, date2);
     return date1.getMonth() == date2.getMonth() && date1.getFullYear() == date2.getFullYear();
   }
 
   const appointmentsThisMonth = appointments
-    .filter((apt) => isSameMonth(apt.startTime, today) && apt.status !== AppointmentStatus.CANCELLED)
-    .sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
+    .filter((apt) => isSameMonth(apt.meetingTime, today) && apt.meetingStatus !== AppointmentStatus.CANCELED)
+    .sort((a, b) => a.meetingTime.getTime() - b.meetingTime.getTime());
 
   const appointmentsOnSelectedDate = selectedDate
-    ? appointments.filter((apt) => isSameDay(apt.startTime, selectedDate))
+    ? appointments.filter((apt) => isSameDay(apt.meetingTime, selectedDate))
     : [];
 
   const upcomingAppointments = appointments
-    .filter((apt) => apt.startTime >= new Date() && apt.status !== AppointmentStatus.CANCELLED)
-    .sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
-
-  const doneAppointments = appointments.filter((apt) => apt.status === AppointmentStatus.COMPLETED);
+    .filter((apt) => apt.meetingTime >= new Date() && apt.meetingStatus !== AppointmentStatus.CANCELED)
+    .sort((a, b) => a.meetingTime.getTime() - b.meetingTime.getTime());
 
   return (
     <div className="space-y-6">
@@ -176,7 +145,7 @@ const AppointmentsPage: React.FC = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
@@ -184,7 +153,7 @@ const AppointmentsPage: React.FC = () => {
                 <p className="text-sm text-muted-foreground">Dnes</p>
                 <p className="text-2xl font-bold">
                   {appointments.filter(apt =>
-                    isSameDay(apt.startTime, new Date())
+                    isSameDay(apt.meetingTime, new Date())
                   ).length}
                 </p>
               </div>
@@ -211,19 +180,6 @@ const AppointmentsPage: React.FC = () => {
                 <p className="text-2xl font-bold">{appointmentsThisMonth.length}</p>
               </div>
               <CalendarIcon className="h-8 w-8 text-purple-500" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Dokončeno</p>
-                <p className="text-2xl font-bold">{doneAppointments.length}</p>
-              </div>
-              <Badge variant="outline" className="text-lg">
-                {+(100 * doneAppointments.length / appointments.length).toFixed(2)}%
-              </Badge>
             </div>
           </CardContent>
         </Card>
@@ -273,7 +229,7 @@ const AppointmentsPage: React.FC = () => {
               <CardContent className="space-y-4">
                 {appointmentsOnSelectedDate.length > 0 ? (
                   appointmentsOnSelectedDate.map((appointment) => {
-                    const TypeIcon = getTypeIcon(appointment.type);
+                    const TypeIcon = getTypeIcon(appointment.meetingType);
                     return (
                       <Card key={appointment.id}>
                         <CardHeader>
@@ -285,25 +241,21 @@ const AppointmentsPage: React.FC = () => {
                               </CardTitle>
                               <CardDescription>{appointment.description}</CardDescription>
                             </div>
-                            <Badge variant={getStatusBadgeVariant(appointment.status)}>
-                              {getStatusLabel(appointment.status)}
+                            <Badge variant={getStatusBadgeVariant(appointment.meetingStatus)}>
+                              {getStatusLabel(appointment.meetingStatus)}
                             </Badge>
                           </div>
                         </CardHeader>
                         <CardContent className="space-y-2">
                           <div className="flex items-center text-sm text-muted-foreground">
                             <Clock className="mr-2 h-4 w-4" />
-                            {format(appointment.startTime, 'HH:mm')} - {format(appointment.endTime, 'HH:mm')}
-                          </div>
-                          <div className="flex items-center text-sm text-muted-foreground">
-                            <MapPin className="mr-2 h-4 w-4" />
-                            {appointment.location}
+                            {format(appointment.meetingTime, 'HH:mm')}
                           </div>
                           <div className="flex items-center text-sm text-muted-foreground">
                             <User className="mr-2 h-4 w-4" />
                             {appointment.client.personalInformation.firstName} {appointment.client.personalInformation.lastName}
                           </div>
-                          <Badge variant="outline">{getTypeLabel(appointment.type)}</Badge>
+                          <Badge variant="outline">{getTypeLabel(appointment.meetingType)}</Badge>
                         </CardContent>
                       </Card>
                     );
@@ -327,7 +279,7 @@ const AppointmentsPage: React.FC = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               {upcomingAppointments.map((appointment) => {
-                const TypeIcon = getTypeIcon(appointment.type);
+                const TypeIcon = getTypeIcon(appointment.meetingType);
                 return (
                   <Card key={appointment.id}>
                     <CardHeader>
@@ -339,30 +291,26 @@ const AppointmentsPage: React.FC = () => {
                           </CardTitle>
                           <CardDescription>{appointment.description}</CardDescription>
                         </div>
-                        <Badge variant={getStatusBadgeVariant(appointment.status)}>
-                          {getStatusLabel(appointment.status)}
+                        <Badge variant={getStatusBadgeVariant(appointment.meetingStatus)}>
+                          {getStatusLabel(appointment.meetingStatus)}
                         </Badge>
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-2">
                       <div className="flex items-center text-sm text-muted-foreground">
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {format(appointment.startTime, 'd. MMMM yyyy', { locale: cs })}
+                        {format(appointment.meetingTime, 'd. MMMM yyyy', { locale: cs })}
                       </div>
                       <div className="flex items-center text-sm text-muted-foreground">
                         <Clock className="mr-2 h-4 w-4" />
-                        {format(appointment.startTime, 'HH:mm')} - {format(appointment.endTime, 'HH:mm')}
-                      </div>
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <MapPin className="mr-2 h-4 w-4" />
-                        {appointment.location}
+                        {format(appointment.meetingTime, 'HH:mm')}
                       </div>
                       <div className="flex items-center text-sm text-muted-foreground">
                         <User className="mr-2 h-4 w-4" />
                         {appointment.client.personalInformation.firstName} {appointment.client.personalInformation.lastName}
                       </div>
                       <div className="flex gap-2">
-                        <Badge variant="outline">{getTypeLabel(appointment.type)}</Badge>
+                        <Badge variant="outline">{getTypeLabel(appointment.meetingType)}</Badge>
                       </div>
                     </CardContent>
                   </Card>

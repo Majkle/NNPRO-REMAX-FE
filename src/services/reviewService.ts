@@ -48,7 +48,7 @@ const reviewService = {
    * Fetch all agents.
    */
   getAllAgents: async (): Promise<SimplifiedUser[]> => {
-    const response = await api.get<SimplifiedUser[]>('/reviews/realtors', {});
+    const response = await api.get<SimplifiedUser[]>('/reviews/realtors');
     return response.data;
   },
 

@@ -339,6 +339,11 @@ export interface PropertyImage {
   propertyId: number;
 }
 
+export interface SimplifiedRealEstate {
+  id: number;
+  title: string;
+}
+
 // Price History
 export interface PriceHistory {
   id: number;
@@ -367,36 +372,29 @@ export interface Review {
 
 // Appointment types
 export enum AppointmentStatus {
-  SCHEDULED = 'SCHEDULED',
+  PENDING = 'PENDING',
   CONFIRMED = 'CONFIRMED',
-  CANCELLED = 'CANCELLED',
-  COMPLETED = 'COMPLETED'
+  CANCELED = 'CANCELED',
 }
 
 export enum AppointmentType {
-  PROPERTY_VIEWING = 'PROPERTY_VIEWING',
-  CONSULTATION = 'CONSULTATION',
-  ONLINE_MEETING = 'ONLINE_MEETING'
+  OFFLINE = 'OFFLINE',
+  ONLINE = 'ONLINE'
 }
 
 export interface Appointment {
   id: number;
   title: string;
   description?: string;
-  type: AppointmentType;
-  status: AppointmentStatus;
-  startTime: Date;
-  endTime: Date;
-  propertyId?: number;
+  meetingType: AppointmentType;
+  meetingStatus: AppointmentStatus;
+  meetingTime: Date;
+  realEstateId?: number;
   property?: Property;
-  agentId: number;
+  realtorId: number;
   agent: User;
   clientId: number;
   client: User;
-  location?: string;
-  notes?: string;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 // Form input types (for creating/updating) - Frontend format
@@ -500,7 +498,7 @@ export type UpdateLand = Partial<CreateLand> & {
 
 export type CreateReviewInput = Omit<Review, 'id' | 'author' | 'property' | 'agent' | 'clientDisplayName'>;
 
-export type CreateAppointmentInput = Omit<Appointment, 'id' | 'createdAt' | 'updatedAt' | 'agent' | 'client' | 'property'>;
+export type CreateAppointmentInput = Omit<Appointment, 'id' | 'agent' | 'client' | 'property'>;
 
 // API Response types
 export interface PaginatedResponse<T> {
