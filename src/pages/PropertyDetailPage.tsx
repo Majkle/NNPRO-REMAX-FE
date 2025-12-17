@@ -465,72 +465,94 @@ const PropertyDetailPage: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {property.utilities.hasWater && (
-                      <div className="flex items-center gap-2 text-sm">
+                    <div className="flex items-center gap-2 text-sm">
+                      {property.utilities.hasWater ? (
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Vodovod</span>
-                      </div>
-                    )}
-                    {property.utilities.hasWell && (
-                      <div className="flex items-center gap-2 text-sm">
+                      ) : (
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className={!property.utilities.hasWater ? 'text-muted-foreground' : ''}>Vodovod</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      {property.utilities.hasWell ? (
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Studna</span>
-                      </div>
-                    )}
-                    {property.utilities.hasElectricity && (
-                      <div className="flex items-center gap-2 text-sm">
+                      ) : (
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className={!property.utilities.hasWell ? 'text-muted-foreground' : ''}>Studna</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      {property.utilities.hasElectricity ? (
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Elektřina</span>
-                      </div>
-                    )}
-                    {property.utilities.hasGas && (
-                      <div className="flex items-center gap-2 text-sm">
+                      ) : (
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className={!property.utilities.hasElectricity ? 'text-muted-foreground' : ''}>Elektřina</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      {property.utilities.hasGas ? (
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Plyn</span>
-                      </div>
-                    )}
-                    {property.utilities.hasSewerage && (
-                      <div className="flex items-center gap-2 text-sm">
+                      ) : (
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className={!property.utilities.hasGas ? 'text-muted-foreground' : ''}>Plyn</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      {property.utilities.hasSewerage ? (
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Kanalizace</span>
-                      </div>
-                    )}
-                    {property.utilities.hasCesspool && (
-                      <div className="flex items-center gap-2 text-sm">
+                      ) : (
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className={!property.utilities.hasSewerage ? 'text-muted-foreground' : ''}>Kanalizace</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      {property.utilities.hasCesspool ? (
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Žumpa</span>
-                      </div>
-                    )}
-                    {property.utilities.hasHeating && (
-                      <div className="flex items-center gap-2 text-sm">
+                      ) : (
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className={!property.utilities.hasCesspool ? 'text-muted-foreground' : ''}>Žumpa</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      {property.utilities.hasHeating ? (
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Topení</span>
-                      </div>
-                    )}
-                    {property.utilities.hasPhoneLine && (
-                      <div className="flex items-center gap-2 text-sm">
+                      ) : (
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className={!property.utilities.hasHeating ? 'text-muted-foreground' : ''}>Topení</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      {property.utilities.hasPhoneLine ? (
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Telefonní linka</span>
-                      </div>
-                    )}
-                    {property.utilities.hasCableTV && (
-                      <div className="flex items-center gap-2 text-sm">
+                      ) : (
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className={!property.utilities.hasPhoneLine ? 'text-muted-foreground' : ''}>Telefonní linka</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      {property.utilities.hasCableTV ? (
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Kabelová TV</span>
-                      </div>
-                    )}
-                    {property.utilities.hasRecycling && (
-                      <div className="flex items-center gap-2 text-sm">
+                      ) : (
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className={!property.utilities.hasCableTV ? 'text-muted-foreground' : ''}>Kabelová TV</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      {property.utilities.hasRecycling ? (
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Třídění odpadu</span>
-                      </div>
-                    )}
-                    {property.utilities.hasBarrierFreeAccess && (
-                      <div className="flex items-center gap-2 text-sm">
+                      ) : (
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className={!property.utilities.hasRecycling ? 'text-muted-foreground' : ''}>Třídění odpadu</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      {property.utilities.hasBarrierFreeAccess ? (
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Bezbariérový přístup</span>
-                      </div>
-                    )}
+                      ) : (
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className={!property.utilities.hasBarrierFreeAccess ? 'text-muted-foreground' : ''}>Bezbariérový přístup</span>
+                    </div>
                   </div>
                   <div className="mt-4 pt-4 border-t">
                     <div className="flex justify-between items-center mb-2">
@@ -562,54 +584,70 @@ const PropertyDetailPage: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {property.transportPossibilities.road && (
-                      <div className="flex items-center gap-2 text-sm">
+                    <div className="flex items-center gap-2 text-sm">
+                      {property.transportPossibilities.road ? (
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Silnice</span>
-                      </div>
-                    )}
-                    {property.transportPossibilities.highway && (
-                      <div className="flex items-center gap-2 text-sm">
+                      ) : (
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className={!property.transportPossibilities.road ? 'text-muted-foreground' : ''}>Silnice</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      {property.transportPossibilities.highway ? (
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Dálnice</span>
-                      </div>
-                    )}
-                    {property.transportPossibilities.train && (
-                      <div className="flex items-center gap-2 text-sm">
+                      ) : (
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className={!property.transportPossibilities.highway ? 'text-muted-foreground' : ''}>Dálnice</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      {property.transportPossibilities.train ? (
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Vlak</span>
-                      </div>
-                    )}
-                    {property.transportPossibilities.bus && (
-                      <div className="flex items-center gap-2 text-sm">
+                      ) : (
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className={!property.transportPossibilities.train ? 'text-muted-foreground' : ''}>Vlak</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      {property.transportPossibilities.bus ? (
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Autobus</span>
-                      </div>
-                    )}
-                    {property.transportPossibilities.publicTransport && (
-                      <div className="flex items-center gap-2 text-sm">
+                      ) : (
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className={!property.transportPossibilities.bus ? 'text-muted-foreground' : ''}>Autobus</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      {property.transportPossibilities.publicTransport ? (
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>MHD</span>
-                      </div>
-                    )}
-                    {property.transportPossibilities.airplane && (
-                      <div className="flex items-center gap-2 text-sm">
+                      ) : (
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className={!property.transportPossibilities.publicTransport ? 'text-muted-foreground' : ''}>MHD</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      {property.transportPossibilities.airplane ? (
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Letiště</span>
-                      </div>
-                    )}
-                    {property.transportPossibilities.boat && (
-                      <div className="flex items-center gap-2 text-sm">
+                      ) : (
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className={!property.transportPossibilities.airplane ? 'text-muted-foreground' : ''}>Letiště</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      {property.transportPossibilities.boat ? (
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Lodní doprava</span>
-                      </div>
-                    )}
-                    {property.transportPossibilities.ferry && (
-                      <div className="flex items-center gap-2 text-sm">
+                      ) : (
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className={!property.transportPossibilities.boat ? 'text-muted-foreground' : ''}>Lodní doprava</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      {property.transportPossibilities.ferry ? (
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Trajekt</span>
-                      </div>
-                    )}
+                      ) : (
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className={!property.transportPossibilities.ferry ? 'text-muted-foreground' : ''}>Trajekt</span>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -625,90 +663,118 @@ const PropertyDetailPage: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {property.civicAmenities.busStop && (
-                      <div className="flex items-center gap-2 text-sm">
+                    <div className="flex items-center gap-2 text-sm">
+                      {property.civicAmenities.busStop ? (
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Zastávka autobusu</span>
-                      </div>
-                    )}
-                    {property.civicAmenities.trainStation && (
-                      <div className="flex items-center gap-2 text-sm">
+                      ) : (
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className={!property.civicAmenities.busStop ? 'text-muted-foreground' : ''}>Zastávka autobusu</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      {property.civicAmenities.trainStation ? (
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Vlakové nádraží</span>
-                      </div>
-                    )}
-                    {property.civicAmenities.subway && (
-                      <div className="flex items-center gap-2 text-sm">
+                      ) : (
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className={!property.civicAmenities.trainStation ? 'text-muted-foreground' : ''}>Vlakové nádraží</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      {property.civicAmenities.subway ? (
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Metro</span>
-                      </div>
-                    )}
-                    {property.civicAmenities.postOffice && (
-                      <div className="flex items-center gap-2 text-sm">
+                      ) : (
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className={!property.civicAmenities.subway ? 'text-muted-foreground' : ''}>Metro</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      {property.civicAmenities.postOffice ? (
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Pošta</span>
-                      </div>
-                    )}
-                    {property.civicAmenities.atm && (
-                      <div className="flex items-center gap-2 text-sm">
+                      ) : (
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className={!property.civicAmenities.postOffice ? 'text-muted-foreground' : ''}>Pošta</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      {property.civicAmenities.atm ? (
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Bankomat</span>
-                      </div>
-                    )}
-                    {property.civicAmenities.generalPractitioner && (
-                      <div className="flex items-center gap-2 text-sm">
+                      ) : (
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className={!property.civicAmenities.atm ? 'text-muted-foreground' : ''}>Bankomat</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      {property.civicAmenities.generalPractitioner ? (
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Praktický lékař</span>
-                      </div>
-                    )}
-                    {property.civicAmenities.veterinarian && (
-                      <div className="flex items-center gap-2 text-sm">
+                      ) : (
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className={!property.civicAmenities.generalPractitioner ? 'text-muted-foreground' : ''}>Praktický lékař</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      {property.civicAmenities.veterinarian ? (
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Veterinář</span>
-                      </div>
-                    )}
-                    {property.civicAmenities.elementarySchool && (
-                      <div className="flex items-center gap-2 text-sm">
+                      ) : (
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className={!property.civicAmenities.veterinarian ? 'text-muted-foreground' : ''}>Veterinář</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      {property.civicAmenities.elementarySchool ? (
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Základní škola</span>
-                      </div>
-                    )}
-                    {property.civicAmenities.kindergarten && (
-                      <div className="flex items-center gap-2 text-sm">
+                      ) : (
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className={!property.civicAmenities.elementarySchool ? 'text-muted-foreground' : ''}>Základní škola</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      {property.civicAmenities.kindergarten ? (
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Mateřská škola</span>
-                      </div>
-                    )}
-                    {property.civicAmenities.supermarket && (
-                      <div className="flex items-center gap-2 text-sm">
+                      ) : (
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className={!property.civicAmenities.kindergarten ? 'text-muted-foreground' : ''}>Mateřská škola</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      {property.civicAmenities.supermarket ? (
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Supermarket</span>
-                      </div>
-                    )}
-                    {property.civicAmenities.smallShop && (
-                      <div className="flex items-center gap-2 text-sm">
+                      ) : (
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className={!property.civicAmenities.supermarket ? 'text-muted-foreground' : ''}>Supermarket</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      {property.civicAmenities.smallShop ? (
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Malá prodejna</span>
-                      </div>
-                    )}
-                    {property.civicAmenities.restaurant && (
-                      <div className="flex items-center gap-2 text-sm">
+                      ) : (
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className={!property.civicAmenities.smallShop ? 'text-muted-foreground' : ''}>Malá prodejna</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      {property.civicAmenities.restaurant ? (
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Restaurace</span>
-                      </div>
-                    )}
-                    {property.civicAmenities.pub && (
-                      <div className="flex items-center gap-2 text-sm">
+                      ) : (
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className={!property.civicAmenities.restaurant ? 'text-muted-foreground' : ''}>Restaurace</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      {property.civicAmenities.pub ? (
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Hospoda</span>
-                      </div>
-                    )}
-                    {property.civicAmenities.playground && (
-                      <div className="flex items-center gap-2 text-sm">
+                      ) : (
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className={!property.civicAmenities.pub ? 'text-muted-foreground' : ''}>Hospoda</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      {property.civicAmenities.playground ? (
                         <Check className="h-4 w-4 text-green-600" />
-                        <span>Dětské hřiště</span>
-                      </div>
-                    )}
+                      ) : (
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className={!property.civicAmenities.playground ? 'text-muted-foreground' : ''}>Dětské hřiště</span>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
