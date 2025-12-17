@@ -6,12 +6,12 @@ export enum UserRole {
 }
 
 export interface PersonalInformation {
-  degree?: string;  // TODO: remove ?
+  degree?: string;
   firstName: string;
   lastName: string;
-  phoneNumber?: string; // TODO: remove ?
-  birthDate?: Date; // TODO: remove ?
-  address?: Address;  // TODO: remove ?
+  phoneNumber?: string;
+  birthDate?: Date;
+  address?: Address;
 }
 
 export interface User {
