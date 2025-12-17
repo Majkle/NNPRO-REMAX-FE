@@ -1,0 +1,13 @@
+{
+  "name": "nnpro-remax-e2e",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "playwright test",
+    "test:docker": "socat TCP-LISTEN:8080,fork TCP:backend:8080 & BASE_URL=http://frontend:80 npx playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.57.0",
+    "@types/node": "^20.19.27",
+    "typescript": "^5.9.3"
+  }
+}
