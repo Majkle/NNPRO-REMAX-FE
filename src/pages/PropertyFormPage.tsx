@@ -66,6 +66,10 @@ import AddressAutocomplete, { AddressData } from '@/components/AddressAutocomple
 
 let oldImageIds: number[] = [];
 
+// Default coordinates (Prague Center)
+const DEFAULT_LAT = 50.0755;
+const DEFAULT_LNG = 14.4378;
+
 const createPropertyAPIPayload = async (data: PropertyFormValues, realtorId?: number): Promise<CreateApartmentAPI | CreateHouseAPI | CreateLandAPI> => {
   let imageIds: number[] = [];
   if (data.images && data.images.length > 0) {
@@ -95,8 +99,8 @@ const createPropertyAPIPayload = async (data: PropertyFormValues, realtorId?: nu
       country: data.country,
       flatNumber: data.flatNumber,
       region: data.region,
-      latitude: data.latitude,
-      longitude: data.longitude,
+      latitude: data.latitude ?? DEFAULT_LAT,
+      longitude: data.longitude ?? DEFAULT_LNG,
     },
     buildingProperties: {
       constructionMaterial: data.constructionMaterial,
