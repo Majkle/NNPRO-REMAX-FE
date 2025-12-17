@@ -1,5 +1,6 @@
 import api from './api';
-import { Property, CreateApartmentAPI, CreateHouseAPI, CreateLandAPI, UpdatePropertyInput, PaginatedResponse, PropertyType, PropertyStatus, TransactionType, PriceHistory } from '@/types';
+import { Property, PropertyImage, CreateApartmentAPI, CreateHouseAPI, CreateLandAPI, UpdatePropertyInput, PaginatedResponse, PropertyType, PropertyStatus, TransactionType, PriceHistory } from '@/types';
+import imageService from './imageService';
 
 export interface PropertySearchParams {
   page?: number;
@@ -25,6 +26,62 @@ export interface PropertyStats {
   averagePrice: number;
 }
 
+// Type for API response where images are just IDs and may have realtorId instead of agentId
+type PropertyAPIResponse = Omit<Property, 'images' | 'agentId'> & {
+  images: number[] | PropertyImage[];
+  agentId?: number;
+  realtorId?: number;
+};
+
+/**
+ * Transform image IDs to PropertyImage objects with URLs and normalize field names
+ */
+const transformPropertyImages = (property: PropertyAPIResponse): Property => {
+  // Normalize realtorId to agentId
+  const agentId = property.agentId ?? property.realtorId;
+
+  // If no images or already PropertyImage objects, return as-is
+  if (!property.images || property.images.length === 0) {
+    return { ...property, agentId, images: [] } as unknown as Property;
+  }
+
+  if (typeof property.images[0] === 'object') {
+    return { ...property, agentId } as unknown as Property;
+  }
+
+  // Transform image IDs to PropertyImage objects
+  const imageIds = property.images as number[];
+  const transformedImages: PropertyImage[] = imageIds.map((id, index) => ({
+    id,
+    url: imageService.getImageUrl(id),
+    isPrimary: index === 0, // First image is primary by default
+    propertyId: property.id,
+  }));
+
+  return {
+    ...property,
+    agentId,
+    images: transformedImages,
+  } as unknown as Property;
+};
+
+/**
+ * Transform array of properties
+ */
+const transformPropertiesArray = (properties: PropertyAPIResponse[]): Property[] => {
+  return properties.map(transformPropertyImages);
+};
+
+/**
+ * Transform paginated response
+ */
+const transformPaginatedResponse = (response: PaginatedResponse<PropertyAPIResponse>): PaginatedResponse<Property> => {
+  return {
+    ...response,
+    content: transformPropertiesArray(response.content),
+  };
+};
+
 const propertyService = {
   /**
    * Fetch a paginated list of properties.
@@ -32,10 +89,10 @@ const propertyService = {
    * @param limit - The number of items per page.
    */
   getProperties: async (page: number = 1, limit: number = 10): Promise<PaginatedResponse<Property>> => {
-    const response = await api.get<PaginatedResponse<Property>>('/real-estates', {
+    const response = await api.get<PaginatedResponse<PropertyAPIResponse>>('/real-estates', {
       params: { page, limit }
     });
-    return response.data;
+    return transformPaginatedResponse(response.data);
   },
 
   /**
@@ -43,8 +100,8 @@ const propertyService = {
    * @param params - Search and filter parameters.
    */
   searchProperties: async (params: PropertySearchParams): Promise<PaginatedResponse<Property>> => {
-    const response = await api.get<PaginatedResponse<Property>>('/real-estates', { params });
-    return response.data;
+    const response = await api.get<PaginatedResponse<PropertyAPIResponse>>('/real-estates', { params });
+    return transformPaginatedResponse(response.data);
   },
 
   /**
@@ -52,8 +109,8 @@ const propertyService = {
    * @param id - The ID of the property to fetch.
    */
   getProperty: async (id: number): Promise<Property> => {
-    const response = await api.get<Property>(`/real-estates/${id}`);
-    return response.data;
+    const response = await api.get<PropertyAPIResponse>(`/real-estates/${id}`);
+    return transformPropertyImages(response.data);
   },
 
   /**
@@ -63,10 +120,10 @@ const propertyService = {
    * @param limit - Items per page.
    */
   getPropertiesByAgent: async (agentId: number, page: number = 1, limit: number = 10): Promise<PaginatedResponse<Property>> => {
-    const response = await api.get<PaginatedResponse<Property>>(`/agents/${agentId}/real-estates`, {
+    const response = await api.get<PaginatedResponse<PropertyAPIResponse>>(`/agents/${agentId}/real-estates`, {
       params: { page, limit }
     });
-    return response.data;
+    return transformPaginatedResponse(response.data);
   },
 
   /**
@@ -74,8 +131,8 @@ const propertyService = {
    * @param data - The data for the new property.
    */
   createApartment: async (data: CreateApartmentAPI): Promise<Property> => {
-    const response = await api.post<Property>('/real-estates', data);
-    return response.data;
+    const response = await api.post<PropertyAPIResponse>('/real-estates', data);
+    return transformPropertyImages(response.data);
   },
 
   /**
@@ -83,8 +140,8 @@ const propertyService = {
    * @param data - The data for the new property.
    */
   createHouse: async (data: CreateHouseAPI): Promise<Property> => {
-    const response = await api.post<Property>('/real-estates', data);
-    return response.data;
+    const response = await api.post<PropertyAPIResponse>('/real-estates', data);
+    return transformPropertyImages(response.data);
   },
 
   /**
@@ -92,8 +149,8 @@ const propertyService = {
    * @param data - The data for the new property.
    */
   createLand: async (data: CreateLandAPI): Promise<Property> => {
-    const response = await api.post<Property>('/real-estates', data);
-    return response.data;
+    const response = await api.post<PropertyAPIResponse>('/real-estates', data);
+    return transformPropertyImages(response.data);
   },
 
   /**
@@ -102,8 +159,8 @@ const propertyService = {
    * @param data - The data to update.
    */
   updateProperty: async (id: number, data: UpdatePropertyInput): Promise<Property> => {
-    const response = await api.put<Property>(`/real-estates/${id}`, data);
-    return response.data;
+    const response = await api.put<PropertyAPIResponse>(`/real-estates/${id}`, data);
+    return transformPropertyImages(response.data);
   },
 
   /**
@@ -112,8 +169,8 @@ const propertyService = {
    * @param data - The partial data to update.
    */
   patchProperty: async (id: number, data: Partial<UpdatePropertyInput>): Promise<Property> => {
-    const response = await api.patch<Property>(`/real-estates/${id}`, data);
-    return response.data;
+    const response = await api.patch<PropertyAPIResponse>(`/real-estates/${id}`, data);
+    return transformPropertyImages(response.data);
   },
 
   /**
@@ -122,8 +179,8 @@ const propertyService = {
    * @param status - The new status.
    */
   updatePropertyStatus: async (id: number, status: PropertyStatus): Promise<Property> => {
-    const response = await api.patch<Property>(`/real-estates/${id}/status`, { status });
-    return response.data;
+    const response = await api.patch<PropertyAPIResponse>(`/real-estates/${id}/status`, { status });
+    return transformPropertyImages(response.data);
   },
 
   /**
@@ -149,12 +206,12 @@ const propertyService = {
       }
     });
 
-    const response = await api.post<Property>(`/real-estates/${propertyId}/images`, formData, {
+    const response = await api.post<PropertyAPIResponse>(`/real-estates/${propertyId}/images`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
-    return response.data;
+    return transformPropertyImages(response.data);
   },
 
   /**
@@ -172,8 +229,8 @@ const propertyService = {
    * @param imageId - The ID of the image to set as primary.
    */
   setPrimaryImage: async (propertyId: number, imageId: number): Promise<Property> => {
-    const response = await api.patch<Property>(`/real-estates/${propertyId}/images/${imageId}/primary`);
-    return response.data;
+    const response = await api.patch<PropertyAPIResponse>(`/real-estates/${propertyId}/images/${imageId}/primary`);
+    return transformPropertyImages(response.data);
   },
 
   /**
@@ -189,10 +246,10 @@ const propertyService = {
    * @param limit - Number of properties to fetch.
    */
   getFeaturedProperties: async (limit: number = 6): Promise<Property[]> => {
-    const response = await api.get<Property[]>('/real-estates/featured', {
+    const response = await api.get<PropertyAPIResponse[]>('/real-estates/featured', {
       params: { limit }
     });
-    return response.data;
+    return transformPropertiesArray(response.data);
   },
 
   /**
@@ -200,10 +257,10 @@ const propertyService = {
    * @param limit - Number of properties to fetch.
    */
   getRecentProperties: async (limit: number = 6): Promise<Property[]> => {
-    const response = await api.get<Property[]>('/real-estates/recent', {
+    const response = await api.get<PropertyAPIResponse[]>('/real-estates/recent', {
       params: { limit }
     });
-    return response.data;
+    return transformPropertiesArray(response.data);
   },
 
   /**
@@ -222,11 +279,11 @@ const propertyService = {
    * @param reason - Optional reason for price change.
    */
   updatePropertyPrice: async (propertyId: number, newPrice: number, reason?: string): Promise<Property> => {
-    const response = await api.patch<Property>(`/real-estates/${propertyId}/price`, {
+    const response = await api.patch<PropertyAPIResponse>(`/real-estates/${propertyId}/price`, {
       price: newPrice,
       reason
     });
-    return response.data;
+    return transformPropertyImages(response.data);
   },
 };
 

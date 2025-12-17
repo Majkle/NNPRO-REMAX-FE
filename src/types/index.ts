@@ -430,6 +430,7 @@ export interface CreatePropertyAPIInput {
   type: PropertyType;
   name: string;
   description: string;
+  realtorId?: number;
   status: PropertyStatus;
   usableArea: number;
   contractType: TransactionType;
@@ -446,6 +447,8 @@ export interface CreatePropertyAPIInput {
     country: string;
     flatNumber?: string;
     region: AddressRegion;
+    latitude?: number;
+    longitude?: number;
   };
   buildingProperties: {
     constructionMaterial: ConstructionMaterial;

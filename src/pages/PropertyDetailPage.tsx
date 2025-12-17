@@ -47,6 +47,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import PriceDisplay from '@/components/PriceDisplay';
 import PropertyMap from '@/components/PropertyMap';
 import propertyService from '@/services/propertyService';
+import userService from '@/services/userService';
 
 const PropertyDetailPage: React.FC = () => {
   const navigate = useNavigate();
@@ -61,18 +62,29 @@ const PropertyDetailPage: React.FC = () => {
     const fetchProperty = async () => {
       try {
         const response = await propertyService.getProperty(Number(id));
+
+        // If agent data is not included in the property response, fetch it separately
+        if (!response.agent && response.agentId) {
+          try {
+            const agentData = await userService.getUserProfile(response.agentId);
+            response.agent = agentData;
+          } catch (agentError) {
+            console.error('Failed to fetch agent data:', agentError);
+          }
+        }
+
         setProperty(response);
+        setIsLoading(false);
       } catch (error) {
         // for mocking purposes - DELETE
         if (axios.isAxiosError(error) && (error.status === 403 || error.status === 404)) {
           setProperty(mockProperties.find(p => p.id === Number(id)))
         }
+        setIsLoading(false);
       }
     };
     fetchProperty();
-
-    setIsLoading(true);
-  }, []);
+  }, [id]);
 
   // Image gallery state
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
