@@ -133,6 +133,8 @@ const AppointmentFormPage: React.FC = () => {
     } finally {
       setIsSubmitting(false);
     }
+
+    navigate('/appointments');
   };
 
   const typeLabels = {
