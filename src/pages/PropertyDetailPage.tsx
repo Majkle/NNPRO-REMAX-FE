@@ -73,6 +73,7 @@ const PropertyDetailPage: React.FC = () => {
           }
         }
 
+        console.log(response)
         setProperty(response);
         setIsLoading(false);
       } catch (error) {
@@ -180,6 +181,14 @@ const PropertyDetailPage: React.FC = () => {
       [InternetConnection.SATELLITE]: 'Satelitní',
     };
     return labels[internet];
+  };
+
+  const getPropertyInitials = (name: string) => {
+    const words = name.trim().split(/\s+/);
+    if (words.length >= 2) {
+      return (words[0][0] + words[1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
   };
 
   if (!property) {
@@ -300,14 +309,20 @@ const PropertyDetailPage: React.FC = () => {
       {/* Main Image */}
       <Card className="overflow-hidden">
         <div className="aspect-video relative bg-muted">
-          <img
-            src={selectedImageUrl ||
-              (property.images ?
-               (property.images.find(img => img.isPrimary)?.url || property.images[0]?.url) :
-               '')}
-            alt={property.name}
-            className="object-cover w-full h-full"
-          />
+          {(selectedImageUrl || (property.images && property.images.length > 0 && (property.images.find(img => img.isPrimary)?.url || property.images[0]?.url))) ? (
+            <img
+              src={selectedImageUrl ||
+                (property.images.find(img => img.isPrimary)?.url || property.images[0]?.url)}
+              alt={property.name}
+              className="object-cover w-full h-full"
+            />
+          ) : (
+            <div className="w-full h-full bg-purple-100 flex items-center justify-center">
+              <span className="text-8xl font-bold text-purple-600">
+                {getPropertyInitials(property.name)}
+              </span>
+            </div>
+          )}
           <div className="absolute top-4 right-4 flex gap-2">
             <Badge variant={getStatusBadgeVariant(property.status)}>
               {getStatusLabel(property.status)}

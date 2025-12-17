@@ -142,6 +142,14 @@ const PropertiesPage: React.FC = () => {
     return type === TransactionType.SALE ? 'default' : 'secondary';
   };
 
+  const getPropertyInitials = (name: string) => {
+    const words = name.trim().split(/\s+/);
+    if (words.length >= 2) {
+      return (words[0][0] + words[1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  };
+
 
   return (
     <div className="space-y-6">
@@ -284,14 +292,19 @@ const PropertiesPage: React.FC = () => {
             <Link key={property.id} to={`/properties/${property.id}`}>
               <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
                 <div className="aspect-video relative bg-muted overflow-hidden">
-                  <img
-                    src={property.images ?
-                      (property.images.find(img => img.isPrimary)?.url || property.images[0]?.url) :
-                      ''
-                    }
-                    alt={property.name}
-                    className="object-cover w-full h-full"
-                  />
+                  {property.images && property.images.length > 0 && (property.images.find(img => img.isPrimary)?.url || property.images[0]?.url) ? (
+                    <img
+                      src={property.images.find(img => img.isPrimary)?.url || property.images[0]?.url}
+                      alt={property.name}
+                      className="object-cover w-full h-full"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-purple-100 flex items-center justify-center">
+                      <span className="text-6xl font-bold text-purple-600">
+                        {getPropertyInitials(property.name)}
+                      </span>
+                    </div>
+                  )}
                   <div className="absolute top-2 right-2 flex gap-2">
                     <Badge variant={getTransactionTypeBadgeVariant(property.contractType)}>
                       {getTransactionTypeLabel(property.contractType)}
