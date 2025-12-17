@@ -7,7 +7,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Property, PropertyStatus, PropertyType, TransactionType, UserRole } from '@/types';
-import { mockProperties } from '@/data/mockData';
 import propertyService from '@/services/propertyService';
 import PriceDisplay from '@/components/PriceDisplay';
 import { useAuth } from '@/contexts/AuthContext';
@@ -32,10 +31,10 @@ const PropertiesPage: React.FC = () => {
     const fetchProperties = async () => {
       try {
         setIsLoading(true);
-        // The service function would need to be updated to accept filter parameters
         const paginatedResponse = await propertyService.getProperties(page, PAGE_SIZE);
         if (!cancelled) {
-          setProperties(prev => prev.concat(paginatedResponse.content));
+          // FIX 1: Overwrite properties with new page data (do not concat)
+          setProperties(paginatedResponse.content);
           setTotalPages(Math.ceil(paginatedResponse.totalElements / PAGE_SIZE));
         }
       } catch (error) {
@@ -59,13 +58,13 @@ const PropertiesPage: React.FC = () => {
 
   // Check if current user is an agent
   const canAddProperty = user?.role === UserRole.AGENT;
-  
+
   const paginatedAndFilteredProperties = useMemo(() => {
     const filtered = properties.filter(property => {
       const matchesSearch = !searchTerm ||
-        property.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        property.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        property.address.city.toLowerCase().includes(searchTerm.toLowerCase());
+          property.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          property.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          property.address.city.toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesType = typeFilter === 'all' || property.type === typeFilter;
       const matchesStatus = statusFilter === 'all' || property.status === statusFilter;
@@ -73,13 +72,9 @@ const PropertiesPage: React.FC = () => {
 
       return matchesSearch && matchesType && matchesStatus && matchesTransaction;
     });
+    return filtered;
 
-    setTotalPages(Math.ceil(filtered.length / PAGE_SIZE));
-    const start = page * PAGE_SIZE;
-    const end = start + PAGE_SIZE;
-    return filtered.slice(start, end);
-    
-  }, [searchTerm, typeFilter, statusFilter, transactionFilter, properties, page]);
+  }, [searchTerm, typeFilter, statusFilter, transactionFilter, properties]);
 
   const getStatusBadgeVariant = (status: PropertyStatus) => {
     switch (status) {
@@ -252,7 +247,7 @@ const PropertiesPage: React.FC = () => {
           </Card>
         )}
       </div>
-      
+
       <div className="flex justify-center items-center gap-4 mt-6">
         <Button onClick={() => setPage(p => p - 1)} disabled={page <= 0}>
           Předchozí
