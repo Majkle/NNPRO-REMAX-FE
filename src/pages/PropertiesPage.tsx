@@ -6,10 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Property, PropertyStatus, PropertyType, TransactionType } from '@/types';
+import { Property, PropertyStatus, PropertyType, TransactionType, UserRole } from '@/types';
 import { mockProperties } from '@/data/mockData';
 import propertyService from '@/services/propertyService';
 import PriceDisplay from '@/components/PriceDisplay';
+import { useAuth } from '@/contexts/AuthContext';
 
 const PAGE_SIZE = 6;
 
@@ -22,6 +23,7 @@ const PropertiesPage: React.FC = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [properties, setProperties] = useState<Property[]>([]);
+  const { user } = useAuth();
 
   // --- BACKEND INTEGRATION ---
   useEffect(() => {
@@ -54,6 +56,9 @@ const PropertiesPage: React.FC = () => {
     setPage(0);
     //setProperties([]);
   }, [searchTerm, typeFilter, statusFilter, transactionFilter]);
+
+  // Check if current user is an agent
+  const canAddProperty = user?.role === UserRole.AGENT;
   
   const paginatedAndFilteredProperties = useMemo(() => {
     const filtered = properties.filter(property => {
@@ -115,12 +120,14 @@ const PropertiesPage: React.FC = () => {
           <h1 className="text-3xl font-bold">Nemovitosti</h1>
           <p className="text-muted-foreground mt-1">Procházejte dostupné nemovitosti</p>
         </div>
+        {canAddProperty && (
         <Button asChild>
           <Link to="/properties/new">
             <Plus className="mr-2 h-4 w-4" />
             Přidat nemovitost
           </Link>
         </Button>
+        )}
       </div>
 
       <Card>

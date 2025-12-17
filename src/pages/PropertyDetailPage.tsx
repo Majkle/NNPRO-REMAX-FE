@@ -91,6 +91,8 @@ const PropertyDetailPage: React.FC = () => {
 
   // Check if current user is the agent who owns this property
   const canEdit = user?.id === property?.agentId && user?.role === UserRole.AGENT;
+  // Check if current user is a client
+  const canMeet = user?.role === UserRole.CLIENT;
 
   const getStatusBadgeVariant = (status: PropertyStatus) => {
     switch (status) {
@@ -758,10 +760,12 @@ const PropertyDetailPage: React.FC = () => {
                   )}
                 </div>
 
+                {canMeet && (
                 <Button className="w-full" onClick={() => navigate('/appointments/new')}>
                   <Calendar className="mr-2 h-4 w-4" />
                   Naplánovat prohlídku
                 </Button>
+                )}
               </CardContent>
             </Card>
           )}
