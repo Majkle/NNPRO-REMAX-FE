@@ -18,6 +18,11 @@ const PropertiesPage: React.FC = () => {
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [transactionFilter, setTransactionFilter] = useState<string>('all');
+  const [priceFrom, setPriceFrom] = useState<string>('');
+  const [priceTo, setPriceTo] = useState<string>('');
+  const [areaFrom, setAreaFrom] = useState<string>('');
+  const [areaTo, setAreaTo] = useState<string>('');
+  const [roomsFilter, setRoomsFilter] = useState<string>('all');
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
@@ -54,7 +59,7 @@ const PropertiesPage: React.FC = () => {
   useEffect(() => {
     setPage(0);
     //setProperties([]);
-  }, [searchTerm, typeFilter, statusFilter, transactionFilter]);
+  }, [searchTerm, typeFilter, statusFilter, transactionFilter, priceFrom, priceTo, areaFrom, areaTo, roomsFilter]);
 
   // Check if current user is an agent
   const canAddProperty = user?.role === UserRole.AGENT;
@@ -70,11 +75,29 @@ const PropertiesPage: React.FC = () => {
       const matchesStatus = statusFilter === 'all' || property.status === statusFilter;
       const matchesTransaction = transactionFilter === 'all' || property.contractType === transactionFilter;
 
-      return matchesSearch && matchesType && matchesStatus && matchesTransaction;
+      // Price range filter
+      const priceFromNum = priceFrom ? parseFloat(priceFrom) : 0;
+      const priceToNum = priceTo ? parseFloat(priceTo) : Infinity;
+      const matchesPrice = property.price >= priceFromNum && property.price <= priceToNum;
+
+      // Area range filter
+      const areaFromNum = areaFrom ? parseFloat(areaFrom) : 0;
+      const areaToNum = areaTo ? parseFloat(areaTo) : Infinity;
+      const matchesArea = property.usableArea >= areaFromNum && property.usableArea <= areaToNum;
+
+      // Rooms filter (only for apartments)
+      const matchesRooms = roomsFilter === 'all' ||
+        (property.type === PropertyType.APARTMENT &&
+         (roomsFilter === '5'
+           ? (property as any).rooms >= 5
+           : (property as any).rooms?.toString() === roomsFilter));
+
+      return matchesSearch && matchesType && matchesStatus && matchesTransaction &&
+             matchesPrice && matchesArea && matchesRooms;
     });
     return filtered;
 
-  }, [searchTerm, typeFilter, statusFilter, transactionFilter, properties]);
+  }, [searchTerm, typeFilter, statusFilter, transactionFilter, priceFrom, priceTo, areaFrom, areaTo, roomsFilter, properties]);
 
   const getStatusBadgeVariant = (status: PropertyStatus) => {
     switch (status) {
@@ -107,6 +130,18 @@ const PropertiesPage: React.FC = () => {
     return labels[type];
   };
 
+  const getTransactionTypeLabel = (type: TransactionType) => {
+    const labels: Record<TransactionType, string> = {
+      [TransactionType.SALE]: 'Prodej',
+      [TransactionType.RENTAL]: 'Pronájem',
+    };
+    return labels[type];
+  };
+
+  const getTransactionTypeBadgeVariant = (type: TransactionType) => {
+    return type === TransactionType.SALE ? 'default' : 'secondary';
+  };
+
 
   return (
     <div className="space-y-6">
@@ -131,51 +166,114 @@ const PropertiesPage: React.FC = () => {
           <CardDescription>Najděte nemovitost podle svých preferencí</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="relative">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Hledat..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-8"
-              />
+          <div className="space-y-4">
+            {/* First row: Search, Type, Status, Transaction */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="relative">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Hledat..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-8"
+                />
+              </div>
+
+              <Select value={typeFilter} onValueChange={setTypeFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Typ nemovitosti" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Všechny typy</SelectItem>
+                  <SelectItem value={PropertyType.APARTMENT}>Byt</SelectItem>
+                  <SelectItem value={PropertyType.HOUSE}>Dům</SelectItem>
+                  <SelectItem value={PropertyType.LAND}>Pozemek</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Všechny stavy</SelectItem>
+                  <SelectItem value={PropertyStatus.AVAILABLE}>Dostupné</SelectItem>
+                  <SelectItem value={PropertyStatus.RESERVED}>Rezervováno</SelectItem>
+                  <SelectItem value={PropertyStatus.BOUGHT}>Prodáno</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={transactionFilter} onValueChange={setTransactionFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Typ transakce" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Všechny transakce</SelectItem>
+                  <SelectItem value={TransactionType.SALE}>Prodej</SelectItem>
+                  <SelectItem value={TransactionType.RENTAL}>Pronájem</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Typ nemovitosti" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Všechny typy</SelectItem>
-                <SelectItem value={PropertyType.APARTMENT}>Byt</SelectItem>
-                <SelectItem value={PropertyType.HOUSE}>Dům</SelectItem>
-                <SelectItem value={PropertyType.LAND}>Pozemek</SelectItem>
-              </SelectContent>
-            </Select>
+            {/* Second row: Price range, Area range, Rooms */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Cena od</label>
+                <Input
+                  type="number"
+                  placeholder="0"
+                  value={priceFrom}
+                  onChange={(e) => setPriceFrom(e.target.value)}
+                />
+              </div>
 
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Všechny stavy</SelectItem>
-                <SelectItem value={PropertyStatus.AVAILABLE}>Dostupné</SelectItem>
-                <SelectItem value={PropertyStatus.RESERVED}>Rezervováno</SelectItem>
-                <SelectItem value={PropertyStatus.BOUGHT}>Prodáno</SelectItem>
-              </SelectContent>
-            </Select>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Cena do</label>
+                <Input
+                  type="number"
+                  placeholder="∞"
+                  value={priceTo}
+                  onChange={(e) => setPriceTo(e.target.value)}
+                />
+              </div>
 
-            <Select value={transactionFilter} onValueChange={setTransactionFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Typ transakce" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Všechny transakce</SelectItem>
-                <SelectItem value={TransactionType.SALE}>Prodej</SelectItem>
-                <SelectItem value={TransactionType.RENTAL}>Pronájem</SelectItem>
-              </SelectContent>
-            </Select>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Plocha od (m²)</label>
+                <Input
+                  type="number"
+                  placeholder="0"
+                  value={areaFrom}
+                  onChange={(e) => setAreaFrom(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Plocha do (m²)</label>
+                <Input
+                  type="number"
+                  placeholder="∞"
+                  value={areaTo}
+                  onChange={(e) => setAreaTo(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Pokoje</label>
+                <Select value={roomsFilter} onValueChange={setRoomsFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Počet pokojů" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Jakýkoliv</SelectItem>
+                    <SelectItem value="1">1</SelectItem>
+                    <SelectItem value="2">2</SelectItem>
+                    <SelectItem value="3">3</SelectItem>
+                    <SelectItem value="4">4</SelectItem>
+                    <SelectItem value="5">5+</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -195,6 +293,9 @@ const PropertiesPage: React.FC = () => {
                     className="object-cover w-full h-full"
                   />
                   <div className="absolute top-2 right-2 flex gap-2">
+                    <Badge variant={getTransactionTypeBadgeVariant(property.contractType)}>
+                      {getTransactionTypeLabel(property.contractType)}
+                    </Badge>
                     <Badge variant={getStatusBadgeVariant(property.status)}>
                       {getStatusLabel(property.status)}
                     </Badge>
