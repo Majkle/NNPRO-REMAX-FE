@@ -38,7 +38,10 @@ import {
   BuildingLocation,
   InternetConnection,
   ApartmentOwnershipType,
-  HouseType
+  HouseType,
+  utilitiesFromAPI,
+  transportFromAPI,
+  civicAmenitiesFromAPI
 } from '@/types';
 import { format } from 'date-fns';
 import { cs } from 'date-fns/locale';
@@ -71,6 +74,17 @@ const PropertyDetailPage: React.FC = () => {
           } catch (agentError) {
             console.error('Failed to fetch agent data:', agentError);
           }
+        }
+
+        // Transform backend format to frontend format if needed
+        if ((response.utilities as any).availableUtilities) {
+          response.utilities = utilitiesFromAPI(response.utilities as any);
+        }
+        if ((response.transportPossibilities as any).possibilities) {
+          response.transportPossibilities = transportFromAPI(response.transportPossibilities as any);
+        }
+        if ((response.civicAmenities as any).amenities) {
+          response.civicAmenities = civicAmenitiesFromAPI(response.civicAmenities as any);
         }
 
         console.log(response)

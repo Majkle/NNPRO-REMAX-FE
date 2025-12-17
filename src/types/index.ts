@@ -181,6 +181,27 @@ export interface UtilitiesAPI {
   parkingPlaces: number;
 }
 
+// Convert API format to frontend format
+export function utilitiesFromAPI(api: UtilitiesAPI): Utilities {
+  const utilities: Utilities = {
+    id: 0,
+    hasWater: api.availableUtilities.includes(AvailableUtility.WATER),
+    hasWell: api.availableUtilities.includes(AvailableUtility.WELL),
+    hasElectricity: api.availableUtilities.includes(AvailableUtility.ELECTRICITY),
+    hasGas: api.availableUtilities.includes(AvailableUtility.GAS),
+    hasSewerage: api.availableUtilities.includes(AvailableUtility.SEWERAGE),
+    hasCesspool: api.availableUtilities.includes(AvailableUtility.CESSPOOL),
+    hasHeating: api.availableUtilities.includes(AvailableUtility.HEATING),
+    hasPhoneLine: api.availableUtilities.includes(AvailableUtility.PHONE_LINE),
+    hasCableTV: api.availableUtilities.includes(AvailableUtility.CABLE_TV),
+    hasRecycling: api.availableUtilities.includes(AvailableUtility.RECYCLING),
+    hasBarrierFreeAccess: api.availableUtilities.includes(AvailableUtility.BARRIER_FREE_ACCESS),
+    internetConnection: api.internetConnection,
+    parkingPlaces: api.parkingPlaces,
+  };
+  return utilities;
+}
+
 // Transport Possibilities
 export enum TransportPossibility {
   ROAD = 'ROAD',
@@ -234,6 +255,22 @@ export function transportToArray(
 // API format for Transport Possibilities (using arrays)
 export interface TransportPossibilitiesAPI {
   possibilities: TransportPossibility[];
+}
+
+// Convert API format to frontend format
+export function transportFromAPI(api: TransportPossibilitiesAPI): TransportPossibilities {
+  const transport: TransportPossibilities = {
+    id: 0,
+    road: api.possibilities.includes(TransportPossibility.ROAD),
+    highway: api.possibilities.includes(TransportPossibility.HIGHWAY),
+    train: api.possibilities.includes(TransportPossibility.TRAIN),
+    bus: api.possibilities.includes(TransportPossibility.BUS),
+    publicTransport: api.possibilities.includes(TransportPossibility.PUBLIC_TRANSPORT),
+    airplane: api.possibilities.includes(TransportPossibility.AIRPLANE),
+    boat: api.possibilities.includes(TransportPossibility.BOAT),
+    ferry: api.possibilities.includes(TransportPossibility.FERRY),
+  };
+  return transport;
 }
 
 // Civic Amenities
@@ -307,6 +344,28 @@ export function civicAmenitiesToArray(
 // API format for Civic Amenities (using arrays)
 export interface CivicAmenitiesAPI {
   amenities: CivicAmenity[];
+}
+
+// Convert API format to frontend format
+export function civicAmenitiesFromAPI(api: CivicAmenitiesAPI): CivicAmenities {
+  const amenities: CivicAmenities = {
+    id: 0,
+    busStop: api.amenities.includes(CivicAmenity.BUS_STOP),
+    trainStation: api.amenities.includes(CivicAmenity.TRAIN_STATION),
+    postOffice: api.amenities.includes(CivicAmenity.POST_OFFICE),
+    atm: api.amenities.includes(CivicAmenity.ATM),
+    generalPractitioner: api.amenities.includes(CivicAmenity.GENERAL_PRACTITIONER),
+    veterinarian: api.amenities.includes(CivicAmenity.VETERINARIAN),
+    elementarySchool: api.amenities.includes(CivicAmenity.ELEMENTARY_SCHOOL),
+    kindergarten: api.amenities.includes(CivicAmenity.KINDERGARTEN),
+    supermarket: api.amenities.includes(CivicAmenity.SUPERMARKET),
+    smallShop: api.amenities.includes(CivicAmenity.SMALL_SHOP),
+    restaurant: api.amenities.includes(CivicAmenity.RESTAURANT),
+    pub: api.amenities.includes(CivicAmenity.PUB),
+    playground: api.amenities.includes(CivicAmenity.PLAYGROUND),
+    subway: api.amenities.includes(CivicAmenity.SUBWAY),
+  };
+  return amenities;
 }
 
 // Property types

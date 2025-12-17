@@ -54,6 +54,9 @@ import {
   civicAmenitiesToArray,
   transportToArray,
   utilitiesToArray,
+  utilitiesFromAPI,
+  transportFromAPI,
+  civicAmenitiesFromAPI,
   PropertyImage
 } from '@/types';
 import imageService from '@/services/imageService';
@@ -189,13 +192,28 @@ const mapPropertyToFormValues = (property: Property): PropertyFormValues => {
     buildingLocation: property.buildingProperties.buildingLocation,
     inProtectionZone: property.buildingProperties.isInProtectionZone,
 
-    utilities: utilitiesToArray(property.utilities),
+    utilities: utilitiesToArray(
+      // Check if backend format (with availableUtilities array)
+      (property.utilities as any).availableUtilities
+        ? utilitiesFromAPI(property.utilities as any)
+        : property.utilities
+    ),
     internetConnection: property.utilities.internetConnection,
     parkingPlaces: property.utilities.parkingPlaces,
 
-    transportPossibilities: transportToArray(property.transportPossibilities),
+    transportPossibilities: transportToArray(
+      // Check if backend format (with possibilities array)
+      (property.transportPossibilities as any).possibilities
+        ? transportFromAPI(property.transportPossibilities as any)
+        : property.transportPossibilities
+    ),
 
-    civicAmenities: civicAmenitiesToArray(property.civicAmenities),
+    civicAmenities: civicAmenitiesToArray(
+      // Check if backend format (with amenities array)
+      (property.civicAmenities as any).amenities
+        ? civicAmenitiesFromAPI(property.civicAmenities as any)
+        : property.civicAmenities
+    ),
 
     street: property.address.street,
     city: property.address.city,
