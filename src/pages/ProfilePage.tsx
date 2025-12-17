@@ -493,7 +493,7 @@ const ProfilePage: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="security" className="space-y-6">
-          <Card>
+          {/* <Card>
             <CardHeader>
               <CardTitle>Změna hesla</CardTitle>
               <CardDescription>
@@ -568,7 +568,7 @@ const ProfilePage: React.FC = () => {
                 </form>
               </Form>
             </CardContent>
-          </Card>
+          </Card> */}
 
           <Card className="border-destructive">
             <CardHeader>

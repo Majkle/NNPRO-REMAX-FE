@@ -1,5 +1,8 @@
 import api from './api';
-import { Property, PropertyImage, CreateApartmentAPI, CreateHouseAPI, CreateLandAPI, UpdatePropertyInput, PaginatedResponse, PropertyType, PropertyStatus, TransactionType, PriceHistory } from '@/types';
+import { Property, PropertyImage, CreateApartmentAPI, CreateHouseAPI, CreateLandAPI,
+  UpdateApartmentAPI, UpdateHouseAPI, UpdateLandAPI,
+  UpdatePropertyInput, PaginatedResponse,
+  PropertyType, PropertyStatus, TransactionType, PriceHistory } from '@/types';
 import imageService from './imageService';
 
 export interface PropertySearchParams {
@@ -116,14 +119,10 @@ const propertyService = {
   /**
    * Get properties by specific agent.
    * @param agentId - The ID of the agent.
-   * @param page - The page number.
-   * @param limit - Items per page.
    */
-  getPropertiesByAgent: async (agentId: number, page: number = 1, limit: number = 10): Promise<PaginatedResponse<Property>> => {
-    const response = await api.get<PaginatedResponse<PropertyAPIResponse>>(`/agents/${agentId}/real-estates`, {
-      params: { page, limit }
-    });
-    return transformPaginatedResponse(response.data);
+  getPropertiesByAgent: async (agentId: number): Promise<Property[]> => {
+    const response = await api.get<PropertyAPIResponse[]>(`/real-estates/by-realtor/${agentId}`);
+    return transformPropertiesArray(response.data);
   },
 
   /**
@@ -150,6 +149,36 @@ const propertyService = {
    */
   createLand: async (data: CreateLandAPI): Promise<Property> => {
     const response = await api.post<PropertyAPIResponse>('/real-estates', data);
+    return transformPropertyImages(response.data);
+  },
+
+  /**
+   * Update apartment.
+   * @param id - The ID of the property to update.
+   * @param data - The data for the new property.
+   */
+  updateApartment: async (id: number, data: UpdateApartmentAPI): Promise<Property> => {
+    const response = await api.put<PropertyAPIResponse>('/real-estates', data);
+    return transformPropertyImages(response.data);
+  },
+
+  /**
+   * Update house.
+   * @param id - The ID of the property to update.
+   * @param data - The data for the new property.
+   */
+  updateHouse: async (id: number, data: UpdateHouseAPI): Promise<Property> => {
+    const response = await api.put<PropertyAPIResponse>(`/real-estates/${id}`, data);
+    return transformPropertyImages(response.data);
+  },
+
+  /**
+   * Update land.
+   * @param id - The ID of the property to update.
+   * @param data - The data for the new property.
+   */
+  updateLand: async (id: number, data: UpdateLandAPI): Promise<Property> => {
+    const response = await api.put<PropertyAPIResponse>(`/real-estates/${id}`, data);
     return transformPropertyImages(response.data);
   },
 

@@ -48,7 +48,7 @@ const userService = {
    * @param id - The ID of the user.
    */
   getUserById: async (id: number): Promise<User> => {
-    const response = await api.get<User>(`/users/${id}`);
+    const response = await api.get<User>(`/profile/${id}`);
     return response.data;
   },
 

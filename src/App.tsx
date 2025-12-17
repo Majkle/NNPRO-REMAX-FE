@@ -79,17 +79,16 @@ function App() {
                 }
               />
 
-              {/* Protected: Agent and Client only (create appointment) */}
+              {/* Protected: Client only */}
               <Route
                 path="/appointments/new"
                 element={
-                  <ProtectedRoute requiredRoles={[UserRole.AGENT, UserRole.CLIENT]}>
+                  <ProtectedRoute requiredRoles={[UserRole.CLIENT]}>
                     <AppointmentFormPage />
                   </ProtectedRoute>
                 }
               />
 
-              {/* Protected: Client only (create review) */}
               <Route
                 path="/reviews/new"
                 element={

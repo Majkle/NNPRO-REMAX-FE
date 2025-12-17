@@ -145,6 +145,35 @@ export interface Utilities {
   parkingPlaces: number;
 }
 
+const UTILITIES_MAP: Record<
+  keyof Omit<Utilities, 'id' | 'internetConnection' | 'parkingPlaces'>,
+  AvailableUtility
+> = {
+  hasWater: AvailableUtility.WATER,
+  hasWell: AvailableUtility.WELL,
+  hasElectricity: AvailableUtility.ELECTRICITY,
+  hasGas: AvailableUtility.GAS,
+  hasSewerage: AvailableUtility.SEWERAGE,
+  hasCesspool: AvailableUtility.CESSPOOL,
+  hasHeating: AvailableUtility.HEATING,
+  hasPhoneLine: AvailableUtility.PHONE_LINE,
+  hasCableTV: AvailableUtility.CABLE_TV,
+  hasRecycling: AvailableUtility.RECYCLING,
+  hasBarrierFreeAccess: AvailableUtility.BARRIER_FREE_ACCESS,
+};
+
+export function utilitiesToArray(
+  entity?: Utilities
+): AvailableUtility[] {
+  if (!entity) return [];
+
+  return (Object.keys(UTILITIES_MAP) as Array<
+    keyof typeof UTILITIES_MAP
+  >)
+    .filter((key) => entity[key])
+    .map((key) => UTILITIES_MAP[key]);
+}
+
 // API format for Utilities (using arrays)
 export interface UtilitiesAPI {
   availableUtilities: AvailableUtility[];
@@ -174,6 +203,32 @@ export interface TransportPossibilities {
   airplane: boolean;
   boat: boolean;
   ferry: boolean;
+}
+
+const TRANSPORT_MAP: Record<
+  keyof Omit<TransportPossibilities, 'id'>,
+  TransportPossibility
+> = {
+  road: TransportPossibility.ROAD,
+  highway: TransportPossibility.HIGHWAY,
+  train: TransportPossibility.TRAIN,
+  bus: TransportPossibility.BUS,
+  publicTransport: TransportPossibility.PUBLIC_TRANSPORT,
+  airplane: TransportPossibility.AIRPLANE,
+  boat: TransportPossibility.BOAT,
+  ferry: TransportPossibility.FERRY,
+};
+
+export function transportToArray(
+  entity?: TransportPossibilities
+): TransportPossibility[] {
+  if (!entity) return [];
+
+  return (Object.keys(TRANSPORT_MAP) as Array<
+    keyof typeof TRANSPORT_MAP
+  >)
+    .filter((key) => entity[key])
+    .map((key) => TRANSPORT_MAP[key]);
 }
 
 // API format for Transport Possibilities (using arrays)
@@ -215,6 +270,38 @@ export interface CivicAmenities {
   pub: boolean;
   playground: boolean;
   subway: boolean;
+}
+
+const CIVIC_AMENITY_MAP: Record<
+  keyof Omit<CivicAmenities, 'id'>,
+  CivicAmenity
+> = {
+  busStop: CivicAmenity.BUS_STOP,
+  trainStation: CivicAmenity.TRAIN_STATION,
+  postOffice: CivicAmenity.POST_OFFICE,
+  atm: CivicAmenity.ATM,
+  generalPractitioner: CivicAmenity.GENERAL_PRACTITIONER,
+  veterinarian: CivicAmenity.VETERINARIAN,
+  elementarySchool: CivicAmenity.ELEMENTARY_SCHOOL,
+  kindergarten: CivicAmenity.KINDERGARTEN,
+  supermarket: CivicAmenity.SUPERMARKET,
+  smallShop: CivicAmenity.SMALL_SHOP,
+  restaurant: CivicAmenity.RESTAURANT,
+  pub: CivicAmenity.PUB,
+  playground: CivicAmenity.PLAYGROUND,
+  subway: CivicAmenity.SUBWAY,
+};
+
+export function civicAmenitiesToArray(
+  entity?: CivicAmenities
+): CivicAmenity[] {
+  if (!entity) return [];
+
+  return (Object.keys(CIVIC_AMENITY_MAP) as Array<
+    keyof typeof CIVIC_AMENITY_MAP
+  >)
+    .filter((key) => entity[key])
+    .map((key) => CIVIC_AMENITY_MAP[key]);
 }
 
 // API format for Civic Amenities (using arrays)
@@ -481,6 +568,18 @@ export type CreateHouseAPI = CreatePropertyAPIInput & {
 
 export type CreateLandAPI = CreatePropertyAPIInput & {
   isForHousing: boolean;
+};
+
+export type UpdateApartmentAPI = CreateApartmentAPI & {
+  id: number;
+};
+
+export type UpdateHouseAPI = CreateHouseAPI & {
+  id: number;
+};
+
+export type UpdateLandAPI = CreateLandAPI & {
+  id: number;
 };
 
 export type UpdatePropertyInput = Partial<CreatePropertyInput> & {

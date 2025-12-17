@@ -11,6 +11,7 @@ import { cs } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import reviewService from '@/services/reviewService';
 import authService from '@/services/authService';
+import propertyService from '@/services/propertyService';
 
 const AgentProfilePage: React.FC = () => {
   const navigate = useNavigate();
@@ -40,10 +41,44 @@ const AgentProfilePage: React.FC = () => {
       }
     };
 
+    const fetchProperties = async () => {
+      try {
+        setIsLoading(true);
+        const fetchedProperties = await propertyService.getPropertiesByAgent(parseInt(id || ''));
+
+        setProperties(fetchedProperties);
+      } catch (error) {
+        console.error('Failed to fetch properties:', error);
+        toast({
+          title: 'Chyba při načítání nemovitostí',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     const fetchReviews = async () => {
       try {
         setIsLoading(true);
         const fetchedReviews = await reviewService.getAgentReviews(parseInt(id || ''));
+
+        let idSet: Record<number, UserType> = {};
+        for (const r of fetchedReviews) {
+          if (!(r.realtorId in idSet)) {
+            const user = await authService.getSpecificProfile(r.realtorId);
+            idSet[r.realtorId] = user;
+          }
+          r.agent = idSet[r.realtorId];
+
+          if (r.authorClientId) {
+            if (!(r.authorClientId in idSet)) {
+              const user = await authService.getSpecificProfile(r.authorClientId);
+              idSet[r.authorClientId] = user;
+            }
+            r.author = idSet[r.authorClientId];
+          }
+        }
 
         setReviews(fetchedReviews);
       } catch (error) {
@@ -58,6 +93,7 @@ const AgentProfilePage: React.FC = () => {
     };
 
     fetchAgent();
+    fetchProperties();
     fetchReviews();
   }, []);
 
@@ -240,7 +276,7 @@ const AgentProfilePage: React.FC = () => {
                       <div className="flex justify-between items-start">
                         <div>
                           <CardTitle className="text-base">
-                            {review.author.personalInformation.firstName} {review.author.personalInformation.lastName}
+                            {review.author && review.author.personalInformation.firstName} {review.author && review.author.personalInformation.lastName}
                           </CardTitle>
                         </div>
                         {renderStars(review.overall)}

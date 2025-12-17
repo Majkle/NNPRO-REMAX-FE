@@ -35,6 +35,7 @@ import {
 import { AppointmentType, SimplifiedUser, SimplifiedRealEstate, AppointmentStatus } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 import appointmentService from '@/services/appointmentService';
 import reviewService from '@/services/reviewService';
 
@@ -54,6 +55,7 @@ type AppointmentFormValues = z.infer<typeof appointmentFormSchema>;
 const AppointmentFormPage: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [agents, setAgents] = useState<SimplifiedUser[]>([]);
   const [estates, setEstates] = useState<SimplifiedRealEstate[]>([]);

@@ -251,7 +251,7 @@ const PropertiesPage: React.FC = () => {
           Předchozí
         </Button>
         <span className="text-sm font-medium">
-          Strana {page} z {totalPages}
+          Strana {page + 1} z {totalPages}
         </span>
         <Button onClick={() => setPage(p => p + 1)} disabled={page >= totalPages}>
           Další
