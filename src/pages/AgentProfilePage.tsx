@@ -1,10 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Mail, Phone, Star, MapPin, Calendar, User } from 'lucide-react';
+import { ArrowLeft, Mail, Phone, Star, MapPin, Calendar, User, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Review, User as UserType, UserRole, PropertyType, PropertyStatus, TransactionType, Property } from '@/types';
 import { format } from 'date-fns';
 import { cs } from 'date-fns/locale';
@@ -13,6 +23,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import reviewService from '@/services/reviewService';
 import authService from '@/services/authService';
 import propertyService from '@/services/propertyService';
+import ReviewEditDialog from '@/components/ReviewEditDialog';
 
 const AgentProfilePage: React.FC = () => {
   const navigate = useNavigate();
@@ -22,6 +33,8 @@ const AgentProfilePage: React.FC = () => {
   const [properties, setProperties] = useState<Property[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [averageRating, setAverageRating] = useState(0.0);
+  const [reviewToDelete, setReviewToDelete] = useState<Review | null>(null);
+  const [reviewToEdit, setReviewToEdit] = useState<Review | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -105,8 +118,98 @@ const AgentProfilePage: React.FC = () => {
                          : 0);
   }, [reviews]);
 
+  // Refetch reviews after delete or edit
+  const refetchReviews = async () => {
+    try {
+      setIsLoading(true);
+      const fetchedReviews = await reviewService.getAgentReviews(parseInt(id || ''));
+
+      let idSet: Record<number, UserType> = {};
+      for (const r of fetchedReviews) {
+        if (!(r.realtorId in idSet)) {
+          const user = await authService.getSpecificProfile(r.realtorId);
+          idSet[r.realtorId] = user;
+        }
+        r.agent = idSet[r.realtorId];
+
+        if (r.authorClientId) {
+          if (!(r.authorClientId in idSet)) {
+            const user = await authService.getSpecificProfile(r.authorClientId);
+            idSet[r.authorClientId] = user;
+          }
+          r.author = idSet[r.authorClientId];
+        }
+      }
+
+      setReviews(fetchedReviews);
+    } catch (error) {
+      console.error('Failed to refetch reviews:', error);
+      toast({
+        title: 'Chyba při načítání recenzí',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Delete review
+  const handleDeleteReview = async () => {
+    if (!reviewToDelete) return;
+
+    try {
+      await reviewService.deleteReview(reviewToDelete.id);
+      toast({
+        title: 'Recenze smazána',
+        description: 'Vaše recenze byla úspěšně smazána.',
+      });
+      setReviewToDelete(null);
+      await refetchReviews();
+    } catch (error) {
+      console.error('Failed to delete review:', error);
+      toast({
+        title: 'Chyba při mazání recenze',
+        description: 'Nepodařilo se smazat recenzi. Zkuste to prosím znovu.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  // Update review
+  const handleUpdateReview = async (reviewId: number, data: { rating: number; comment: string; realtorId: number }) => {
+    try {
+      await reviewService.updateReview(reviewId, {
+        overall: data.rating,
+        speed: data.rating,
+        communication: data.rating,
+        professionality: data.rating,
+        fairness: data.rating,
+        text: data.comment,
+        realtorId: data.realtorId,
+      });
+      toast({
+        title: 'Recenze upravena',
+        description: 'Vaše recenze byla úspěšně upravena.',
+      });
+      await refetchReviews();
+    } catch (error) {
+      console.error('Failed to update review:', error);
+      toast({
+        title: 'Chyba při úpravě recenze',
+        description: 'Nepodařilo se upravit recenzi. Zkuste to prosím znovu.',
+        variant: 'destructive',
+      });
+      throw error; // Re-throw to prevent dialog from closing
+    }
+  };
+
   // Check if current user is a client
   const canMeet = user?.role === UserRole.CLIENT;
+
+  // Check if current user is the author of a review
+  const isReviewAuthor = (review: Review) => {
+    return user?.id === review.authorClientId;
+  };
 
   const getStatusBadgeVariant = (status: PropertyStatus) => {
     switch (status) {
@@ -279,12 +382,32 @@ const AgentProfilePage: React.FC = () => {
                   <Card key={review.id}>
                     <CardHeader>
                       <div className="flex justify-between items-start">
-                        <div>
+                        <div className="flex-1">
                           <CardTitle className="text-base">
                             {review.author && review.author.personalInformation.firstName} {review.author && review.author.personalInformation.lastName}
                           </CardTitle>
                         </div>
-                        {renderStars(review.overall)}
+                        <div className="flex flex-col items-end gap-2">
+                          {renderStars(review.overall)}
+                          {isReviewAuthor(review) && (
+                            <div className="flex gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setReviewToEdit(review)}
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setReviewToDelete(review)}
+                              >
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </CardHeader>
                     <CardContent>
@@ -368,6 +491,37 @@ const AgentProfilePage: React.FC = () => {
           </Card>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!reviewToDelete} onOpenChange={(open) => !open && setReviewToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Smazat recenzi?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tato akce je nevratná. Recenze bude trvale smazána a nebude možné ji obnovit.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Zrušit</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteReview}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Smazat
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Edit Review Dialog */}
+      {reviewToEdit && (
+        <ReviewEditDialog
+          review={reviewToEdit}
+          open={!!reviewToEdit}
+          onOpenChange={(open) => !open && setReviewToEdit(null)}
+          onSave={handleUpdateReview}
+        />
+      )}
     </div>
   );
 };
