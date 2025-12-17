@@ -29,7 +29,7 @@ interface UserEditDialogProps {
   user: User | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onUserUpdate: (updatedUser: Partial<User>) => void;
+  onUserUpdate: (updatedUser: User) => void;
 }
 
 const formSchema = z.object({
@@ -93,29 +93,25 @@ export const UserEditDialog: React.FC<UserEditDialogProps> = ({
   if (!user) return null;
 
   const onSubmit = async (data: FormValues) => {
-    /*
     // --- BACKEND INTEGRATION ---
     try {
-      const updatedUser = await authService.updateUser(user.id, data);
-      onUserUpdate(updatedUser);
+      const updatedUser = await authService.updateUser(user.username, {
+        ...data,
+        degree: data.degree || '',
+        birthDate: user.personalInformation.birthDate || new Date()
+      });
       toast({
         title: 'Uživatel aktualizován',
       });
+      onUserUpdate(updatedUser);
     } catch (error) {
       console.error('Failed to update user:', error);
       toast({
-        title: 'Chyba aktualizace',
+        title: 'Chyba aktualizace uživatele',
         variant: 'destructive',
       });
       return;
     }
-    */
-    
-    // Mock logic
-    onUserUpdate({ id: user.id, username: user.username, ...data });
-    toast({
-      title: 'Uživatel aktualizován (Mock)',
-    });
 
     onOpenChange(false);
   };
@@ -160,7 +156,7 @@ export const UserEditDialog: React.FC<UserEditDialogProps> = ({
           </DialogDescription>
         </DialogHeader>
 
-        {/* Username and Role Display (Read-only) */}
+        {/* Username, Email and Role Display (Read-only) */}
         <div className="grid grid-cols-1 md:grid-cols-2 rounded-lg border p-4 bg-muted/50">
           <div className="flex items-center gap-2 mb-2">
             <UserCircle className="h-5 w-5 text-muted-foreground" />

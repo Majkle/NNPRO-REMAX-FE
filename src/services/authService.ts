@@ -44,8 +44,21 @@ export interface CreateUserRequest {
   country: string,
   region: AddressRegion,
   flatNumber?: string,
-  licenseNumber?: number,
-  about?: string
+}
+
+export interface UpdateUserRequest {
+  email: string,
+  degree: string,
+  firstName: string,
+  lastName: string,
+  phoneNumber: string,
+  birthDate: Date,
+  street: string,
+  city: string,
+  postalCode: string,
+  country: string,
+  region: AddressRegion,
+  flatNumber?: string
 }
 
 export interface ProfileUpdateRequest {
@@ -206,8 +219,8 @@ const authService = {
   /**
    * Update a user's information (Admin)
    */
-  updateUser: async (userId: number, data: Partial<User>): Promise<User> => {
-    const response = await api.put<User>(`/users/${userId}`, data);
+  updateUser: async (username: string, data: UpdateUserRequest): Promise<User> => {
+    const response = await api.put<User>(`/admin/users/${username}`, data);
     return response.data;
   },
 
