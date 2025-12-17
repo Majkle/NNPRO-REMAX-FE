@@ -76,10 +76,6 @@ const PropertyDetailPage: React.FC = () => {
         setProperty(response);
         setIsLoading(false);
       } catch (error) {
-        // for mocking purposes - DELETE
-        if (axios.isAxiosError(error) && (error.status === 403 || error.status === 404)) {
-          setProperty(mockProperties.find(p => p.id === Number(id)))
-        }
         setIsLoading(false);
       }
     };
