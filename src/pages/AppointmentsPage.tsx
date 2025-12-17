@@ -10,6 +10,7 @@ import { Appointment, AppointmentStatus, AppointmentType, UserRole, User as User
 import { format, isSameDay } from 'date-fns';
 import { cs } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 import appointmentService from '@/services/appointmentService';
 import authService from '@/services/authService';
 import propertyService from '@/services/propertyService';
@@ -20,6 +21,7 @@ const AppointmentsPage: React.FC = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   useEffect(() => {
       const fetchAppointments = async () => {
@@ -67,6 +69,9 @@ const AppointmentsPage: React.FC = () => {
 
     fetchAppointments();
     }, []);
+
+  // Check if current user is a client
+  const canMeet = user?.role === UserRole.CLIENT;
 
   const getStatusBadgeVariant = (status: AppointmentStatus) => {
     switch (status) {
@@ -136,12 +141,14 @@ const AppointmentsPage: React.FC = () => {
           <h1 className="text-3xl font-bold">Schůzky</h1>
           <p className="text-muted-foreground">Plánování a správa schůzek</p>
         </div>
+        {canMeet && (
         <Link to="/appointments/new">
           <Button>
             <Plus className="mr-2 h-4 w-4" />
             Naplánovat schůzku
           </Button>
         </Link>
+        )}
       </div>
 
       {/* Stats */}

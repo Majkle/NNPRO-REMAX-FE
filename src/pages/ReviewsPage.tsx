@@ -12,6 +12,7 @@ import { cs } from 'date-fns/locale';
 import reviewService from '@/services/reviewService';
 import authService from '@/services/authService';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 const ReviewsPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -19,6 +20,7 @@ const ReviewsPage: React.FC = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -57,6 +59,9 @@ const ReviewsPage: React.FC = () => {
 
   fetchReviews();
   }, []);
+
+  // Check if current user is a client
+  const canReview = user?.role === UserRole.CLIENT;
 
   const renderStars = (rating: number) => {
     return (
@@ -100,12 +105,14 @@ const ReviewsPage: React.FC = () => {
           <h1 className="text-3xl font-bold">Recenze makléřů</h1>
           <p className="text-muted-foreground">Hodnocení a zkušenosti s makléři</p>
         </div>
+        { canReview && (
         <Link to="/reviews/new">
           <Button>
             <Plus className="mr-2 h-4 w-4" />
             Přidat recenzi
           </Button>
         </Link>
+        )}
       </div>
 
       {/* Stats */}

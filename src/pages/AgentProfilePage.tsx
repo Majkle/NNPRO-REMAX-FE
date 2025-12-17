@@ -9,6 +9,7 @@ import { Review, User as UserType, UserRole, PropertyType, PropertyStatus, Trans
 import { format } from 'date-fns';
 import { cs } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 import reviewService from '@/services/reviewService';
 import authService from '@/services/authService';
 import propertyService from '@/services/propertyService';
@@ -22,6 +23,7 @@ const AgentProfilePage: React.FC = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [averageRating, setAverageRating] = useState(0.0);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchAgent = async () => {
@@ -102,6 +104,9 @@ const AgentProfilePage: React.FC = () => {
                          ? reviews.reduce((sum, review) => sum + review.overall, 0) / reviews.length
                          : 0);
   }, [reviews]);
+
+  // Check if current user is a client
+  const canMeet = user?.role === UserRole.CLIENT;
 
   const getStatusBadgeVariant = (status: PropertyStatus) => {
     switch (status) {
@@ -329,10 +334,12 @@ const AgentProfilePage: React.FC = () => {
                 )}
               </div>
 
+              {canMeet && (
               <Button className="w-full" onClick={() => navigate('/appointments/new')}>
                 <Calendar className="mr-2 h-4 w-4" />
                 Naplánovat schůzku
               </Button>
+              )}
             </CardContent>
           </Card>
 
