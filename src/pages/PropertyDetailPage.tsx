@@ -87,7 +87,6 @@ const PropertyDetailPage: React.FC = () => {
           response.civicAmenities = civicAmenitiesFromAPI(response.civicAmenities as any);
         }
 
-        console.log(response)
         setProperty(response);
         setIsLoading(false);
       } catch (error) {
