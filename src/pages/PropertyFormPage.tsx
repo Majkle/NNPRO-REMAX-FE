@@ -27,6 +27,7 @@ import {
 } from '@/components/ui/select';
 import {
   CreatePropertyAPIInput, CreateApartmentAPI, CreateHouseAPI, CreateLandAPI,
+  UpdateApartmentAPI, UpdateHouseAPI, UpdateLandAPI,
   Property,
   PropertyType,
   PropertyStatus,
@@ -47,6 +48,13 @@ import {
   TransportPossibility,
   CivicAmenity,
   User,
+  Apartment,
+  House,
+  Land,
+  civicAmenitiesToArray,
+  transportToArray,
+  utilitiesToArray,
+  PropertyImage
 } from '@/types';
 import imageService from '@/services/imageService';
 import { useToast } from '@/hooks/use-toast';
@@ -56,12 +64,15 @@ import { MultiCheckboxField } from '@/components/MultiCheckboxField';
 import { useAuth } from '@/contexts/AuthContext';
 import AddressAutocomplete, { AddressData } from '@/components/AddressAutocomplete';
 
+let oldImageIds: number[] = [];
+
 const createPropertyAPIPayload = async (data: PropertyFormValues, realtorId?: number): Promise<CreateApartmentAPI | CreateHouseAPI | CreateLandAPI> => {
   let imageIds: number[] = [];
   if (data.images && data.images.length > 0) {
     const uploadedImages = await imageService.uploadImages(data.images);
     imageIds = uploadedImages.map(img => img.id);
   }
+  imageIds = imageIds.concat(oldImageIds);
 
   const basePayload: CreatePropertyAPIInput = {
     type: data.type,
@@ -136,6 +147,105 @@ const createPropertyAPIPayload = async (data: PropertyFormValues, realtorId?: nu
   } as CreateLandAPI;
 };
 
+function flagsObjectToEnumArray<T extends string>(
+  flags: Record<string, boolean> | undefined,
+  enumObject: Record<string, T>
+): T[] {
+  if (!flags) return [];
+
+  return Object.entries(flags)
+    .filter(([, enabled]) => enabled)
+    .map(([key]) => enumObject[key.toUpperCase() as keyof typeof enumObject])
+    .filter(Boolean);
+}
+
+const mapPropertyToFormValues = (property: Property): PropertyFormValues => {
+  const baseValues: PropertyFormValues = {
+    title: property.name ?? '',
+    description: property.description ?? '',
+    price: property.price ?? 0,
+
+    type: property.type,
+    status: property.status,
+    transactionType: property.contractType,
+    priceDisclosure: property.priceDisclosure,
+    commission: property.commission,
+    taxes: property.taxes,
+    equipment: property.equipment,
+
+    size: property.usableArea ?? 0,
+    basement: property.basement ?? false,
+    availableFrom: property.availableFrom
+      ? new Date(property.availableFrom)
+      : undefined,
+
+    constructionMaterial: property.buildingProperties.constructionMaterial,
+    buildingCondition: property.buildingProperties.buildingCondition,
+    energyClass: property.buildingProperties.energyEfficiencyClass,
+    buildingLocation: property.buildingProperties.buildingLocation,
+    inProtectionZone: property.buildingProperties.isInProtectionZone,
+
+    utilities: utilitiesToArray(property.utilities),
+    internetConnection: property.utilities.internetConnection,
+    parkingPlaces: property.utilities.parkingPlaces,
+
+    transportPossibilities: transportToArray(property.transportPossibilities),
+
+    civicAmenities: civicAmenitiesToArray(property.civicAmenities),
+
+    street: property.address.street,
+    city: property.address.city,
+    zipCode: property.address.postalCode,
+    country: property.address.country,
+    flatNumber: property.address.flatNumber ?? '',
+    region: property.address.region,
+
+    latitude: property.address.latitude,
+    longitude: property.address.longitude,
+
+    images: []
+  };
+
+  switch (property.type) {
+    case PropertyType.APARTMENT: {
+      const apartment = property as Apartment;
+
+      return {
+        ...baseValues,
+        rooms: apartment.rooms,
+        floor: apartment.floor,
+        totalFloors: apartment.totalFloors,
+        elevator: apartment.elevator,
+        balcony: apartment.balcony,
+        ownershipType: apartment.ownershipType,
+      };
+    }
+
+    case PropertyType.HOUSE: {
+      const house = property as House;
+
+      return {
+        ...baseValues,
+        plotArea: house.plotArea,
+        houseType: house.houseType,
+        stories: house.stories,
+      };
+    }
+
+    case PropertyType.LAND: {
+      const land = property as Land;
+
+      return {
+        ...baseValues,
+        isForHousing: land.isForHousing,
+      };
+    }
+
+    default:
+      return baseValues;
+  }
+};
+
 const propertyFormSchema = z.object({
   title: z.string().min(5, 'Nadpis musí mít alespoň 5 znaků').max(100, 'Nadpis je příliš dlouhý'),
   description: z.string().min(20, 'Popis musí mít alespoň 20 znaků').max(1000, 'Popis je příliš dlouhý'),
@@ -192,6 +302,7 @@ const PropertyFormPage: React.FC = () => {
   const { user } = useAuth();
   const isEditMode = Boolean(id);
   const [propertyAgent, setPropertyAgent] = useState<User | null>(null);
+  let savedImages: PropertyImage[] = [];
 
   const form = useForm<PropertyFormValues>({
     resolver: zodResolver(propertyFormSchema),
@@ -251,6 +362,9 @@ const PropertyFormPage: React.FC = () => {
           if (property) {
             console.log('Edit mode - property loaded:', property);
 
+            oldImageIds = property.images.map((p) => p.id);
+            form.reset(mapPropertyToFormValues(property));
+
             // Load agent data if available
             if (property.agent) {
               setPropertyAgent(property.agent);
@@ -305,7 +419,15 @@ const PropertyFormPage: React.FC = () => {
 
       let response: Property;
       if (isEditMode && id) {
-        throw new Error('Edit mode not fully implemented yet');
+        const ID = parseInt(id);
+        if (data.type === PropertyType.APARTMENT) {
+          response = await propertyService.updateApartment(ID, {id: ID, ...payload} as UpdateApartmentAPI);
+        } else if (data.type === PropertyType.HOUSE) {
+          response = await propertyService.updateHouse(ID, {id: ID, ...payload} as UpdateHouseAPI);
+        } else {
+          response = await propertyService.updateLand(ID, {id: ID, ...payload} as UpdateLandAPI);
+        }
+        console.log('Property updated:', response);
       } else {
         if (data.type === PropertyType.APARTMENT) {
           response = await propertyService.createApartment(payload as CreateApartmentAPI);
