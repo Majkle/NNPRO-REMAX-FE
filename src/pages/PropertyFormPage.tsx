@@ -367,7 +367,9 @@ const PropertyFormPage: React.FC = () => {
             console.log('Edit mode - property loaded:', property);
 
             oldImageIds = property.images.map((p) => p.id);
+            const formValues = mapPropertyToFormValues(property);
             form.reset(mapPropertyToFormValues(property));
+            console.log('Edit mode - form values:', formValues);
 
             // Load agent data if available
             if (property.agent) {
@@ -549,7 +551,7 @@ const PropertyFormPage: React.FC = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Typ *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Vyberte typ" />
@@ -574,7 +576,7 @@ const PropertyFormPage: React.FC = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Stav *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Vyberte stav" />
@@ -599,7 +601,7 @@ const PropertyFormPage: React.FC = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Typ transakce *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Vyberte typ" />
@@ -760,7 +762,7 @@ const PropertyFormPage: React.FC = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Způsob zveřejnění ceny *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Vyberte způsob" />
@@ -783,7 +785,7 @@ const PropertyFormPage: React.FC = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Provize *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Vyberte" />
@@ -805,7 +807,7 @@ const PropertyFormPage: React.FC = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Daně *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Vyberte" />
@@ -827,7 +829,7 @@ const PropertyFormPage: React.FC = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Vybavení *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Vyberte" />
@@ -861,7 +863,7 @@ const PropertyFormPage: React.FC = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Materiál stavby *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Vyberte materiál" />
@@ -886,7 +888,7 @@ const PropertyFormPage: React.FC = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Stav budovy *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Vyberte stav" />
@@ -911,7 +913,7 @@ const PropertyFormPage: React.FC = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Energetická třída *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Vyberte třídu" />
@@ -936,7 +938,7 @@ const PropertyFormPage: React.FC = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Lokace budovy *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Vyberte lokaci" />
@@ -1101,7 +1103,7 @@ const PropertyFormPage: React.FC = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Kraj *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Vyberte kraj" />
@@ -1240,7 +1242,7 @@ const PropertyFormPage: React.FC = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Internetové připojení *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Vyberte typ" />
