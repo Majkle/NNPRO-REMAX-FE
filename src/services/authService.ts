@@ -57,7 +57,7 @@ export interface ProfileUpdateRequest {
   birthDate: Date,
   street: string,
   city: string,
-  postalNumber: string,
+  postalCode: string,
   country: string,
   region: AddressRegion,
   flatNumber?: string

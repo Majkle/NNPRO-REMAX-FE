@@ -50,7 +50,6 @@ const profileSchema = z.object({
   postalCode: z.string().min(5, 'PSČ musí mít alespoň 5 znaků'),
   country: z.string().min(2, 'Jméno země musí mít alespoň 2 znaky'),
   region: z.nativeEnum(AddressRegion),
-  role: z.nativeEnum(UserRole),
   flatNumber: z.string().optional(),
 });
 
@@ -105,7 +104,6 @@ const ProfilePage: React.FC = () => {
   }
 
   const onProfileSubmit = async (data: ProfileFormValues) => {
-    console.log("veni");
     setIsProfileLoading(true);
     // -- BACKEND INTEGRATION --
     try {
@@ -118,7 +116,7 @@ const ProfilePage: React.FC = () => {
         birthDate: user.personalInformation.birthDate || new Date(),
         street: data.street,
         city: data.city,
-        postalNumber: data.postalCode,
+        postalCode: data.postalCode,
         country: data.country,
         region: data.region,
         flatNumber: data.flatNumber
