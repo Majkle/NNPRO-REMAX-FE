@@ -53,6 +53,15 @@ const userService = {
   },
 
   /**
+   * Get user profile by ID (public endpoint).
+   * @param id - The ID of the user.
+   */
+  getUserProfile: async (id: number): Promise<User> => {
+    const response = await api.get<User>(`/profile/${id}`);
+    return response.data;
+  },
+
+  /**
    * Get all agents (for dropdown/selection purposes).
    * @param page - Page number.
    * @param limit - Items per page.

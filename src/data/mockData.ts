@@ -210,6 +210,18 @@ export const mockApartments: Apartment[] = [
       { id: 16, url: 'https://placehold.co/800x600/6366F1/white?text=Mal%C3%BD+byt', isPrimary: true, propertyId: 6 },
     ],
     agentId: 1,
+    agent: {
+      id: 1,
+      username: 'petr.novotny.remax',
+      email: 'petr.novotny@remax.cz',
+      personalInformation: {
+        firstName: 'Petr',
+        lastName: 'Novotný',
+        phoneNumber: '+420 777 888 999'
+      },
+      role: UserRole.AGENT,
+      createdAt: new Date('2023-01-01')
+    },
     ownershipType: ApartmentOwnershipType.COOPERATIVE_OWNERSHIP,
     floor: 2,
     totalFloors: 8,
@@ -307,6 +319,18 @@ export const mockHouses: House[] = [
       { id: 6, url: 'https://placehold.co/800x600/06B6D4/white?text=Baz%C3%A9n', isPrimary: false, propertyId: 2 },
     ],
     agentId: 1,
+    agent: {
+      id: 1,
+      username: 'petr.novotny.remax',
+      email: 'petr.novotny@remax.cz',
+      personalInformation: {
+        firstName: 'Petr',
+        lastName: 'Novotný',
+        phoneNumber: '+420 777 888 999'
+      },
+      role: UserRole.AGENT,
+      createdAt: new Date('2023-01-01')
+    },
     plotArea: 800,
     houseType: HouseType.DETACHED,
     stories: 2,
@@ -398,6 +422,18 @@ export const mockLands: Land[] = [
       { id: 13, url: 'https://placehold.co/800x600/84CC16/white?text=Pozemek', isPrimary: true, propertyId: 5 },
     ],
     agentId: 1,
+    agent: {
+      id: 1,
+      username: 'petr.novotny.remax',
+      email: 'petr.novotny@remax.cz',
+      personalInformation: {
+        firstName: 'Petr',
+        lastName: 'Novotný',
+        phoneNumber: '+420 777 888 999'
+      },
+      role: UserRole.AGENT,
+      createdAt: new Date('2023-01-01')
+    },
     isForHousing: true,
     createdAt: new Date('2024-01-25'),
     updatedAt: new Date('2024-01-25'),

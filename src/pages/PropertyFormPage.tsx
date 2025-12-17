@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -46,14 +46,17 @@ import {
   AvailableUtility,
   TransportPossibility,
   CivicAmenity,
+  User,
 } from '@/types';
 import imageService from '@/services/imageService';
 import { useToast } from '@/hooks/use-toast';
 import propertyService from '@/services/propertyService';
+import userService from '@/services/userService';
 import { MultiCheckboxField } from '@/components/MultiCheckboxField';
 import { useAuth } from '@/contexts/AuthContext';
+import AddressAutocomplete, { AddressData } from '@/components/AddressAutocomplete';
 
-const createPropertyAPIPayload = async (data: PropertyFormValues): Promise<CreateApartmentAPI | CreateHouseAPI | CreateLandAPI> => {
+const createPropertyAPIPayload = async (data: PropertyFormValues, realtorId?: number): Promise<CreateApartmentAPI | CreateHouseAPI | CreateLandAPI> => {
   let imageIds: number[] = [];
   if (data.images && data.images.length > 0) {
     const uploadedImages = await imageService.uploadImages(data.images);
@@ -64,6 +67,7 @@ const createPropertyAPIPayload = async (data: PropertyFormValues): Promise<Creat
     type: data.type,
     name: data.title,
     description: data.description,
+    realtorId: realtorId,
     status: data.status,
     usableArea: data.size,
     contractType: data.transactionType,
@@ -80,6 +84,8 @@ const createPropertyAPIPayload = async (data: PropertyFormValues): Promise<Creat
       country: data.country,
       flatNumber: data.flatNumber,
       region: data.region,
+      latitude: data.latitude,
+      longitude: data.longitude,
     },
     buildingProperties: {
       constructionMaterial: data.constructionMaterial,
@@ -172,6 +178,8 @@ const propertyFormSchema = z.object({
   country: z.string(),
   flatNumber: z.string().optional(),
   region: z.nativeEnum(AddressRegion),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
   images: z.array(z.instanceof(File)).optional(),
 });
 
@@ -183,6 +191,7 @@ const PropertyFormPage: React.FC = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const isEditMode = Boolean(id);
+  const [propertyAgent, setPropertyAgent] = useState<User | null>(null);
 
   const form = useForm<PropertyFormValues>({
     resolver: zodResolver(propertyFormSchema),
@@ -228,6 +237,8 @@ const PropertyFormPage: React.FC = () => {
       country: 'Česká republika',
       flatNumber: '',
       region: AddressRegion.PRAHA,
+      latitude: undefined,
+      longitude: undefined,
       images: [],
     },
   });
@@ -239,6 +250,23 @@ const PropertyFormPage: React.FC = () => {
           const property = await propertyService.getProperty(parseInt(id));
           if (property) {
             console.log('Edit mode - property loaded:', property);
+
+            // Load agent data if available
+            if (property.agent) {
+              setPropertyAgent(property.agent);
+            } else if (property.agentId) {
+              try {
+                const agentData = await userService.getUserById(property.agentId);
+                setPropertyAgent(agentData);
+              } catch (agentError) {
+                console.error('Failed to fetch agent data:', agentError);
+              }
+            }
+          }
+        } else {
+          // In create mode, use the logged-in user as the agent
+          if (user) {
+            setPropertyAgent(user);
           }
         }
       } catch (error) {
@@ -247,7 +275,7 @@ const PropertyFormPage: React.FC = () => {
     };
 
     loadExistingProperty(id);
-  }, [isEditMode, id, form]);
+  }, [isEditMode, id, form, user]);
 
   const onSubmit = async (data: PropertyFormValues) => {
     try {
@@ -270,7 +298,7 @@ const PropertyFormPage: React.FC = () => {
         return;
       }
 
-      const payload = await createPropertyAPIPayload(data);
+      const payload = await createPropertyAPIPayload(data, user?.id);
 
       console.log('=== Creating property ===');
       console.log('Payload:', JSON.stringify(payload, null, 2));
@@ -853,9 +881,34 @@ const PropertyFormPage: React.FC = () => {
           <Card>
             <CardHeader>
               <CardTitle>Adresa</CardTitle>
-              <CardDescription>Lokace nemovitosti</CardDescription>
+              <CardDescription>Zadejte reálnou adresu - GPS souřadnice se doplní automaticky</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* Address Autocomplete with Geocoding */}
+              <div>
+                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  Vyhledejte adresu *
+                </label>
+                <div className="mt-2">
+                  <AddressAutocomplete
+                    onAddressSelect={(address: AddressData) => {
+                      // Autofill form fields from geocoded address
+                      form.setValue('street', address.street);
+                      form.setValue('city', address.city);
+                      form.setValue('zipCode', address.postalCode);
+                      form.setValue('country', address.country);
+                      form.setValue('latitude', address.latitude);
+                      form.setValue('longitude', address.longitude);
+                    }}
+                    placeholder="Začněte psát adresu..."
+                    filterByCountryCode="cz"
+                  />
+                </div>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Po výběru adresy se pole níže vyplní automaticky
+                </p>
+              </div>
+
               <FormField
                 control={form.control}
                 name="street"
@@ -865,6 +918,9 @@ const PropertyFormPage: React.FC = () => {
                     <FormControl>
                       <Input placeholder="např. Hlavní 123" {...field} />
                     </FormControl>
+                    <FormDescription>
+                      Vyplněno automaticky z vyhledávání
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -947,6 +1003,21 @@ const PropertyFormPage: React.FC = () => {
                   )}
                 />
 
+                {/* GPS Coordinates Display */}
+                <div className="col-span-2">
+                  {form.watch('latitude') && form.watch('longitude') && (
+                    <div className="p-3 bg-green-50 border border-green-200 rounded-md">
+                      <p className="text-sm font-medium text-green-800">
+                        ✓ GPS souřadnice doplněny automaticky
+                      </p>
+                      <p className="text-xs text-green-700 mt-1">
+                        Zeměpisná šířka: {form.watch('latitude')?.toFixed(6)},
+                        Zeměpisná délka: {form.watch('longitude')?.toFixed(6)}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
                 <FormField
                   control={form.control}
                   name="country"
@@ -961,6 +1032,46 @@ const PropertyFormPage: React.FC = () => {
                   )}
                 />
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Agent/Realtor Info */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Makléř nemovitosti</CardTitle>
+              <CardDescription>Odpovědný realitní makléř pro tuto nemovitost</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {propertyAgent ? (
+                <div className="flex items-center gap-4 p-4 bg-muted rounded-lg">
+                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <span className="text-lg font-semibold text-primary">
+                      {propertyAgent.personalInformation.firstName[0]}{propertyAgent.personalInformation.lastName[0]}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="font-semibold">
+                      {propertyAgent.personalInformation.degree ? `${propertyAgent.personalInformation.degree} ` : ''}
+                      {propertyAgent.personalInformation.firstName} {propertyAgent.personalInformation.lastName}
+                    </p>
+                    <p className="text-sm text-muted-foreground">{propertyAgent.email}</p>
+                    {propertyAgent.personalInformation.phoneNumber && (
+                      <p className="text-sm text-muted-foreground">
+                        Tel: {propertyAgent.personalInformation.phoneNumber}
+                      </p>
+                    )}
+                    <p className="text-xs text-muted-foreground mt-2">
+                      ID makléře: {propertyAgent.id}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-4 bg-muted rounded-lg text-center">
+                  <p className="text-sm text-muted-foreground">
+                    Načítání informací o makléři...
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
 
