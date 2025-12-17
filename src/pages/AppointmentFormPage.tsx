@@ -133,9 +133,6 @@ const AppointmentFormPage: React.FC = () => {
     } finally {
       setIsSubmitting(false);
     }
-
-    navigate('/appointments');
-    setIsSubmitting(false);
   };
 
   const typeLabels = {
@@ -259,32 +256,30 @@ const AppointmentFormPage: React.FC = () => {
               />
 
               {/* Property */}
-              {selectedType === AppointmentType.OFFLINE && (
-                <FormField
-                  control={form.control}
-                  name="propertyId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nemovitost</FormLabel>
-                      <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString()}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Vyberte nemovitost" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {estates.map((property) => (
-                            <SelectItem key={property.id} value={property.id.toString()}>
-                              {property.title}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
+              <FormField
+                control={form.control}
+                name="propertyId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nemovitost</FormLabel>
+                    <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString()}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Vyberte nemovitost" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {estates.map((property) => (
+                          <SelectItem key={property.id} value={property.id.toString()}>
+                            {property.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </CardContent>
           </Card>
 
