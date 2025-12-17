@@ -158,7 +158,7 @@ const propertyService = {
    * @param data - The data for the new property.
    */
   updateApartment: async (id: number, data: UpdateApartmentAPI): Promise<Property> => {
-    const response = await api.put<PropertyAPIResponse>('/real-estates', data);
+    const response = await api.put<PropertyAPIResponse>(`/real-estates/${id}`, data);
     return transformPropertyImages(response.data);
   },
 
