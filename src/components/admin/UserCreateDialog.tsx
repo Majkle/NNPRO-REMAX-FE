@@ -5,7 +5,7 @@ import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
-  DialogContent,
+  DialogContentMaxHeight as DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,

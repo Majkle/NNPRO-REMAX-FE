@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { UserCircle } from 'lucide-react';
 import {
   Dialog,
-  DialogContent,
+  DialogContentMaxHeight as DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
