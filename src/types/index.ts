@@ -102,7 +102,7 @@ export interface BuildingProperties {
   buildingCondition: BuildingCondition;
   energyEfficiencyClass: EnergyEfficiencyClass;
   buildingLocation: BuildingLocation;
-  isInProtectionZone: boolean;
+  inProtectionZone: boolean;
 }
 
 // Utilities Enums and Interface

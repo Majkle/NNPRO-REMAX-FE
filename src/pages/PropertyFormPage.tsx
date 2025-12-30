@@ -190,7 +190,7 @@ const mapPropertyToFormValues = (property: Property): PropertyFormValues => {
     buildingCondition: property.buildingProperties.buildingCondition,
     energyClass: property.buildingProperties.energyEfficiencyClass,
     buildingLocation: property.buildingProperties.buildingLocation,
-    inProtectionZone: property.buildingProperties.isInProtectionZone,
+    inProtectionZone: property.buildingProperties.inProtectionZone,
 
     utilities: utilitiesToArray(
       // Check if backend format (with availableUtilities array)

@@ -472,7 +472,7 @@ const PropertyDetailPage: React.FC = () => {
                     </div>
                     <div className="flex justify-between py-2 border-b">
                       <span className="text-muted-foreground">Ochranné pásmo:</span>
-                      <span className="font-medium">{property.buildingProperties.isInProtectionZone ? 'Ano' : 'Ne'}</span>
+                      <span className="font-medium">{property.buildingProperties.inProtectionZone  ? 'Ano' : 'Ne'}</span>
                     </div>
                   </div>
                 </CardContent>

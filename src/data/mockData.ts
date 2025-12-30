@@ -54,7 +54,7 @@ export const mockApartments: Apartment[] = [
       buildingCondition: BuildingCondition.RENOVATED,
       energyEfficiencyClass: EnergyEfficiencyClass.A,
       buildingLocation: BuildingLocation.CITY_CENTER,
-      isInProtectionZone: false,
+      inProtectionZone: false,
     },
     equipment: Equipment.FURNISHED,
     utilities: {
@@ -158,7 +158,7 @@ export const mockApartments: Apartment[] = [
       buildingCondition: BuildingCondition.GOOD,
       energyEfficiencyClass: EnergyEfficiencyClass.C,
       buildingLocation: BuildingLocation.CITY_CENTER,
-      isInProtectionZone: false,
+      inProtectionZone: false,
     },
     equipment: Equipment.PARTIALLY_FURNISHED,
     utilities: {
@@ -265,7 +265,7 @@ export const mockHouses: House[] = [
       buildingCondition: BuildingCondition.NEW,
       energyEfficiencyClass: EnergyEfficiencyClass.B,
       buildingLocation: BuildingLocation.SUBURBS,
-      isInProtectionZone: false,
+      inProtectionZone: false,
     },
     equipment: Equipment.UNFURNISHED,
     utilities: {
@@ -370,7 +370,7 @@ export const mockLands: Land[] = [
       buildingCondition: BuildingCondition.NEW,
       energyEfficiencyClass: EnergyEfficiencyClass.G,
       buildingLocation: BuildingLocation.RURAL_AREA,
-      isInProtectionZone: false,
+      inProtectionZone: false,
     },
     equipment: Equipment.UNFURNISHED,
     utilities: {
