@@ -268,6 +268,14 @@ const AgentProfilePage: React.FC = () => {
     );
   };
 
+  const getPropertyInitials = (name: string) => {
+    const words = name.trim().split(/\s+/);
+    if (words.length >= 2) {
+      return (words[0][0] + words[1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  };
+
   if (!agent) {
     return (
       <div className="text-center py-12">
@@ -329,11 +337,19 @@ const AgentProfilePage: React.FC = () => {
                   >
                     <div className="flex flex-col md:flex-row">
                       <div className="md:w-1/3 aspect-video md:aspect-square relative bg-muted">
-                        <img
-                          src={property.images[0]?.url}
-                          alt={property.name}
-                          className="object-cover w-full h-full"
-                        />
+                        {property.images && property.images.length > 0 && property.images[0]?.url ? (
+                          <img
+                            src={property.images[0].url}
+                            alt={property.name}
+                            className="object-cover w-full h-full"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-purple-100 flex items-center justify-center">
+                            <span className="text-6xl md:text-7xl font-bold text-purple-600">
+                              {getPropertyInitials(property.name)}
+                            </span>
+                          </div>
+                        )}
                         <div className="absolute top-2 right-2 flex gap-2">
                           <Badge variant={getStatusBadgeVariant(property.status)}>
                             {getStatusLabel(property.status)}
